@@ -82,13 +82,6 @@ jobs:
             make build-prebuilt
           fi
 
-      - name: Create Chinese mkdocs config
-        run: |
-          # Create a temporary mkdocs config for Chinese deployment
-          cp mkdocs.yml mkdocs_zh.yml
-          # Update site_url to include /zh path
-          sed -i 's|site_url: https://langchain-ai.github.io/langgraph/|site_url: https://langchain-ai.github.io/langgraph/zh/|' mkdocs_zh.yml
-
       - name: Build site
         run: |
           # Set language to Chinese for this deployment
@@ -97,9 +90,9 @@ jobs:
           export MKDOCS_STRICT_MODE=false
           # If this is translate/zh branch, then we want to download stats
           if [ "${{ github.ref }}" == "refs/heads/translate/zh" ]; then
-            DOWNLOAD_STATS=true uv run python -m mkdocs build --clean -f mkdocs_zh.yml --site-dir site/zh
+            DOWNLOAD_STATS=true uv run python -m mkdocs build --clean -f mkdocs.yml
           else
-            uv run python -m mkdocs build --clean -f mkdocs_zh.yml --site-dir site/zh
+            uv run python -m mkdocs build --clean -f mkdocs.yml
           fi
         env:
           MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.MKDOCS_GIT_COMMITTERS_APIKEY }}
@@ -163,7 +156,7 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/site/zh/
+          path: ./docs/site/
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/translate/zh'
