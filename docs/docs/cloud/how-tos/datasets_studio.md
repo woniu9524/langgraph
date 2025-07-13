@@ -1,12 +1,12 @@
-# Add node to dataset
+# 将节点添加到数据集
 
-This guide shows how to add examples to [LangSmith datasets](https://docs.smith.langchain.com/evaluation/how_to_guides#dataset-management) from nodes in the thread log. This is useful to evaluate individual steps of the agent.
+本指南将展示如何从线程日志中的节点将示例添加到 [LangSmith 数据集](https://docs.smith.langchain.com/evaluation/how_to_guides#dataset-management)。这对于评估代理的单个步骤非常有用。
 
-1. Select a thread.
-2. Click on the `Add to Dataset` button.
-3. Select nodes whose input/output you want to add to a dataset.
-4. For each selected node, select the target dataset to create the example in. By default a dataset for the specific assistant and node will be selected. If this dataset does not yet exist, it will be created.
-5. Edit the example's input/output as needed before adding it to the dataset.
-6. Select "Add to dataset" at the bottom of the page to add all selected nodes to their respective datasets.
+1. 选择一个线程。
+2. 点击 `Add to Dataset` 按钮。
+3. 选择您想添加输入/输出到数据集的节点。
+4. 对于每个选定的节点，选择目标数据集来创建示例。默认情况下，将为特定的助手和节点选择数据集。如果此数据集尚不存在，它将被创建。
+5. 在将输入/输出添加到数据集之前，按需编辑示例。
+6. 选择页面底部的“Add to dataset”将所有选定的节点添加到它们各自的数据集中。
 
-See [Evaluating intermediate steps](https://docs.smith.langchain.com/evaluation/how_to_guides/langgraph#evaluating-intermediate-steps) for more details on how to evaluate intermediate steps.
+有关如何评估中间步骤的更多详细信息，请参阅 [评估中间步骤](https://docs.smith.langchain.com/evaluation/how_to_guides/langgraph#evaluating-intermediate-steps)。

@@ -5,66 +5,66 @@ search:
 
 # FAQ
 
-Common questions and their answers!
+常见问题解答！
 
-## Do I need to use LangChain to use LangGraph? What’s the difference?
+## 我需要使用 LangChain 才能使用 LangGraph 吗？有什么区别？
 
-No. LangGraph is an orchestration framework for complex agentic systems and is more low-level and controllable than LangChain agents. LangChain provides a standard interface to interact with models and other components, useful for straight-forward chains and retrieval flows.
+不需要。LangGraph 是一个用于复杂代理系统的编排框架，它比 LangChain 代理更底层、更可控。LangChain 提供了一个标准的接口来与模型和其他组件进行交互，这对于直接的链式调用和检索流程非常有用。
 
-## How is LangGraph different from other agent frameworks?
+## LangGraph 与其他代理框架有何不同？
 
-Other agentic frameworks can work for simple, generic tasks but fall short for complex tasks bespoke to a company’s needs. LangGraph provides a more expressive framework to handle companies’ unique tasks without restricting users to a single black-box cognitive architecture.
+其他代理框架可以胜任简单、通用的任务，但在处理公司特定需求的复杂任务时则显得力不从心。LangGraph 提供了一个更具表现力的框架来处理公司独特的任务，而不会将用户限制在单一的黑盒认知架构中。
 
-## Does LangGraph impact the performance of my app?
+## LangGraph 会影响我的应用程序性能吗？
 
-LangGraph will not add any overhead to your code and is specifically designed with streaming workflows in mind.
+LangGraph 不会增加您的代码的任何开销，并且专门针对流式工作流程进行了设计。
 
-## Is LangGraph open source? Is it free?
+## LangGraph 是开源的吗？免费吗？
 
-Yes. LangGraph is an MIT-licensed open-source library and is free to use.
+是的。LangGraph 是一个 MIT 许可的开源库，可以免费使用。
 
-## How are LangGraph and LangGraph Platform different?
+## LangGraph 和 LangGraph Platform 有什么区别？
 
-LangGraph is a stateful, orchestration framework that brings added control to agent workflows. LangGraph Platform is a service for deploying and scaling LangGraph applications, with an opinionated API for building agent UXs, plus an integrated developer studio.
+LangGraph 是一个有状态的编排框架，为代理工作流程带来了额外的控制。LangGraph Platform 是一个用于部署和扩展 LangGraph 应用程序的服务，提供了一个用于构建代理用户体验的标准化 API，并集成了开发者工作室。
 
-| Features            | LangGraph (open source)                                   | LangGraph Platform                                                                                     |
-|---------------------|-----------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| Description         | Stateful orchestration framework for agentic applications | Scalable infrastructure for deploying LangGraph applications                                           |
-| SDKs                | Python and JavaScript                                     | Python and JavaScript                                                                                  |
-| HTTP APIs           | None                                                      | Yes - useful for retrieving & updating state or long-term memory, or creating a configurable assistant |
-| Streaming           | Basic                                                     | Dedicated mode for token-by-token messages                                                             |
-| Checkpointer        | Community contributed                                     | Supported out-of-the-box                                                                               |
-| Persistence Layer   | Self-managed                                              | Managed Postgres with efficient storage                                                                |
-| Deployment          | Self-managed                                              | • Cloud SaaS <br> • Free self-hosted <br> • Enterprise (paid self-hosted)                      |
-| Scalability         | Self-managed                                              | Auto-scaling of task queues and servers                                                                |
-| Fault-tolerance     | Self-managed                                              | Automated retries                                                                                      |
-| Concurrency Control | Simple threading                                          | Supports double-texting                                                                                |
-| Scheduling          | None                                                      | Cron scheduling                                                                                        |
-| Monitoring          | None                                                      | Integrated with LangSmith for observability                                                            |
-| IDE integration     | LangGraph Studio                                          | LangGraph Studio                                                                                       |
+| 功能            | LangGraph (开源)                                             | LangGraph Platform                                                                                     |
+|-----------------|--------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| 描述            | 有状态的代理应用程序编排框架                                     | 用于部署 LangGraph 应用程序的可扩展基础设施                                                             |
+| SDK           | Python 和 JavaScript                                         | Python 和 JavaScript                                                                                   |
+| HTTP API       | 无                                                           | 有 - 可用于检索和更新状态或长期记忆，或创建可配置的助手                                                       |
+| 流式传输       | 基本                                                         | 用于逐令牌消息的专用模式                                                                                 |
+| 检查点       | 社区贡献                                                     | 开箱即用支持                                                                                         |
+| 持久化层      | 自我管理                                                     | 托管的 Postgres，具有高效的存储                                                                          |
+| 部署          | 自我管理                                                     | • 云 SaaS <br> • 免费自托管 <br> • 企业版（付费自托管）                                                   |
+| 可扩展性       | 自我管理                                                     | 任务队列和服务器的自动扩展                                                                               |
+| 容错性       | 自我管理                                                     | 自动重试                                                                                             |
+| 并发控制       | 简单的线程                                                   | 支持双重文本                                                                                         |
+| 调度          | 无                                                           | Cron 调度                                                                                            |
+| 监控          | 无                                                           | 与 LangSmith 集成，用于可观察性                                                                          |
+| IDE 集成       | LangGraph Studio                                             | LangGraph Studio                                                                                       |
 
-## Is LangGraph Platform open source?
+## LangGraph Platform 是开源的吗？
 
-No. LangGraph Platform is proprietary software.
+不是。LangGraph Platform 是专有软件。
 
-There is a free, self-hosted version of LangGraph Platform with access to basic features. The Cloud SaaS deployment option and the Self-Hosted deployment options are paid services. [Contact our sales team](https://www.langchain.com/contact-sales) to learn more.
+有一个免费的自托管版本 LangGraph Platform，提供基本功能。云 SaaS 部署选项和自托管部署选项是付费服务。[联系我们的销售团队](https://www.langchain.com/contact-sales)了解更多信息。
 
-For more information, see our [LangGraph Platform pricing page](https://www.langchain.com/pricing-langgraph-platform).
+有关更多信息，请参阅我们的 [LangGraph Platform 定价页面](https://www.langchain.com/pricing-langgraph-platform)。
 
-## Does LangGraph work with LLMs that don't support tool calling?
+## LangGraph 是否适用于不支持工具调用的 LLM？
 
-Yes! You can use LangGraph with any LLMs. The main reason we use LLMs that support tool calling is that this is often the most convenient way to have the LLM make its decision about what to do. If your LLM does not support tool calling, you can still use it - you just need to write a bit of logic to convert the raw LLM string response to a decision about what to do.
+是的！您可以使用 LangGraph 和任何 LLM。我们使用支持工具调用的 LLM 的主要原因是，这通常是让 LLM 决定做什么的最便捷方式。如果您的 LLM 不支持工具调用，您仍然可以使用它 - 您只需要编写一些逻辑，将原始的 LLM 字符串响应转换为有关要做什么的决策。
 
-## Does LangGraph work with OSS LLMs?
+## LangGraph 是否兼容 OSS LLM？
 
-Yes! LangGraph is totally ambivalent to what LLMs are used under the hood. The main reason we use closed LLMs in most of the tutorials is that they seamlessly support tool calling, while OSS LLMs often don't. But tool calling is not necessary (see [this section](#does-langgraph-work-with-llms-that-dont-support-tool-calling)) so you can totally use LangGraph with OSS LLMs.
+是的！LangGraph 对底层使用的 LLM 完全没有偏好。我们在大多数教程中使用闭源 LLM 的主要原因是它们无缝支持工具调用，而 OSS LLM 通常不支持。但工具调用并非必需（请参阅 [本节](#does-langgraph-work-with-llms-that-dont-support-tool-calling)），因此您完全可以使用 LangGraph 和 OSS LLM。
 
-## Can I use LangGraph Studio without logging in to LangSmith
+## 我可以在不登录 LangSmith 的情况下使用 LangGraph Studio 吗？
 
-Yes! You can use the [development version of LangGraph Server](../tutorials/langgraph-platform/local-server.md) to run the backend locally.
-This will connect to the studio frontend hosted as part of LangSmith.
-If you set an environment variable of `LANGSMITH_TRACING=false`, then no traces will be sent to LangSmith.
+是的！您可以使用 [LangGraph Server 的开发版本](../tutorials/langgraph-platform/local-server.md)在本地运行后端。
+这将连接到作为 LangSmith 一部分的 Studio 前端。
+如果您设置了环境变量 `LANGSMITH_TRACING=false`，则不会将任何跟踪发送到 LangSmith。
 
-## What does "nodes executed" mean for LangGraph Platform usage?
+## “已执行节点”对 LangGraph Platform 的使用意味着什么？
 
-**Nodes Executed** is the aggregate number of nodes in a LangGraph application that are called and completed successfully during an invocation of the application. If a node in the graph is not called during execution or ends in an error state, these nodes will not be counted. If a node is called and completes successfully multiple times, each occurrence will be counted.
+**已执行节点 (Nodes Executed)** 是 LangGraph 应用程序中在应用程序调用期间被调用并成功完成的节点的聚合数量。如果在执行期间未调用图中的节点或节点以错误状态结束，则这些节点将不被计算在内。如果一个节点被调用并成功完成多次，每次调用都将被计算在内。

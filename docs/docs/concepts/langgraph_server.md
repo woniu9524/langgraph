@@ -5,64 +5,63 @@ search:
 
 # LangGraph Server
 
-**LangGraph Server** offers an API for creating and managing agent-based applications. It is built on the concept of [assistants](assistants.md), which are agents configured for specific tasks, and includes built-in [persistence](persistence.md#memory-store) and a **task queue**. This versatile API supports a wide range of agentic application use cases, from background processing to real-time interactions.
+**LangGraph Server** 提供了一个用于创建和管理基于代理的应用程序的 API。它构建在 [assistants](assistants.md) 的概念之上，这些 assistants 是为特定任务配置的代理，并包含内置的 [persistence](persistence.md#memory-store) 和 **task queue**。这个多功能的 API 支持广泛的代理应用程序用例，从后台处理到实时交互。
 
-Use LangGraph Server to create and manage [assistants](assistants.md), [threads](./persistence.md#threads), [runs](./assistants.md#execution), [cron jobs](../cloud/concepts/cron_jobs.md), [webhooks](../cloud/concepts/webhooks.md), and more.
+使用 LangGraph Server 来创建和管理 [assistants](assistants.md)，[threads](./persistence.md#threads)，[runs](./assistants.md#execution)，[cron jobs](../cloud/concepts/cron_jobs.md)，[webhooks](../cloud/concepts/webhooks.md) 等。
 
-!!! tip "API reference"
+!!! tip "API 参考"
   
-    For detailed information on the API endpoints and data models, see [LangGraph Platform API reference docs](../cloud/reference/api/api_ref.html).
+    有关 API 端点和数据模型的详细信息，请参阅 [LangGraph Platform API 参考文档](../cloud/reference/api/api_ref.html)。
 
-## Server versions
+## Server 版本
 
-There are two versions of LangGraph Server:
+LangGraph Server 有两个版本：
 
-- `Lite` is a limited version of the LangGraph Server that you can run locally or in a self-hosted manner (up to 1 million [nodes executed](../concepts/faq.md#what-does-nodes-executed-mean-for-langgraph-platform-usage) per year).
-- `Enterprise` is the full version of the LangGraph Server. To use the `Enterprise` version, you must acquire a license key that you will need to specify when running the Docker image. To acquire a license key, please email sales@langchain.dev.
+- `Lite` 是 LangGraph Server 的一个有限版本，您可以在本地或自行托管（每年最多执行 100 万个 [nodes executed](../concepts/faq.md#what-does-nodes-executed-mean-for-langgraph-platform-usage)）。
+- `Enterprise` 是 LangGraph Server 的完整版本。要使用 `Enterprise` 版本，您必须获取一个许可证密钥，在运行 Docker 镜像时需要指定该密钥。要获取许可证密钥，请发送电子邮件至 sales@langchain.dev。
 
-Feature Differences:
+功能差异：
 
 |       | Lite       | Enterprise |
 |-------|------------|------------|
 | [Cron Jobs](../cloud/concepts/cron_jobs.md) |❌|✅|
 | [Custom Authentication](../concepts/auth.md) |❌|✅|
-| [Deployment options](../concepts/deployment_options.md) | Standalone container | Cloud SaaS, Self-Hosted Data Plane, Self-Hosted Control Plane, Standalone container
+| [Deployment options](../concepts/deployment_options.md) | 单独的容器 | 云SaaS，自行托管数据平面，自行托管控制平面，单独的容器
 
-## Application structure
+## 应用程序结构
 
-To deploy a LangGraph Server application, you need to specify the graph(s) you want to deploy, as well as any relevant configuration settings, such as dependencies and environment variables.
+要部署 LangGraph Server 应用程序，您需要指定要部署的图表以及任何相关的配置设置，例如依赖项和环境变量。
 
-Read the [application structure](./application_structure.md) guide to learn how to structure your LangGraph application for deployment.
+阅读 [application structure](./application_structure.md) 指南以了解如何构建 LangGraph 应用程序以进行部署。
 
-## Parts of a deployment
+## 部署的组成部分
 
-When you deploy LangGraph Server, you are deploying one or more [graphs](#graphs), a database for [persistence](persistence.md), and a task queue.
+当您部署 LangGraph Server 时，您将部署一个或多个 [graphs](#graphs)，一个用于 [persistence](persistence.md) 的数据库和一个任务队列。
 
 ### Graphs
 
-When you deploy a graph with LangGraph Server, you are deploying a "blueprint" for an [Assistant](assistants.md). 
+当您使用 LangGraph Server 部署一个图表时，您实际上是在部署一个 [Assistant](assistants.md) 的“蓝图”。
 
-An [Assistant](assistants.md) is a graph paired with specific configuration settings. You can create multiple assistants per graph, each with unique settings to accommodate different use cases
-that can be served by the same graph.
+[Assistant](assistants.md) 是一个图表与特定的配置设置配对。您可以为每个图表创建多个 assistants，每个 assistants 都具有独特的设置，以适应由同一图表提供的不同用例。
 
-Upon deployment, LangGraph Server will automatically create a default assistant for each graph using the graph's default configuration settings.
+部署时，LangGraph Server 将自动为每个图表使用该图表的默认配置设置创建一个默认 assistant。
 
 !!! note
 
-    We often think of a graph as implementing an [agent](agentic_concepts.md), but a graph does not necessarily need to implement an agent. For example, a graph could implement a simple
-    chatbot that only supports back-and-forth conversation, without the ability to influence any application control flow. In reality, as applications get more complex, a graph will often implement a more complex flow that may use [multiple agents](./multi_agent.md) working in tandem.
+    我们经常认为一个图表实现了一个 [agent](agentic_concepts.md)，但一个图表不一定需要实现一个 agent。例如，一个图表可以实现一个简单的
+    聊天机器人，它只支持来回对话，而不能影响任何应用程序控制流。实际上，随着应用程序变得越来越复杂，一个图表通常会实现一个更复杂的流程，该流程可能会使用 [多个 agents](./multi_agent.md) 协同工作。
 
 ### Persistence and task queue
 
-LangGraph Server leverages a database for [persistence](persistence.md) and a task queue.
+LangGraph Server 利用数据库进行 [persistence](persistence.md) 和任务队列。
 
-Currently, only [Postgres](https://www.postgresql.org/) is supported as a database for LangGraph Server and [Redis](https://redis.io/) as the task queue.
+目前，只有 [Postgres](https://www.postgresql.org/) 被支持作为 LangGraph Server 的数据库，[Redis](https://redis.io/) 作为任务队列。
 
-If you're deploying using [LangGraph Platform](./langgraph_cloud.md), these components are managed for you. If you're deploying LangGraph Server on your own infrastructure, you'll need to set up and manage these components yourself.
+如果您使用 [LangGraph Platform](./langgraph_cloud.md) 进行部署，则这些组件由您管理。如果您在自己的基础设施上部署 LangGraph Server，则需要自己设置和管理这些组件。
 
-Please review the [deployment options](./deployment_options.md) guide for more information on how these components are set up and managed.
+请查阅 [deployment options](./deployment_options.md) 指南以获取有关这些组件如何设置和管理的更多信息。
 
-## Learn more
+## 了解更多
 
-* LangGraph [Application Structure](./application_structure.md) guide explains how to structure your LangGraph application for deployment.
-* The [LangGraph Platform API Reference](../cloud/reference/api/api_ref.html) provides detailed information on the API endpoints and data models.
+* LangGraph [Application Structure](./application_structure.md) 指南解释了如何构建 LangGraph 应用程序以进行部署。
+* [LangGraph Platform API Reference](../cloud/reference/api/api_ref.html) 提供了有关 API 端点和数据模型的详细信息。

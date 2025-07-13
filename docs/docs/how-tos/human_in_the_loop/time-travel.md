@@ -1,31 +1,30 @@
-# Use time-travel
+# 使用时间旅行
 
-To use [time-travel](../../concepts/time-travel.md) in LangGraph:
+要 LangGraph 中使用 [时间旅行](../../concepts/time-travel.md):
 
-1. [Run the graph](#1-run-the-graph) with initial inputs using [`invoke`][langgraph.graph.state.CompiledStateGraph.invoke] or [`stream`][langgraph.graph.state.CompiledStateGraph.stream] methods.
-2. [Identify a checkpoint in an existing thread](#2-identify-a-checkpoint): Use the [`get_state_history()`][langgraph.graph.state.CompiledStateGraph.get_state_history] method to retrieve the execution history for a specific `thread_id` and locate the desired `checkpoint_id`.  
-   Alternatively, set an [interrupt](../../how-tos/human_in_the_loop/add-human-in-the-loop.md) before the node(s) where you want execution to pause. You can then find the most recent checkpoint recorded up to that interrupt.
-3. [Update the graph state (optional)](#3-update-the-state-optional): Use the [`update_state`][langgraph.graph.state.CompiledStateGraph.update_state] method to modify the graph's state at the checkpoint and resume execution from alternative state.
-4. [Resume execution from the checkpoint](#4-resume-execution-from-the-checkpoint): Use the `invoke` or `stream` methods with an input of `None` and a configuration containing the appropriate `thread_id` and `checkpoint_id`.
+1. 使用 [`invoke`][langgraph.graph.state.CompiledStateGraph.invoke] 或 [`stream`][langgraph.graph.state.CompiledStateGraph.stream] 方法，并提供初始输入来[运行图表](#1-run-the-graph)。
+2. [识别现有线程中的检查点](#2-identify-a-checkpoint): 使用 [`get_state_history()`][langgraph.graph.state.CompiledStateGraph.get_state_history] 方法检索特定 `thread_id` 的执行历史，并定位所需的 `checkpoint_id`。 或者，在您希望执行暂停的节点（或节点之前）设置一个[中断](../../how-tos/human_in_the_loop/add-human-in-the-loop.md)。然后，您可以找到直到该中断为止记录的最新检查点。
+3. [更新图状态（可选）](#3-update-the-state-optional): 使用 [`update_state`][langgraph.graph.state.CompiledStateGraph.update_state] 方法修改检查点处的图状态，并从备用状态恢复执行。
+4. [从检查点恢复执行](#4-resume-execution-from-the-checkpoint): 使用 `invoke` 或 `stream` 方法，输入为 `None`，并提供包含相应 `thread_id` 和 `checkpoint_id` 的配置。
 
 !!! tip
 
-    For a conceptual overview of time-travel, see [Time travel](../../concepts/time-travel.md).
+    有关时间旅行的概念性概述，请参阅[时间旅行](../../concepts/time-travel.md)。
 
-## In a workflow
+## 在工作流中
 
-This example builds a simple LangGraph workflow that generates a joke topic and writes a joke using an LLM. It demonstrates how to run the graph, retrieve past execution checkpoints, optionally modify the state, and resume execution from a chosen checkpoint to explore alternate outcomes.
+此示例构建了一个简单的 LangGraph 工作流，该工作流生成一个笑话主题并使用 LLM 编写一个笑话。它演示了如何运行图表、检索过去的执行检查点、可选地修改状态以及从选定的检查点恢复执行以探索备用结果。
 
-### Setup
+### 设置
 
-First we need to install the packages required
+首先，我们需要安装所需的包
 
 ```python
 %%capture --no-stderr
 %pip install --quiet -U langgraph langchain_anthropic
 ```
 
-Next, we need to set API keys for Anthropic (the LLM we will use)
+接下来，我们需要设置 Anthropic（我们将使用的 LLM）的 API 密钥
 
 ```python
 import getpass
@@ -41,9 +40,9 @@ _set_env("ANTHROPIC_API_KEY")
 ```
 
 <div class="admonition tip">
-    <p class="admonition-title">Set up <a href="https://smith.langchain.com">LangSmith</a> for LangGraph development</p>
+    <p class="admonition-title">为 LangGraph 开发设置 <a href="https://smith.langchain.com">LangSmith</a></p>
     <p style="padding-top: 5px;">
-        Sign up for LangSmith to quickly spot issues and improve the performance of your LangGraph projects. LangSmith lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph — read more about how to get started <a href="https://docs.smith.langchain.com">here</a>. 
+        注册 LangSmith 以快速发现问题并提高 LangGraph 项目的性能。LangSmith 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用——在此处<a href="https://docs.smith.langchain.com">了解更多关于如何开始的信息</a>。
     </p>
 </div>
 
@@ -68,36 +67,36 @@ llm = init_chat_model(
 
 
 def generate_topic(state: State):
-    """LLM call to generate a topic for the joke"""
+    """LLM 调用以生成笑话主题"""
     msg = llm.invoke("Give me a funny topic for a joke")
     return {"topic": msg.content}
 
 
 def write_joke(state: State):
-    """LLM call to write a joke based on the topic"""
+    """LLM 调用以根据主题写笑话"""
     msg = llm.invoke(f"Write a short joke about {state['topic']}")
     return {"joke": msg.content}
 
 
-# Build workflow
+# 构建工作流
 workflow = StateGraph(State)
 
-# Add nodes
+# 添加节点
 workflow.add_node("generate_topic", generate_topic)
 workflow.add_node("write_joke", write_joke)
 
-# Add edges to connect nodes
+# 添加边以连接节点
 workflow.add_edge(START, "generate_topic")
 workflow.add_edge("generate_topic", "write_joke")
 workflow.add_edge("write_joke", END)
 
-# Compile
+# 编译
 checkpointer = InMemorySaver()
 graph = workflow.compile(checkpointer=checkpointer)
 graph
 ```
 
-### 1. Run the graph
+### 1. 运行图表
 
 ```python
 config = {
@@ -112,7 +111,7 @@ print()
 print(state["joke"])
 ```
 
-**Output:**
+**输出:**
 ```
 How about "The Secret Life of Socks in the Dryer"? You know, exploring the mysterious phenomenon of how socks go into the laundry as pairs but come out as singles. Where do they go? Are they starting new lives elsewhere? Is there a sock paradise we don't know about? There's a lot of comedic potential in the everyday mystery that unites us all!
 
@@ -123,10 +122,10 @@ I finally discovered where all my missing socks go after the dryer. Turns out th
 My blue argyle is now living in Bermuda with a red polka dot, posting vacation photos on Sockstagram and sending me lint as alimony.
 ```
 
-### 2. Identify a checkpoint
+### 2. 识别检查点
 
 ```python
-# The states are returned in reverse chronological order.
+# 状态按时间倒序返回。
 states = list(graph.get_state_history(config))
 
 for state in states:
@@ -135,7 +134,7 @@ for state in states:
     print()
 ```
 
-**Output:**
+**输出:**
 ```
 ()
 1f02ac4a-ec9f-6524-8002-8f7b0bbeed0e
@@ -151,40 +150,40 @@ for state in states:
 ```
 
 ```python
-# This is the state before last (states are listed in chronological order)
+# 这是倒数第二个状态（状态按时间顺序排列）
 selected_state = states[1]
 print(selected_state.next)
 print(selected_state.values)
 ```
 
-**Output:**
+**输出:**
 ```
 ('write_joke',)
 {'topic': 'How about "The Secret Life of Socks in the Dryer"? You know, exploring the mysterious phenomenon of how socks go into the laundry as pairs but come out as singles. Where do they go? Are they starting new lives elsewhere? Is there a sock paradise we don\\'t know about? There\\'s a lot of comedic potential in the everyday mystery that unites us all!'}
 ```
 
-### 3. Update the state (optional)
+### 3. 更新状态（可选）
 
-`update_state` will create a new checkpoint. The new checkpoint will be associated with the same thread, but a new checkpoint ID.
+`update_state` 将创建一个新的检查点。新检查点将与同一线程关联，但具有新的检查点 ID。
 
 ```python
 new_config = graph.update_state(selected_state.config, values={"topic": "chickens"})
 print(new_config)
 ```
 
-**Output:**
+**输出:**
 ```
 {'configurable': {'thread_id': 'c62e2e03-c27b-4cb6-8cea-ea9bfedae006', 'checkpoint_ns': '', 'checkpoint_id': '1f02ac4a-ecee-600b-8002-a1d21df32e4c'}}
 ```
 
-### 4. Resume execution from the checkpoint
+### 4. 从检查点恢复执行
 
 ```python
 graph.invoke(None, new_config)
 ```
 
-**Output:**
+**输出:**
 ```python
 {'topic': 'chickens',
  'joke': 'Why did the chicken join a band?\n\nBecause it had excellent drumsticks!'}
-``` 
+```

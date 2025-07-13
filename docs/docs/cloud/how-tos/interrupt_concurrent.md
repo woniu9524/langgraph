@@ -1,12 +1,12 @@
-# How to use the interrupt option
+# 如何使用 interrupt 选项
 
-This guide assumes knowledge of what double-texting is, which you can learn about in the [double-texting conceptual guide](../../concepts/double_texting.md).
+本指南假定您已了解什么是双重文本（double-texting）。您可以在 [双重文本概念指南](../../concepts/double_text.md) 中了解相关知识。
 
-The guide covers the `interrupt` option for double texting, which interrupts the prior run of the graph and starts a new one with the double-text. This option does not delete the first run, but rather keeps it in the database but sets its status to `interrupted`. Below is a quick example of using the `interrupt` option.
+本指南涵盖了双重文本的 `interrupt` 选项，该选项会中断图的先前运行，并使用双重文本启动新运行。此选项不会删除第一次运行，而是将其保留在数据库中，但将其状态设置为 `interrupted`。下面是一个使用 `interrupt` 选项的快速示例。
 
-## Setup
+## 设置
 
-First, we will define a quick helper function for printing out JS and CURL model outputs (you can skip this if using Python):
+首先，我们将定义一个快速的辅助函数来打印 JS 和 CURL 模型输出（如果您使用 Python，可以跳过此步骤）：
 
 === "Javascript"
 
@@ -45,7 +45,7 @@ First, we will define a quick helper function for printing out JS and CURL model
     }
     ```
 
-Now, let's import our required packages and instantiate our client, assistant, and thread.
+现在，让我们导入所需的包并实例化我们的客户端、助手和线程。
 
 === "Python"
 
@@ -81,9 +81,9 @@ Now, let's import our required packages and instantiate our client, assistant, a
       --data '{}'
     ```
 
-## Create runs
+## 创建运行
 
-Now we can start our two runs and join the second one until it has completed:
+现在我们可以启动我们的两个运行，并加入第二个运行直到它完成：
 
 === "Python"
 
@@ -151,10 +151,9 @@ Now we can start our two runs and join the second one until it has completed:
     --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/runs/<RUN_ID>/join
     ```
 
-## View run results
+## 查看运行结果
 
-We can see that the thread has partial data from the first run + data from the second run
-
+我们可以看到线程中包含了来自第一次运行的部分数据以及来自第二次运行的数据。
 
 === "Python"
 
@@ -187,7 +186,7 @@ We can see that the thread has partial data from the first run + data from the s
     done
     ```
 
-Output:
+输出：
 
     ================================ Human Message =================================
     
@@ -231,7 +230,7 @@ Output:
     So in summary, the search provides a convenient overview of the expected weather conditions in New York City over the next month to give you an idea of what to prepare for if traveling or making plans there. Let me know if you need any other details!
 
 
-Verify that the original, interrupted run was interrupted
+验证原始的、被中断的运行是否已被中断
 
 === "Python"
 
@@ -245,9 +244,8 @@ Verify that the original, interrupted run was interrupted
     console.log((await client.runs.get(thread['thread_id'], interruptedRun["run_id"]))["status"])
     ```
 
-Output:
+输出：
 
     ```
     'interrupted'
     ```
-

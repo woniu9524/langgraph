@@ -1,30 +1,27 @@
 # INVALID_CHAT_HISTORY
 
-This error is raised in the prebuilt [create_react_agent][langgraph.prebuilt.chat_agent_executor.create_react_agent] when the `call_model` graph node receives a malformed list of messages. Specifically, it is malformed when there are `AIMessages` with `tool_calls` (LLM requesting to call a tool) that do not have a corresponding `ToolMessage` (result of a tool invocation to return to the LLM).
+此错误是在预构建的 [create_react_agent][langgraph.prebuilt.chat_agent_executor.create_react_agent] 中，当 `call_model` 图节点接收到格式错误的消息列表时引发的。具体来说，当存在带有 `tool_calls`（LLM 请求调用工具）的 `AIMessages` 但没有对应的 `ToolMessage`（工具调用的结果，用于返回给 LLM）时，消息列表即被视为格式错误。
 
-There could be a few reasons you're seeing this error:
+您看到此错误可能出于以下几个原因：
 
-1. You manually passed a malformed list of messages when invoking the graph, e.g. `graph.invoke({'messages': [AIMessage(..., tool_calls=[...])]})`
-2. The graph was interrupted before receiving updates from the `tools` node (i.e. a list of ToolMessages)
-and you invoked it with an input that is not None or a ToolMessage,
-e.g. `graph.invoke({'messages': [HumanMessage(...)]}, config)`.
-    This interrupt could have been triggered in one of the following ways:
-     - You manually set `interrupt_before = ['tools']` in `create_react_agent`
-     - One of the tools raised an error that wasn't handled by the [ToolNode][langgraph.prebuilt.tool_node.ToolNode] (`"tools"`)
+1. 您在调用图时手动传入了格式错误的消息列表，例如 `graph.invoke({'messages': [AIMessage(..., tool_calls=[...])]})`
+2. 在收到 `tools` 节点（即 `ToolMessage` 列表）的更新之前，图就被中断了，并且您使用非 `None` 或 `ToolMessage` 的输入进行了调用，例如 `graph.invoke({'messages': [HumanMessage(...)]}, config)`。
+    此中断可能由以下任一方式触发：
+     - 您在 `create_react_agent` 中手动设置了 `interrupt_before = ['tools']`
+     - `ToolNode` (`"tools"`) 未能处理其中一个工具引发的错误
 
-## Troubleshooting
+## 故障排除
 
-To resolve this, you can do one of the following:
+要解决此问题，您可以执行以下任一操作：
 
-1. Don't invoke the graph with a malformed list of messages
-2. In case of an interrupt (manual or due to an error) you can:
+1. 不要使用格式错误的消息列表来调用图
+2. 如果发生中断（手动或由于错误）：
 
-    - provide ToolMessages that match existing tool calls and call `graph.invoke({'messages': [ToolMessage(...)]})`.
-    **NOTE**: this will append the messages to the history and run the graph from the START node.
-    - manually update the state and resume the graph from the interrupt:
+    - 提供与现有工具调用匹配的 `ToolMessages`，然后调用 `graph.invoke({'messages': [ToolMessage(...)]})`。
+    **注意**：这将把消息追加到历史记录中，并从 START 节点运行图。
+    - 手动更新状态并从中恢复图：
 
-        1. get the list of most recent messages from the graph state with `graph.get_state(config)`
-        2. modify the list of messages to either remove unanswered tool calls from AIMessages
-or add ToolMessages with tool_call_ids that match unanswered tool calls
-        3. call `graph.update_state(config, {'messages': ...})` with the modified list of messages
-        4. resume the graph, e.g. call `graph.invoke(None, config)`
+        1. 使用 `graph.get_state(config)` 从图状态中获取最近消息的列表
+        2. 修改消息列表，可以删除 `AIMessages` 中未回答的工具调用，或添加与未回答的工具调用匹配的 `ToolMessages`
+        3. 使用修改后的消息列表调用 `graph.update_state(config, {'messages': ...})`
+        4. 恢复图，例如调用 `graph.invoke(None, config)`

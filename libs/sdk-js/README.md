@@ -1,1 +1,1 @@
-This repository has been moved to [langchain-ai/langgraphjs](https://github.com/langchain-ai/langgraphjs/tree/main/libs/sdk).
+此仓库已迁移至 [langchain-ai/langgraphjs](https://github.com/langchain-ai/langgraphjs/tree/main/libs/sdk)。

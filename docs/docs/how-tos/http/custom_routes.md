@@ -1,22 +1,22 @@
-# How to add custom routes
+# 添加自定义路由
 
-When deploying agents to LangGraph platform, your server automatically exposes routes for creating runs and threads, interacting with the long-term memory store, managing configurable assistants, and other core functionality ([see all default API endpoints](../../cloud/reference/api/api_ref.md)).
+在将代理部署到 LangGraph 平台时，您的服务器会自动公开用于创建运行和线程、与长期记忆存储交互、管理可配置助手以及其他核心功能的路由（[查看所有默认 API 端点](../../cloud/reference/api/api_ref.md)）。
 
-You can add custom routes by providing your own [`Starlette`](https://www.starlette.io/applications/) app (including [`FastAPI`](https://fastapi.tiangolo.com/), [`FastHTML`](https://fastht.ml/) and other compatible apps). You make LangGraph Platform aware of this by providing a path to the app in your `langgraph.json` configuration file.
+您可以通过提供自己的 [`Starlette`](https://www.starlette.io/applications/) 应用（包括 [`FastAPI`](https://fastapi.tiangolo.com/)、[`FastHTML`](https://fastht.ml/) 和其他兼容应用）来添加自定义路由。通过在 `langgraph.json` 配置文件中提供应用的路径，可以使 LangGraph Platform 知晓这一点。
 
-Defining a custom app object lets you add any routes you'd like, so you can do anything from adding a `/login` endpoint to writing an entire full-stack web-app, all deployed in a single LangGraph Server.
+定义自定义应用对象可以允许您添加任何所需的路由，因此您可以从添加 `/login` 端点到编写完整的全栈 Web 应用，所有这些都部署在同一个 LangGraph 服务器中。
 
-Below is an example using FastAPI.
+下面是一个使用 FastAPI 的示例。
 
-## Create app
+## 创建应用
 
-Starting from an **existing** LangGraph Platform application, add the following custom route code to your `webapp.py` file. If you are starting from scratch, you can create a new app from a template using the CLI.
+从**现有**的 LangGraph Platform 应用开始，将以下自定义路由代码添加到您的 `webapp.py` 文件中。如果您是从头开始，可以使用 CLI 从模板创建新应用。
 
 ```bash
 langgraph new --template=new-langgraph-project-python my_new_project
 ```
 
-Once you have a LangGraph project, add the following app code:
+拥有 LangGraph 项目后，添加以下应用代码：
 
 ```python
 # ./src/agent/webapp.py
@@ -32,9 +32,9 @@ def read_root():
 
 ```
 
-## Configure `langgraph.json`
+## 配置 `langgraph.json`
 
-Add the following to your `langgraph.json` configuration file. Make sure the path points to the FastAPI application instance `app` in the `webapp.py` file you created above.
+将以下内容添加到您的 `langgraph.json` 配置文件中。请确保路径指向您上面创建的 `webapp.py` 文件中的 FastAPI 应用实例 `app`。
 
 ```json
 {
@@ -46,29 +46,29 @@ Add the following to your `langgraph.json` configuration file. Make sure the pat
   "http": {
     "app": "./src/agent/webapp.py:app"
   }
-  // Other configuration options like auth, store, etc.
+  // 其他配置选项，如 auth、store 等。
 }
 ```
 
-## Start server
+## 启动服务器
 
-Test the server out locally:
+在本地测试服务器：
 
 ```bash
 langgraph dev --no-browser
 ```
 
-If you navigate to `localhost:2024/hello` in your browser (`2024` is the default development port), you should see the `/hello` endpoint returning `{"Hello": "World"}`.
+如果您在浏览器中导航到 `localhost:2024/hello`（`2024` 是默认开发端口），您应该会看到 `/hello` 端点返回 `{"Hello": "World"}`。
 
 
-!!! note "Shadowing default endpoints"
+!!! note "覆盖默认端点"
 
-    The routes you create in the app are given priority over the system defaults, meaning you can shadow and redefine the behavior of any default endpoint.
+    您在应用中创建的路由会优先于系统默认路由，这意味着您可以覆盖和重新定义任何默认端点的行为。
 
-## Deploying
+## 部署
 
-You can deploy this app as-is to LangGraph Platform or to your self-hosted platform.
+您可以按原样将此应用部署到 LangGraph 平台或您自托管的平台。
 
-## Next steps
+## 后续步骤
 
-Now that you've added a custom route to your deployment, you can use this same technique to further customize how your server behaves, such as defining custom [custom middleware](./custom_middleware.md) and [custom lifespan events](./custom_lifespan.md). 
+既然您已为部署添加了自定义路由，您可以使用相同的技术来进一步自定义服务器的行为，例如定义自定义 [自定义中间件](./custom_middleware.md) 和 [自定义生命周期事件](./custom_lifespan.md)。

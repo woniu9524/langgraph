@@ -1,49 +1,47 @@
 # llms.txt
 
-Below you can find a list of documentation files in the [`llms.txt`](https://llmstxt.org/) format, specifically `llms.txt` and `llms-full.txt`. These files allow large language models (LLMs) and agents to access programming documentation and APIs, particularly useful within integrated development environments (IDEs).
+您可以在下方找到使用 [`llms.txt`](https://llmstxt.org/) 格式的文档文件列表，具体为 `llms.txt` 和 `llms-full.txt`。这些文件允许大型语言模型 (LLMs) 和代理访问编程文档和 API，尤其是在集成开发环境 (IDE) 中非常有用。
 
-| Language Version | llms.txt                                                                                                   | llms-full.txt                                                                                                        |
-|------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| LangGraph Python | [https://langchain-ai.github.io/langgraph/llms.txt](https://langchain-ai.github.io/langgraph/llms.txt)     | [https://langchain-ai.github.io/langgraph/llms-full.txt](https://langchain-ai.github.io/langgraph/llms-full.txt)     |
-| LangGraph JS     | [https://langchain-ai.github.io/langgraphjs/llms.txt](https://langchain-ai.github.io/langgraphjs/llms.txt) | [https://langchain-ai.github.io/langgraphjs/llms-full.txt](https://langchain-ai.github.io/langgraphjs/llms-full.txt) |
-| LangChain Python | [https://python.langchain.com/llms.txt](https://python.langchain.com/llms.txt)                             | N/A                                                                                                                  |
-| LangChain JS     | [https://js.langchain.com/llms.txt](https://js.langchain.com/llms.txt)                                     | N/A                                                                                                                  |
+| 语言版本     | llms.txt                                                                                                       | llms-full.txt                                                                                                          |
+|--------------|----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| LangGraph Python | [https://langchain-ai.github.io/langgraph/llms.txt](https://langchain-ai.github.io/langgraph/llms.txt)       | [https://langchain-ai.github.io/langgraph/llms-full.txt](https://langchain-ai.github.io/langgraph/llms-full.txt)       |
+| LangGraph JS     | [https://langchain-ai.github.io/langgraphjs/llms.txt](https://langchain-ai.github.io/langgraphjs/llms.txt)   | [https://langchain-ai.github.io/langgraphjs/llms-full.txt](https://langchain-ai.github.io/langgraphjs/llms-full.txt)   |
+| LangChain Python | [https://python.langchain.com/llms.txt](https://python.langchain.com/llms.txt)                               | N/A                                                                                                                    |
+| LangChain JS     | [https://js.langchain.com/llms.txt](https://js.langchain.com/llms.txt)                                       | N/A                                                                                                                    |
 
-!!! info "Review the output"
+!!! info "审查输出"
 
-    Even with access to up-to-date documentation, current state-of-the-art models may not always generate correct code. Treat the generated code as a starting point, and always review it before shipping
-    code to production.
+    即使可以访问最新的文档，当前最先进的模型也可能不会始终生成正确的代码。请将生成的代码视为起点，并在部署代码到生产环境之前务必进行审查。
 
-## Differences Between `llms.txt` and `llms-full.txt`
+## `llms.txt` 和 `llms-full.txt` 之间的区别
 
-- **`llms.txt`** is an index file containing links with brief descriptions of the content. An LLM or agent must follow these links to access detailed information.
+- **`llms.txt`** 是一个索引文件，其中包含带有内容简要描述的链接。LLM 或代理需要遵循这些链接来访问详细信息。
 
-- **`llms-full.txt`** includes all the detailed content directly in a single file, eliminating the need for additional navigation.
+- **`llms-full.txt`** 将所有详细内容直接包含在一个文件中，无需额外导航。
 
-A key consideration when using `llms-full.txt` is its size. For extensive documentation, this file may become too large to fit into an LLM's context window.
+使用 `llms-full.txt` 时的一个关键考虑因素是其大小。对于广泛的文档，此文件可能会变得过大，无法放入 LLM 的上下文窗口中。
 
-## Using `llms.txt` via an MCP Server
+## 通过 MCP 服务器使用 `llms.txt`
 
-As of March 9, 2025, IDEs [do not yet have robust native support for `llms.txt`](https://x.com/jeremyphoward/status/1902109312216129905?t=1eHFv2vdNdAckajnug0_Vw&s=19). However, you can still use `llms.txt` effectively through an MCP server.
+截至 2025 年 3 月 9 日，IDE [尚未获得对 `llms.txt` 的强大原生支持](https://x.com/jeremyphoward/status/1902109312216129905?t=1eHFv2vdNdAckajnug0_Vw&s=19)。但是，您仍然可以通过 MCP 服务器有效地使用 `llms.txt`。
 
-### 🚀 Use the `mcpdoc` Server
+### 🚀 使用 `mcpdoc` 服务器
 
-We provide an **MCP server** that was designed to serve documentation for LLMs and IDEs:
+我们提供了一个专为 LLM 和 IDE 提供文档的 **MCP 服务器**：
 
-👉 **[langchain-ai/mcpdoc GitHub Repository](https://github.com/langchain-ai/mcpdoc)**
+👉 **[langchain-ai/mcpdoc GitHub 存储库](https://github.com/langchain-ai/mcpdoc)**
 
-This MCP server allows integrating `llms.txt` into tools like **Cursor**, **Windsurf**, **Claude**, and **Claude Code**.
+此 MCP 服务器允许将 `llms.txt` 集成到 **Cursor**、**Windsurf**、**Claude** 和 **Claude Code** 等工具中。
 
-📘 **Setup instructions and usage examples** are available in the repository.
+📘 **设置说明和使用示例** 在存储库中提供。
 
-## Using `llms-full.txt`
+## 使用 `llms-full.txt`
 
-The LangGraph `llms-full.txt` file typically contains several hundred thousand tokens, exceeding the context window limitations of most LLMs. To effectively use this file:
+LangGraph 的 `llms-full.txt` 文件通常包含数十万个标记，超出了大多数 LLM 的上下文窗口限制。要有效地使用此文件：
 
-1. **With IDEs (e.g., Cursor, Windsurf)**:
-    - Add the `llms-full.txt` as custom documentation. The IDE will automatically chunk and index the content, implementing Retrieval-Augmented Generation (RAG).
+1. **与 IDE 一起使用（例如 Cursor、Windsurf）**：
+    - 将 `llms-full.txt` 添加为自定义文档。IDE 将自动分块和索引内容，实现检索增强生成 (RAG)。
 
-2. **Without IDE support**:
-    - Use a chat model with a large context window.
-    - Implement a RAG strategy to manage and query the documentation efficiently.
-
+2. **没有 IDE 支持**：
+    - 使用具有大型上下文窗口的聊天模型。
+    - 实现 RAG 策略以有效管理和查询文档。

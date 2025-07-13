@@ -1,32 +1,32 @@
-# Stream outputs
+# 流式输出
 
-You can [stream outputs](../concepts/streaming.md) from a LangGraph agent or workflow.
+您可以从 LangGraph 代理或工作流程中[流式传输输出](../concepts/streaming.md)。
 
-## Supported stream modes
+## 支持的流模式
 
-Pass one or more of the following stream modes as a list to the [`stream()`][langgraph.graph.state.CompiledStateGraph.stream] or [`astream()`][langgraph.graph.state.CompiledStateGraph.astream] methods:
+将以下一种或多种流模式作为列表传递给 [`stream()`](langgraph.graph.state.CompiledStateGraph.stream) 或 [`astream()`](langgraph.graph.state.CompiledStateGraph.astream) 方法：
 
-| Mode | Description |
-|------|-------------|
-| `values` | Streams the full value of the state after each step of the graph. |
-| `updates` | Streams the updates to the state after each step of the graph. If multiple updates are made in the same step (e.g., multiple nodes are run), those updates are streamed separately. |
-| `custom` | Streams custom data from inside your graph nodes. |
-| `messages` | Streams 2-tuples (LLM token, metadata) from any graph nodes where an LLM is invoked. |
-| `debug` | Streams as much information as possible throughout the execution of the graph.   
+| 模式 | 描述 |
+|---|---|
+| `values` | 在图的每一步之后流式传输状态的完整值。 |
+| `updates` | 在图的每一步之后流式传输状态的更新。如果在同一步骤中进行了多次更新（例如，运行了多个节点），则这些更新会单独流式传输。 |
+| `custom` | 从图节点内部流式传输自定义数据。 |
+| `messages` | 从调用了 LLM 的任何图节点流式传输 2 元组（LLM token，元数据）。 |
+| `debug` | 在图执行的整个过程中尽可能多地流式传输信息。 |
 
-## Stream from an agent
+## 从代理流式传输
 
-### Agent progress
+### 代理进度
 
-To stream agent progress, use the [`stream()`][langgraph.graph.state.CompiledStateGraph.stream] or [`astream()`][langgraph.graph.state.CompiledStateGraph.astream] methods with `stream_mode="updates"`. This emits an event after every agent step.
+要流式传输代理进度，请使用 [`stream()`](langgraph.graph.state.CompiledStateGraph.stream) 或 [`astream()`](langgraph.graph.state.CompiledStateGraph.astream) 方法并设置 `stream_mode="updates"`。这将为每次代理步骤发出一个事件。
 
-For example, if you have an agent that calls a tool once, you should see the following updates:
+例如，如果您有一个调用一次工具的代理，您应该会看到以下更新：
 
-* **LLM node**: AI message with tool call requests
-* **Tool node**: Tool message with execution result
-* **LLM node**: Final AI response
+* **LLM 节点**：包含工具调用请求的 AI 消息
+* **工具节点**：包含执行结果的工具消息
+* **LLM 节点**：最终的 AI 回复
 
-=== "Sync"
+=== "同步"
 
     ```python
     agent = create_react_agent(
@@ -43,7 +43,7 @@ For example, if you have an agent that calls a tool once, you should see the fol
         print("\n")
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     agent = create_react_agent(
@@ -60,11 +60,11 @@ For example, if you have an agent that calls a tool once, you should see the fol
         print("\n")
     ```
 
-### LLM tokens
+### LLM token
 
-To stream tokens as they are produced by the LLM, use `stream_mode="messages"`:
+要以 token 形式流式传输 LLM 生成的内容，请使用 `stream_mode="messages"`：
 
-=== "Sync"
+=== "同步"
 
     ```python
     agent = create_react_agent(
@@ -82,7 +82,7 @@ To stream tokens as they are produced by the LLM, use `stream_mode="messages"`:
         print("\n")
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     agent = create_react_agent(
@@ -100,11 +100,11 @@ To stream tokens as they are produced by the LLM, use `stream_mode="messages"`:
         print("\n")
     ```
 
-### Tool updates
+### 工具更新
 
-To stream updates from tools as they are executed, you can use [get_stream_writer][langgraph.config.get_stream_writer].
+要流式传输工具执行过程中的更新，您可以使用 [get_stream_writer](langgraph.config.get_stream_writer)。
 
-=== "Sync"
+=== "同步"
 
     ```python
     # highlight-next-line
@@ -133,7 +133,7 @@ To stream updates from tools as they are executed, you can use [get_stream_write
         print("\n")
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     # highlight-next-line
@@ -162,14 +162,14 @@ To stream updates from tools as they are executed, you can use [get_stream_write
         print("\n")
     ```
 
-!!! Note
-    If you add `get_stream_writer` inside your tool, you won't be able to invoke the tool outside of a LangGraph execution context. 
+!!! 注意
+    如果您在工具中添加了 `get_stream_writer`，您将无法在 LangGraph 执行上下文之外调用该工具。
 
-### Stream multiple modes
+### 流式传输多种模式
 
-You can specify multiple streaming modes by passing stream mode as a list: `stream_mode=["updates", "messages", "custom"]`:
+您可以通过将流模式指定为列表来一次流式传输多种模式：`stream_mode=["updates", "messages", "custom"]`：
 
-=== "Sync"
+=== "同步"
 
     ```python
     agent = create_react_agent(
@@ -186,7 +186,7 @@ You can specify multiple streaming modes by passing stream mode as a list: `stre
         print("\n")
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     agent = create_react_agent(
@@ -203,33 +203,33 @@ You can specify multiple streaming modes by passing stream mode as a list: `stre
         print("\n")
     ```
 
-### Disable streaming
+### 禁用流式传输
 
-In some applications you might need to disable streaming of individual tokens for a given model. This is useful in [multi-agent](../agents/multi-agent.md) systems to control which agents stream their output.
+在某些应用程序中，您可能需要为给定的模型禁用单个 token 的流式传输。这在[多代理](../agents/multi-agent.md)系统中很有用，可以控制哪些代理流式传输其输出。
 
-See the [Models](../agents/models.md#disable-streaming) guide to learn how to disable streaming.
+请参阅[模型](../agents/models.md#disable-streaming)指南了解如何禁用流式传输。
 
-## Stream from a workflow 
+## 从工作流流式传输
 
-### Basic usage example
+### 基本用法示例
 
-LangGraph graphs expose the [`.stream()`][langgraph.pregel.Pregel.stream] (sync) and [`.astream()`][langgraph.pregel.Pregel.astream] (async) methods to yield streamed outputs as iterators.
+LangGraph 图公开了 [`.stream()`](langgraph.pregel.Pregel.stream)（同步）和 [`.astream()`](langgraph.pregel.Pregel.astream)（异步）方法，以产生流式输出作为迭代器。
 
-=== "Sync"
+=== "同步"
 
     ```python
     for chunk in graph.stream(inputs, stream_mode="updates"):
         print(chunk)
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     async for chunk in graph.astream(inputs, stream_mode="updates"):
         print(chunk)
     ```
 
-??? example "Extended example: streaming updates"
+??? 示例 "扩展示例：流式传输更新"
 
       ```python
       from typing import TypedDict
@@ -264,40 +264,40 @@ LangGraph graphs expose the [`.stream()`][langgraph.pregel.Pregel.stream] (sync)
           print(chunk)
       ```
 
-      1. The `stream()` method returns an iterator that yields streamed outputs.
-      2. Set `stream_mode="updates"` to stream only the updates to the graph state after each node. Other stream modes are also available. See [supported stream modes](#supported-stream-modes) for details.
+      1. `stream()` 方法返回一个产生流式输出的迭代器。
+      2. 设置 `stream_mode="updates"` 以仅流式传输每个节点后的图状态更新。也支持其他流模式。有关详细信息，请参阅[支持的流模式](#supported-stream-modes)。
 
       ```output
       {'refine_topic': {'topic': 'ice cream and cats'}}
       {'generate_joke': {'joke': 'This is a joke about ice cream and cats'}}
-      ```                                                                                                   |
+      ```
 
-### Stream multiple modes
+### 流式传输多种模式
 
-You can pass a list as the `stream_mode` parameter to stream multiple modes at once.
+您可以将列表作为 `stream_mode` 参数传递，以一次流式传输多种模式。
 
-The streamed outputs will be tuples of `(mode, chunk)` where `mode` is the name of the stream mode and `chunk` is the data streamed by that mode.
+流式输出将是 `(mode, chunk)` 的元组，其中 `mode` 是流模式的名称，`chunk` 是该模式流式传输的数据。
 
-=== "Sync"
+=== "同步"
 
     ```python
     for mode, chunk in graph.stream(inputs, stream_mode=["updates", "custom"]):
         print(chunk)
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     async for mode, chunk in graph.astream(inputs, stream_mode=["updates", "custom"]):
         print(chunk)
     ```
 
-### Stream graph state
+### 流式传输图状态
 
-Use the stream modes `updates` and `values` to stream the state of the graph as it executes.
+使用 `updates` 和 `values` 流模式来流式传输图执行时的状态。
 
-* `updates` streams the **updates** to the state after each step of the graph.
-* `values` streams the **full value** of the state after each step of the graph.
+* `updates` 在每一步之后流式传输状态的**更新**。
+* `values` 在每一步之后流式传输状态的**完整值**。
 
 ```python
 from typing import TypedDict
@@ -329,7 +329,7 @@ graph = (
 
 === "updates"
 
-    Use this to stream only the **state updates** returned by the nodes after each step. The streamed outputs include the name of the node as well as the update.
+    使用此选项仅流式传输每个节点返回后的**状态更新**。流式输出包括节点名称和更新。
 
 
     ```python
@@ -341,9 +341,9 @@ graph = (
         print(chunk)
     ```
 
-===  "values"
+=== "values"
 
-    Use this to stream the **full state** of the graph after each step.
+    使用此选项在每一步之后流式传输图的**完整状态**。
 
     ```python
     for chunk in graph.stream(
@@ -354,12 +354,11 @@ graph = (
         print(chunk)
     ```
 
+### 流式传输子图输出
 
-### Stream subgraph outputs
+要将[子图](../concepts/subgraphs.md)的输出包含在流式输出中，您可以在父图的 `.stream()` 方法中设置 `subgraphs=True`。这将流式传输父图和任何子图的输出。
 
-To include outputs from [subgraphs](../concepts/subgraphs.md) in the streamed outputs, you can set `subgraphs=True` in the `.stream()` method of the parent graph. This will stream outputs from both the parent graph and any subgraphs.
-
-The outputs will be streamed as tuples `(namespace, data)`, where `namespace` is a tuple with the path to the node where a subgraph is invoked, e.g. `("parent_node:<task_id>", "child_node:<task_id>")`.
+输出将作为 `(namespace, data)` 的元组进行流式传输，其中 `namespace` 是一个包含调用子图的节点路径的元组，例如 `("parent_node:<task_id>", "child_node:<task_id>")`。
 
 ```python
 for chunk in graph.stream(
@@ -371,17 +370,17 @@ for chunk in graph.stream(
     print(chunk)
 ```
 
-1. Set `subgraphs=True` to stream outputs from subgraphs.
+1. 设置 `subgraphs=True` 以从子图中流式传输输出。
 
-??? example "Extended example: streaming from subgraphs"
+??? 示例 "扩展示例：从子图流式传输"
 
       ```python
       from langgraph.graph import START, StateGraph
       from typing import TypedDict
 
-      # Define subgraph
+      # 定义子图
       class SubgraphState(TypedDict):
-          foo: str  # note that this key is shared with the parent graph state
+          foo: str  # 注意此键与父图状态共享
           bar: str
 
       def subgraph_node_1(state: SubgraphState):
@@ -397,7 +396,7 @@ for chunk in graph.stream(
       subgraph_builder.add_edge("subgraph_node_1", "subgraph_node_2")
       subgraph = subgraph_builder.compile()
 
-      # Define parent graph
+      # 定义父图
       class ParentState(TypedDict):
           foo: str
 
@@ -420,7 +419,7 @@ for chunk in graph.stream(
           print(chunk)
       ```
       
-      1. Set `subgraphs=True` to stream outputs from subgraphs.
+      1. 设置 `subgraphs=True` 以从子图中流式传输输出。
 
       ```
       ((), {'node_1': {'foo': 'hi! foo'}})
@@ -429,11 +428,11 @@ for chunk in graph.stream(
       ((), {'node_2': {'foo': 'hi! foobar'}})
       ```
 
-      **Note** that we are receiving not just the node updates, but we also the namespaces which tell us what graph (or subgraph) we are streaming from.
+      请注意，我们不仅收到了节点更新，还收到了命名空间，它们告诉我们正在从哪个图（或子图）进行流式传输。
 
-### Debugging {#debug}
+### 调试 {#debug}
 
-Use the `debug` streaming mode to stream as much information as possible throughout the execution of the graph. The streamed outputs include the name of the node as well as the full state.
+使用 `debug` 流模式在图的执行过程中尽可能多地流式传输信息。流式输出包括节点名称和整个状态。
 
 ```python
 for chunk in graph.stream(
@@ -444,21 +443,20 @@ for chunk in graph.stream(
     print(chunk)
 ```
 
+### LLM token {#messages}
 
-### LLM tokens {#messages}
+使用 `messages` 流模式以**逐 token** 的方式流式传输大型语言模型 (LLM) 的输出，无论是在图的任何部分，包括节点、工具、子图或任务。
 
-Use the `messages` streaming mode to stream Large Language Model (LLM) outputs **token by token** from any part of your graph, including nodes, tools, subgraphs, or tasks.
+[`messages`模式](#supported-stream-modes)的流式输出是一个 `(message_chunk, metadata)` 元组，其中：
 
-The streamed output from [`messages` mode](#supported-stream-modes) is a tuple `(message_chunk, metadata)` where:
+- `message_chunk`：来自 LLM 的 token 或消息片段。
+- `metadata`：一个包含图节点和 LLM 调用详细信息的字典。
 
-- `message_chunk`: the token or message segment from the LLM.
-- `metadata`: a dictionary containing details about the graph node and LLM invocation.
-
-> If your LLM is not available as a LangChain integration, you can stream its outputs using `custom` mode instead. See [use with any LLM](#use-with-any-llm) for details.
+> 如果您的 LLM 未作为 LangChain 集成提供，则可以使用 `custom` 模式进行流式传输。有关详细信息，请参阅[与任何 LLM 一起使用](#use-with-any-llm)。
  
-!!! warning "Manual config required for async in Python < 3.11"
+!!! 警告 "Python < 3.11 的 Async 需要手动配置"
 
-    When using Python < 3.11 with async code, you must explicitly pass `RunnableConfig` to `ainvoke()` to enable proper streaming. See [Async with Python < 3.11](#async) for details or upgrade to Python 3.11+.
+    在使用 Python < 3.11 并运行异步代码时，您必须显式地将 `RunnableConfig` 传递给 `ainvoke()` 以启用正确的流式传输。有关详细信息，请参阅[Python < 3.11 的 Async](#async) 或升级到 Python 3.11+。
 
 ```python
 from dataclasses import dataclass
@@ -501,21 +499,20 @@ for message_chunk, metadata in graph.stream( # (2)!
         print(message_chunk.content, end="|", flush=True)
 ```
 
-1. Note that the message events are emitted even when the LLM is run using `.invoke` rather than `.stream`.
-2. The "messages" stream mode returns an iterator of tuples `(message_chunk, metadata)` where `message_chunk` is the token streamed by the LLM and `metadata` is a dictionary with information about the graph node where the LLM was called and other information.
+1. 请注意，即使 LLM 使用 `.invoke` 而不是 `.stream` 运行，也会发出消息事件。
+2. "messages" 流模式返回一个 `(message_chunk, metadata)` 元组的迭代器，其中 `message_chunk` 是 LLM 流式的 token，`metadata` 是包含 LLM 调用所在的图节点信息和其他信息的字典。
 
+#### 按 LLM 调用过滤
 
-#### Filter by LLM invocation
-
-You can associate `tags` with LLM invocations to filter the streamed tokens by LLM invocation.
+您可以为 LLM 调用关联 `tags`，以按 LLM 调用过滤流式传输的 token。
 
 ```python
 from langchain.chat_models import init_chat_model
 
-llm_1 = init_chat_model(model="openai:gpt-4o-mini", tags=['joke']) # (1)!
-llm_2 = init_chat_model(model="openai:gpt-4o-mini", tags=['poem']) # (2)!
+joke_model = init_chat_model(model="openai:gpt-4o-mini", tags=['joke']) # (1)!
+poem_model = init_chat_model(model="openai:gpt-4o-mini", tags=['poem']) # (2)!
 
-graph = ... # define a graph that uses these LLMs
+graph = ... # 定义一个使用这些 LLM 的图
 
 async for msg, metadata in graph.astream(  # (3)!
     {"topic": "cats"},
@@ -526,13 +523,12 @@ async for msg, metadata in graph.astream(  # (3)!
         print(msg.content, end="|", flush=True)
 ```
 
-1. llm_1 is tagged with "joke".
-2. llm_2 is tagged with "poem".
-3. The `stream_mode` is set to "messages" to stream LLM tokens. The `metadata` contains information about the LLM invocation, including the tags.
-4. Filter the streamed tokens by the `tags` field in the metadata to only include the tokens from the LLM invocation with the "joke" tag.
+1. joke_model 被标记为 "joke"。
+2. poem_model 被标记为 "poem"。
+3. `stream_mode` 设置为 "messages" 以流式传输 LLM token。 `metadata` 包含 LLM 调用信息，包括标签。
+4. 通过元数据中的 `tags` 字段过滤流式传输的 token，以仅包含带有 "joke" 标签的 LLM 调用的 token。
 
-
-??? example "Extended example: filtering by tags"
+??? 示例 "扩展示例：按标签过滤"
 
       ```python
       from typing import TypedDict
@@ -553,8 +549,8 @@ async for msg, metadata in graph.astream(  # (3)!
       async def call_model(state, config):
             topic = state["topic"]
             print("Writing joke...")
-            # Note: Passing the config through explicitly is required for python < 3.11
-            # Since context var support wasn't added before then: https://docs.python.org/3/library/asyncio-task.html#creating-tasks
+            # 注意：显式传递 config 对于 Python < 3.11 是必需的
+            # 因为上下文变量支持在此之前并未添加：https://docs.python.org/3/library/asyncio-task.html#creating-tasks
             joke_response = await joke_model.ainvoke(
                   [{"role": "user", "content": f"Write a joke about {topic}"}],
                   config, # (3)!
@@ -583,15 +579,14 @@ async for msg, metadata in graph.astream(  # (3)!
               print(msg.content, end="|", flush=True)
       ```
 
-      1. The `joke_model` is tagged with "joke".
-      2. The `poem_model` is tagged with "poem".
-      3. The `config` is passed through explicitly to ensure the context vars are propagated correctly. This is required for Python < 3.11 when using async code. Please see the [async section](#async) for more details.
-      4. The `stream_mode` is set to "messages" to stream LLM tokens. The `metadata` contains information about the LLM invocation, including the tags.
+      1. `joke_model` 被标记为 "joke"。
+      2. `poem_model` 被标记为 "poem"。
+      3. 显式传递 `config` 以确保正确传播上下文变量。这对于 Python < 3.11 使用异步代码是必需的。有关更多详细信息，请参阅[异步部分](#async)。
+      4. `stream_mode` 设置为 "messages" 以流式传输 LLM token。 `metadata` 包含 LLM 调用信息，包括标签。
 
+#### 按节点过滤
 
-#### Filter by node
-
-To stream tokens only from specific nodes, use `stream_mode="messages"` and filter the outputs by the `langgraph_node` field in the streamed metadata:
+要仅从特定节点流式传输 token，请使用 `stream_mode="messages"` 并按流式传输元数据中的 `langgraph_node` 字段进行过滤：
 
 ```python
 for msg, metadata in graph.stream( # (1)!
@@ -604,10 +599,10 @@ for msg, metadata in graph.stream( # (1)!
         ...
 ```
 
-1. The "messages" stream mode returns a tuple of `(message_chunk, metadata)` where `message_chunk` is the token streamed by the LLM and `metadata` is a dictionary with information about the graph node where the LLM was called and other information.
-2. Filter the streamed tokens by the `langgraph_node` field in the metadata to only include the tokens from the `write_poem` node.
+1. "messages" 流模式返回一个 `(message_chunk, metadata)` 元组，其中 `message_chunk` 是 LLM 流式的 token，`metadata` 是包含 LLM 调用所在的图节点信息和其他信息的字典。
+2. 通过元数据中的 `langgraph_node` 字段过滤流式传输的 token，以仅包含来自 `write_poem` 节点的 token。
 
-??? example "Extended example: streaming LLM tokens from specific nodes"
+??? 示例 "扩展示例：从特定节点流式传输 LLM token"
 
       ```python
       from typing import TypedDict
@@ -643,7 +638,7 @@ for msg, metadata in graph.stream( # (1)!
             StateGraph(State)
             .add_node(write_joke)
             .add_node(write_poem)
-            # write both the joke and the poem concurrently
+            # concurrently write both the joke and the poem
             .add_edge(START, "write_joke")
             .add_edge(START, "write_poem")
             .compile()
@@ -659,21 +654,21 @@ for msg, metadata in graph.stream( # (1)!
               print(msg.content, end="|", flush=True)
       ```
 
-      1. The "messages" stream mode returns a tuple of `(message_chunk, metadata)` where `message_chunk` is the token streamed by the LLM and `metadata` is a dictionary with information about the graph node where the LLM was called and other information.
-      2. Filter the streamed tokens by the `langgraph_node` field in the metadata to only include the tokens from the `write_poem` node.
+      1. "messages" 流模式返回一个 `(message_chunk, metadata)` 元组，其中 `message_chunk` 是 LLM 流式的 token，`metadata` 是包含 LLM 调用所在的图节点信息和其他信息的字典。
+      2. 通过元数据中的 `langgraph_node` 字段过滤流式传输的 token，以仅包含来自 `write_poem` 节点的 token。
 
-### Stream custom data
+### 流式传输自定义数据
 
-To send **custom user-defined data** from inside a LangGraph node or tool, follow these steps:
+要从 LangGraph 节点或工具中发送**用户定义的自定义数据**，请遵循以下步骤：
 
-1. Use `get_stream_writer()` to access the stream writer and emit custom data.
-2. Set `stream_mode="custom"` when calling `.stream()` or `.astream()` to get the custom data in the stream. You can combine multiple modes (e.g., `["updates", "custom"]`), but at least one must be `"custom"`.
+1. 使用 `get_stream_writer()` 访问流式写入器并发出自定义数据。
+2. 在调用 `.stream()` 或 `.astream()` 时设置 `stream_mode="custom"` 以在流中获取自定义数据。您可以组合多种模式（例如 `["updates", "custom"]`），但至少一种模式必须是 `"custom"`。
 
-!!! warning "No `get_stream_writer()` in async for Python < 3.11"
+!!! 警告 "Python < 3.11 的 Async 中没有 `get_stream_writer()`"
 
-    In async code running on Python < 3.11, `get_stream_writer()` will not work.  
-    Instead, add a `writer` parameter to your node or tool and pass it manually.  
-    See [Async with Python < 3.11](#async) for usage examples.
+    在 Python < 3.11 上运行的异步代码中，`get_stream_writer()` 将无法正常工作。
+    相反，请在节点或工具中添加 `writer` 参数，并手动传递它。
+    有关用法示例，请参阅[Python < 3.11 的 Async](#async)。
 
 
 === "node"
@@ -706,9 +701,9 @@ To send **custom user-defined data** from inside a LangGraph node or tool, follo
           print(chunk)
       ```
 
-      1. Get the stream writer to send custom data.
-      2. Emit a custom key-value pair (e.g., progress update).
-      3. Set `stream_mode="custom"` to receive the custom data in the stream.
+      1. 获取流式写入器以发送自定义数据。
+      2. 发出自定义键值对（例如，进度更新）。
+      3. 设置 `stream_mode="custom"` 以在流中接收自定义数据。
 
 === "tool"
 
@@ -728,22 +723,22 @@ To send **custom user-defined data** from inside a LangGraph node or tool, follo
           return "some-answer" 
 
 
-      graph = ... # define a graph that uses this tool
+      graph = ... # 定义一个使用此工具的图
 
       for chunk in graph.stream(inputs, stream_mode="custom"): # (4)!
           print(chunk)
       ```
 
-      1. Access the stream writer to send custom data.
-      2. Emit a custom key-value pair (e.g., progress update).
-      3. Emit another custom key-value pair.
-      4. Set `stream_mode="custom"` to receive the custom data in the stream.
+      1. 访问流式写入器以发送自定义数据。
+      2. 发出自定义键值对（例如，进度更新）。
+      3. 发出另一个自定义键值对。
+      4. 设置 `stream_mode="custom"` 以在流中接收自定义数据。
 
-### Use with any LLM
+### 与任何 LLM 一起使用
 
-You can use `stream_mode="custom"` to stream data from **any LLM API**  — even if that API does **not** implement the LangChain chat model interface.
+您可以使用 `stream_mode="custom"` 来流式传输**任何 LLM API** 的数据 — 即使该 API **没有**实现 LangChain 聊天模型接口。
 
-This lets you integrate raw LLM clients or external services that provide their own streaming interfaces, making LangGraph highly flexible for custom setups.
+这使您可以集成原始 LLM 客户端或提供自己流式接口的外部服务，从而使 LangGraph 在自定义设置中具有高度灵活性。
 
 ```python
 from langgraph.config import get_stream_writer
@@ -774,13 +769,13 @@ for chunk in graph.stream(
     print(chunk)
 ```
 
-1. Get the stream writer to send custom data.
-2. Generate LLM tokens using your custom streaming client.
-3. Use the writer to send custom data to the stream.
-4. Set `stream_mode="custom"` to receive the custom data in the stream.
+1. 获取流式写入器以发送自定义数据。
+2. 使用自定义流式客户端生成 LLM token。
+3. 使用写入器将自定义数据发送到流。
+4. 设置 `stream_mode="custom"` 以在流中接收自定义数据。
 
 
-??? example "Extended example: streaming arbitrary chat model"
+??? 示例 "扩展示例：流式传输任意聊天模型"
       ```python
       import operator
       import json
@@ -869,7 +864,7 @@ for chunk in graph.stream(
       )
       ```
 
-      Let's invoke the graph with an AI message that includes a tool call:
+      let's invoke the graph with an AI message that includes a tool call:
 
       ```python
       inputs = {
@@ -898,13 +893,11 @@ for chunk in graph.stream(
           print(chunk["content"], end="|", flush=True)
       ```
 
+### 为特定聊天模型禁用流式传输
 
-### Disable streaming for specific chat models
+如果您的应用程序混合了支持流式传输和不支持流式传输的模型，您可能需要显式为不支持的模型禁用流式传输。
 
-If your application mixes models that support streaming with those that do not, you may need to explicitly disable streaming for 
-models that do not support it.
-
-Set `disable_streaming=True` when initializing the model.
+在初始化模型时设置 `disable_streaming=True`。
 
 === "init_chat_model"
       
@@ -918,7 +911,7 @@ Set `disable_streaming=True` when initializing the model.
       )
       ```
 
-      1. Set `disable_streaming=True` to disable streaming for the chat model.
+      1. 设置 `disable_streaming=True` 以禁用聊天模型的流式传输。
 
 === "chat model interface"
 
@@ -928,18 +921,17 @@ Set `disable_streaming=True` when initializing the model.
       llm = ChatOpenAI(model="o1-preview", disable_streaming=True) # (1)!
       ```
 
-      1. Set `disable_streaming=True` to disable streaming for the chat model.
+      1. 设置 `disable_streaming=True` 以禁用聊天模型的流式传输。
 
+### Python < 3.11 的 Async { #async }
 
-### Async with Python < 3.11 { #async }
+在 Python 版本 < 3.11 中，[asyncio 任务](https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task)不支持 `context` 参数。
+这限制了 LangGraph 自动传播上下文的能力，并以两种关键方式影响 LangGraph 的流式传输机制：
 
-In Python versions < 3.11, [asyncio tasks](https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task) do not support the `context` parameter.  
-This limits LangGraph ability to automatically propagate context, and affects LangGraph’s streaming mechanisms in two key ways:
+1. 您**必须**将 [`RunnableConfig`](https://python.langchain.com/docs/concepts/runnables/#runnableconfig) 显式传递给异步 LLM 调用（例如 `ainvoke()`），因为回调不会自动传播。
+2. 您**不能**在异步节点或工具中使用 `get_stream_writer()` — 您必须直接传递 `writer` 参数。
 
-1. You **must** explicitly pass [`RunnableConfig`](https://python.langchain.com/docs/concepts/runnables/#runnableconfig) into async LLM calls (e.g., `ainvoke()`), as callbacks are not automatically propagated.
-2. You **cannot** use `get_stream_writer()` in async nodes or tools — you must pass a `writer` argument directly.
-
-??? example "Extended example: async LLM call with manual config"
+??? 示例 "扩展示例：使用手动配置的异步 LLM 调用"
 
       ```python
       from typing import TypedDict
@@ -978,11 +970,11 @@ This limits LangGraph ability to automatically propagate context, and affects La
               print(chunk.content, end="|", flush=True)
       ```
 
-      1. Accept `config` as an argument in the async node function.
-      2. Pass `config` to `llm.ainvoke()` to ensure proper context propagation. 
-      3. Set `stream_mode="messages"` to stream LLM tokens.
+      1. 在异步节点函数中接受 `config` 作为参数。
+      2. 将 `config` 传递给 `llm.ainvoke()` 以确保正确的上下文传播。 
+      3. 设置 `stream_mode="messages"` 以流式传输 LLM token。
 
-??? example "Extended example: async custom streaming with stream writer"
+??? 示例 "扩展示例：带有流式写入器的异步自定义流式传输"
 
       ```python
       from typing import TypedDict
@@ -1012,5 +1004,5 @@ This limits LangGraph ability to automatically propagate context, and affects La
             print(chunk)
       ```
 
-      1. Add `writer` as an argument in the function signature of the async node or tool. LangGraph will automatically pass the stream writer to the function.
-      2. Set `stream_mode="custom"` to receive the custom data in the stream.
+      1. 在异步节点或工具的函数签名中添加 `writer` 作为参数。LangGraph 将自动将流式写入器传递给函数。
+      2. 设置 `stream_mode="custom"` 以在流中接收自定义数据。

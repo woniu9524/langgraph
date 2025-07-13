@@ -1,30 +1,30 @@
-# How to integrate LangGraph into your React application
+# 如何将 LangGraph 集成到你的 React 应用中
 
-!!! info "Prerequisites"
+!!! info "先决条件"
 
     - [LangGraph Platform](../../concepts/langgraph_platform.md)
     - [LangGraph Server](../../concepts/langgraph_server.md)
 
-The `useStream()` React hook provides a seamless way to integrate LangGraph into your React applications. It handles all the complexities of streaming, state management, and branching logic, letting you focus on building great chat experiences.
+`useStream()` React hook 提供了一种无缝集成 LangGraph 到你的 React 应用中的方法。它处理了流式传输、状态管理和分支逻辑的所有复杂性，让你能够专注于构建出色的聊天体验。
 
-Key features:
+主要特性：
 
-- Messages streaming: Handle a stream of message chunks to form a complete message
-- Automatic state management for messages, interrupts, loading states, and errors
-- Conversation branching: Create alternate conversation paths from any point in the chat history
-- UI-agnostic design: bring your own components and styling
+- 消息流式传输：处理消息块的流，以形成一条完整消息
+- 消息、中断、加载状态和错误的自动状态管理
+- 对话分支：从聊天历史的任何点创建 वैकल्पिक 对话路径
+- UI 无关设计：自带组件和样式
 
-Let's explore how to use `useStream()` in your React application.
+让我们探索一下如何在你的 React 应用中使用 `useStream()`。
 
-The `useStream()` provides a solid foundation for creating bespoke chat experiences. For pre-built chat components and interfaces, we also recommend checking out [CopilotKit](https://docs.copilotkit.ai/coagents/quickstart/langgraph) and [assistant-ui](https://www.assistant-ui.com/docs/runtimes/langgraph).
+`useStream()` 为创建定制化的聊天体验提供了坚实的基础。对于预先构建的聊天组件和界面，我们也推荐查看 [CopilotKit](https://docs.copilotkit.ai/coagents/quickstart/langgraph) 和 [assistant-ui](https://www.assistant-ui.com/docs/runtimes/langgraph)。
 
-## Installation
+## 安装
 
 ```bash
 npm install @langchain/langgraph-sdk @langchain/core
 ```
 
-## Example
+## 示例
 
 ```tsx
 "use client";
@@ -62,10 +62,10 @@ export default function App() {
 
         {thread.isLoading ? (
           <button key="stop" type="button" onClick={() => thread.stop()}>
-            Stop
+            停止
           </button>
         ) : (
-          <button keytype="submit">Send</button>
+          <button key="submit" type="submit">发送</button>
         )}
       </form>
     </div>
@@ -73,25 +73,25 @@ export default function App() {
 }
 ```
 
-## Customizing Your UI
+## 自定义你的 UI
 
-The `useStream()` hook takes care of all the complex state management behind the scenes, providing you with simple interfaces to build your UI. Here's what you get out of the box:
+`useStream()` hook 在后台处理所有复杂的无状态管理，为你提供简单的接口来构建你的 UI。以下是你可以开箱即用的功能：
 
-- Thread state management
-- Loading and error states
-- Interrupts
-- Message handling and updates
-- Branching support
+- Thread 状态管理
+- 加载和错误状态
+- 中断
+- 消息处理和更新
+- 分支支持
 
-Here are some examples on how to use these features effectively:
+以下是一些关于如何有效使用这些功能的示例：
 
-### Loading States
+### 加载状态
 
-The `isLoading` property tells you when a stream is active, enabling you to:
+`isLoading` 属性会告诉你流是否处于活动状态，使你能够：
 
-- Show a loading indicator
-- Disable input fields during processing
-- Display a cancel button
+- 显示加载指示器
+- 在处理过程中禁用输入字段
+- 显示取消按钮
 
 ```tsx
 export default function App() {
@@ -105,7 +105,7 @@ export default function App() {
     <form>
       {isLoading && (
         <button key="stop" type="button" onClick={() => stop()}>
-          Stop
+          停止
         </button>
       )}
     </form>
@@ -113,9 +113,9 @@ export default function App() {
 }
 ```
 
-### Resume a stream after page refresh
+### 页面刷新后恢复流
 
-The `useStream()` hook can automatically resume an ongoing run upon mounting by setting `reconnectOnMount: true`. This is useful for continuing a stream after a page refresh, ensuring no messages and events generated during the downtime are lost.
+`useStream()` hook 可以通过设置 `reconnectOnMount: true` 来在挂载时自动恢复正在进行的运行。这对于在页面刷新后继续流式传输非常有用，确保在停机期间生成的任何消息和事件都不会丢失。
 
 ```tsx
 const thread = useStream<{ messages: Message[] }>({
@@ -125,7 +125,7 @@ const thread = useStream<{ messages: Message[] }>({
 });
 ```
 
-By default the ID of the created run is stored in `window.sessionStorage`, which can be swapped by passing a custom storage in `reconnectOnMount` instead. The storage is used to persist the in-flight run ID for a thread (under `lg:stream:${threadId}` key).
+默认情况下，创建的运行的 ID 存储在 `window.sessionStorage` 中，可以通过在 `reconnectOnMount` 中传递自定义存储来替换。该存储用于持久化线程的进行中运行 ID（在 `lg:stream:${threadId}` 键下）。
 
 ```tsx
 const thread = useStream<{ messages: Message[] }>({
@@ -135,7 +135,7 @@ const thread = useStream<{ messages: Message[] }>({
 });
 ```
 
-You can also manually manage the resuming process by using the run callbacks to persist the run metadata and the `joinStream` function to resume the stream. Make sure to pass `streamResumable: true` when creating the run; otherwise some events might be lost.
+你还可以通过使用运行回调来持久化运行元数据和 `joinStream` 函数来恢复流来手动管理恢复过程。确保在创建运行时传递 `streamResumable: true`；否则可能会丢失某些事件。
 
 ````tsx
 import type { Message } from "@langchain/langgraph-sdk";
@@ -160,7 +160,7 @@ export default function App() {
     },
   });
 
-  // Ensure that we only join the stream once per thread.
+  // 确保每个线程只加入一次流。
   const joinedThreadId = useRef<string | null>(null);
   useEffect(() => {
     if (!threadId) return;
@@ -190,12 +190,12 @@ export default function App() {
         ))}
       </div>
       <input type="text" name="message" />
-      <button type="submit">Send</button>
+      <button type="submit">发送</button>
     </form>
   );
 }
 
-// Utility method to retrieve and persist data in URL as search param
+// 用于在 URL 中检索和持久化搜索参数的实用方法
 function useSearchParam(key: string) {
   const [value, setValue] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -220,11 +220,11 @@ function useSearchParam(key: string) {
 
   return [value, update] as const;
 }
-```
+````
 
-### Thread Management
+### 线程管理
 
-Keep track of conversations with built-in thread management. You can access the current thread ID and get notified when new threads are created:
+通过内置的线程管理来跟踪对话。你可以访问当前线程 ID，并在创建新线程时收到通知：
 
 ```tsx
 const [threadId, setThreadId] = useState<string | null>(null);
@@ -238,13 +238,13 @@ const thread = useStream<{ messages: Message[] }>({
 });
 ````
 
-We recommend storing the `threadId` in your URL's query parameters to let users resume conversations after page refreshes.
+我们建议将 `threadId` 存储在 URL 的查询参数中，以便用户在刷新页面后可以恢复对话。
 
-### Messages Handling
+### 消息处理
 
-The `useStream()` hook will keep track of the message chunks received from the server and concatenate them together to form a complete message. The completed message chunks can be retrieved via the `messages` property.
+`useStream()` hook 将跟踪从服务器接收到的消息块，并将它们连接起来形成一条完整消息。可以通过 `messages` 属性检索已完成的消息块。
 
-By default, the `messagesKey` is set to `messages`, where it will append the new messages chunks to `values["messages"]`. If you store messages in a different key, you can change the value of `messagesKey`.
+默认情况下，`messagesKey` 设置为 `messages`，它会将新的消息块追加到 `values["messages"]`。如果将消息存储在不同的键中，则可以更改 `messagesKey` 的值。
 
 ```tsx
 import type { Message } from "@langchain/langgraph-sdk";
@@ -267,16 +267,16 @@ export default function HomePage() {
 }
 ```
 
-Under the hood, the `useStream()` hook will use the `streamMode: "messages-tuple"` to receive a stream of messages (i.e. individual LLM tokens) from any LangChain chat model invocations inside your graph nodes. Learn more about messages streaming in the [streaming](../how-tos/streaming.md#messages) guide.
+在内部，`useStream()` hook 将使用 `streamMode: "messages-tuple"` 来接收来自你的图节点中任何 LangChain 聊天模型调用的消息流（即单独的 LLM token）。在 [streaming](../how-tos/streaming.md#messages) 指南中了解更多关于消息流式传输的信息。
 
-### Interrupts
+### 中断
 
-The `useStream()` hook exposes the `interrupt` property, which will be filled with the last interrupt from the thread. You can use interrupts to:
+`useStream()` hook 暴露了 `interrupt` 属性，该属性将填充来自线程的最后一个中断。你可以使用中断来：
 
-- Render a confirmation UI before executing a node
-- Wait for human input, allowing agent to ask the user with clarifying questions
+- 在执行节点之前渲染确认 UI
+- 等待用户输入，允许代理向用户提出澄清性问题
 
-Learn more about interrupts in the [How to handle interrupts](../../how-tos/human_in_the_loop/wait-user-input.ipynb) guide.
+在 [如何处理中断](../../how-tos/human_in_the_loop/wait-user-input.ipynb) 指南中了解更多关于中断的信息。
 
 ```tsx
 const thread = useStream<{ messages: Message[] }, { InterruptType: string }>({
@@ -288,29 +288,29 @@ const thread = useStream<{ messages: Message[] }, { InterruptType: string }>({
 if (thread.interrupt) {
   return (
     <div>
-      Interrupted! {thread.interrupt.value}
+      已中断！ {thread.interrupt.value}
       <button
         type="button"
         onClick={() => {
-          // `resume` can be any value that the agent accepts
+          // `resume` 可以是代理接受的任何值
           thread.submit(undefined, { command: { resume: true } });
         }}
       >
-        Resume
+        恢复
       </button>
     </div>
   );
 }
 ```
 
-### Branching
+### 分支
 
-For each message, you can use `getMessagesMetadata()` to get the first checkpoint from which the message has been first seen. You can then create a new run from the checkpoint preceding the first seen checkpoint to create a new branch in a thread.
+对于每条消息，你可以使用 `getMessagesMetadata()` 来获取该消息首次出现时的第一个检查点。然后，你可以从第一个检查点之前的检查点创建一个新的运行，从而在线程中创建新的分支。
 
-A branch can be created in following ways:
+分支可以通过以下方式创建：
 
-1. Edit a previous user message.
-2. Request a regeneration of a previous assistant message.
+1. 编辑之前的用户消息。
+2. 请求重新生成之前的助手消息。
 
 ```tsx
 "use client";
@@ -341,7 +341,7 @@ function BranchSwitcher({
           onSelect(prevBranch);
         }}
       >
-        Prev
+        上一个
       </button>
       <span>
         {index + 1} / {branchOptions.length}
@@ -354,7 +354,7 @@ function BranchSwitcher({
           onSelect(nextBranch);
         }}
       >
-        Next
+        下一个
       </button>
     </div>
   );
@@ -372,7 +372,7 @@ function EditMessage({
   if (!editing) {
     return (
       <button type="button" onClick={() => setEditing(true)}>
-        Edit
+        编辑
       </button>
     );
   }
@@ -390,7 +390,7 @@ function EditMessage({
       }}
     >
       <input name="content" defaultValue={message.content as string} />
-      <button type="submit">Save</button>
+      <button type="submit">保存</button>
     </form>
   );
 }
@@ -432,7 +432,7 @@ export default function App() {
                     thread.submit(undefined, { checkpoint: parentCheckpoint })
                   }
                 >
-                  <span>Regenerate</span>
+                  <span>重新生成</span>
                 </button>
               )}
 
@@ -461,11 +461,11 @@ export default function App() {
 
         {thread.isLoading ? (
           <button key="stop" type="button" onClick={() => thread.stop()}>
-            Stop
+            停止
           </button>
         ) : (
           <button key="submit" type="submit">
-            Send
+            发送
           </button>
         )}
       </form>
@@ -474,11 +474,11 @@ export default function App() {
 }
 ```
 
-For advanced use cases you can use the `experimental_branchTree` property to get the tree representation of the thread, which can be used to render branching controls for non-message based graphs.
+对于高级用例，你可以使用 `experimental_branchTree` 属性来获取线程的树形表示，这可以用于渲染非消息型图的分支控件。
 
-### Optimistic Updates
+### 乐观更新
 
-You can optimistically update the client state before performing a network request to the agent, allowing you to provide immediate feedback to the user, such as showing the user message immediately before the agent has seen the request.
+你可以在执行代理的网络请求之前乐观地更新客户端状态，这可以让你向用户提供即时反馈，例如在代理处理请求之前立即显示用户消息。
 
 ```tsx
 const stream = useStream({
@@ -503,9 +503,9 @@ const handleSubmit = (text: string) => {
 };
 ```
 
-### Cached Thread Display
+### 缓存线程显示
 
-Use the `initialValues` option to display cached thread data immediately while the history is being loaded from the server. This improves user experience by showing cached data instantly when navigating to existing threads.
+使用 `initialValues` 选项可立即显示缓存的线程数据，同时从服务器加载历史记录。这通过在导航到现有线程时立即显示缓存数据来改善用户体验。
 
 ```tsx
 import { useStream } from "@langchain/langgraph-sdk/react";
@@ -515,7 +515,7 @@ const CachedThreadExample = ({ threadId, cachedThreadData }) => {
     apiUrl: "http://localhost:2024",
     assistantId: "agent",
     threadId,
-    // Show cached data immediately while history loads
+    // 在加载历史记录时立即显示缓存数据
     initialValues: cachedThreadData?.values,
     messagesKey: "messages",
   });
@@ -530,9 +530,9 @@ const CachedThreadExample = ({ threadId, cachedThreadData }) => {
 };
 ```
 
-### Optimistic Thread Creation
+### 乐观线程创建
 
-Use the `threadId` option in `submit` function to enable optimistic UI patterns where you need to know the thread ID before the thread is actually created.
+在 `submit` 函数中使用 `threadId` 选项来启用乐观 UI 模式，你需要在线程实际创建之前知道线程 ID。
 
 ```tsx
 import { useState } from "react";
@@ -546,16 +546,16 @@ const OptimisticThreadExample = () => {
     apiUrl: "http://localhost:2024",
     assistantId: "agent",
     threadId,
-    onThreadId: setThreadId, // (3) Updated after thread has been created.
+    onThreadId: setThreadId, // (3) 在线程创建后更新。
     messagesKey: "messages",
   });
 
   const handleSubmit = (text: string) => {
-    // (1) Perform a soft navigation to /threads/${optimisticThreadId}
-    // without waiting for thread creation.
+    // (1) 进行软导航到 /threads/${optimisticThreadId}
+    // 无需等待线程创建。
     window.history.pushState({}, "", `/threads/${optimisticThreadId}`);
 
-    // (2) Submit message to create thread with the predetermined ID.
+    // (2) 提交消息以使用预定 ID 创建线程。
     stream.submit(
       { messages: [{ type: "human", content: text }] },
       { threadId: optimisticThreadId }
@@ -565,7 +565,7 @@ const OptimisticThreadExample = () => {
   return (
     <div>
       <p>Thread ID: {threadId ?? optimisticThreadId}</p>
-      {/* Rest of component */}
+      {/* 组件的其余部分 */}
     </div>
   );
 };
@@ -573,16 +573,16 @@ const OptimisticThreadExample = () => {
 
 ### TypeScript
 
-The `useStream()` hook is friendly for apps written in TypeScript and you can specify types for the state to get better type safety and IDE support.
+`useStream()` hook 对使用 TypeScript 编写的应用非常友好，你可以为状态指定类型以获得更好的类型安全和 IDE 支持。
 
 ```tsx
-// Define your types
+// 定义你的类型
 type State = {
   messages: Message[];
   context?: Record<string, unknown>;
 };
 
-// Use them with the hook
+// 在 hook 中使用它们
 const thread = useStream<State>({
   apiUrl: "http://localhost:2024",
   assistantId: "agent",
@@ -590,12 +590,12 @@ const thread = useStream<State>({
 });
 ```
 
-You can also optionally specify types for different scenarios, such as:
+你还可以为不同场景选择性地指定类型，例如：
 
-- `ConfigurableType`: Type for the `config.configurable` property (default: `Record<string, unknown>`)
-- `InterruptType`: Type for the interrupt value - i.e. contents of `interrupt(...)` function (default: `unknown`)
-- `CustomEventType`: Type for the custom events (default: `unknown`)
-- `UpdateType`: Type for the submit function (default: `Partial<State>`)
+- `ConfigurableType`: `config.configurable` 属性的类型（默认为 `Record<string, unknown>`）
+- `InterruptType`: 中断值的类型 - 即 `interrupt(...)` 函数的内容（默认为 `unknown`）
+- `CustomEventType`: 自定义事件的类型（默认为 `unknown`）
+- `UpdateType`: submit 函数的类型（默认为 `Partial<State>`）
 
 ```tsx
 const thread = useStream<
@@ -621,7 +621,7 @@ const thread = useStream<
 });
 ```
 
-If you're using LangGraph.js, you can also reuse your graph's annotation types. However, make sure to only import the types of the annotation schema in order to avoid importing the entire LangGraph.js runtime (i.e. via `import type { ... }` directive).
+如果你使用 LangGraph.js，你也可以重用你图的注解类型。但是，请确保仅导入注解模式的类型，以避免导入整个 LangGraph.js 运行时（例如，通过 `import type { ... }` 指令）。
 
 ```tsx
 import {
@@ -646,16 +646,16 @@ const thread = useStream<
 });
 ```
 
-## Event Handling
+## 事件处理
 
-The `useStream()` hook provides several callback options to help you respond to different events:
+`useStream()` hook 提供了几个回调选项来帮助你响应不同事件：
 
-- `onError`: Called when an error occurs.
-- `onFinish`: Called when the stream is finished.
-- `onUpdateEvent`: Called when an update event is received.
-- `onCustomEvent`: Called when a custom event is received. See the [streaming](../../how-tos/streaming.md#stream-custom-data) guide to learn how to stream custom events.
-- `onMetadataEvent`: Called when a metadata event is received, which contains the Run ID and Thread ID.
+- `onError`: 发生错误时调用。
+- `onFinish`: 流结束时调用。
+- `onUpdateEvent`: 收到更新事件时调用。
+- `onCustomEvent`: 收到自定义事件时调用。请参阅 [streaming](../../how-tos/streaming.md#stream-custom-data) 指南了解如何流式传输自定义事件。
+- `onMetadataEvent`: 收到元数据事件时调用，其中包含 Run ID 和 Thread ID。
 
-## Learn More
+## 了解更多
 
-- [JS/TS SDK Reference](../reference/sdk/js_ts_sdk_ref.md)
+- [JS/TS SDK 参考](../reference/sdk/js_ts_sdk_ref.md)

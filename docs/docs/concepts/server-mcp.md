@@ -6,39 +6,39 @@ hide:
   - tags
 ---
 
-# MCP endpoint in LangGraph Server
+# LangGraph Server 中的 MCP 端点
 
-The [Model Context Protocol (MCP)](./mcp.md) is an open protocol for describing tools and data sources in a model-agnostic format, enabling LLMs to discover and use them via a structured API. 
+[模型上下文协议 (MCP)](./mcp.md) 是一种用于以模型无关格式描述工具和数据源的开放协议，它使 LLM 能够通过结构化 API 来发现和使用它们。
 
-[LangGraph Server](./langgraph_server.md) implements MCP using the [Streamable HTTP transport](https://spec.modelcontextprotocol.io/specification/2025-03-26/basic/transports/#streamable-http). This allows LangGraph **agents** to be exposed as **MCP tools**, making them usable with any MCP-compliant client supporting Streamable HTTP.
+[LangGraph Server](./langgraph_server.md) 使用 [Streamable HTTP 传输](https://spec.modelcontextprotocol.io/specification/2025-03-26/basic/transports/#streamable-http) 来实现 MCP。这使得 LangGraph **代理 (agents)** 可以作为 **MCP 工具**公开，从而可供支持 Streamable HTTP 的任何符合 MCP 的客户端使用。
 
-The MCP endpoint is available at `/mcp` on [LangGraph Server](./langgraph_server.md).
+MCP 端点位于 [LangGraph Server](./langgraph_server.md) 的 `/mcp` 路径下。
 
-## Requirements
+## 要求
 
-To use MCP, ensure you have the following dependencies installed:
+要使用 MCP，请确保已安装以下依赖项：
 
 - `langgraph-api >= 0.2.3`
 - `langgraph-sdk >= 0.1.61`
 
-Install them with:
+使用以下命令安装它们：
 
 ```bash
 pip install "langgraph-api>=0.2.3" "langgraph-sdk>=0.1.61"
 ```
 
-## Usage overview
+## 用法概览
 
-To enable MCP:
+要启用 MCP：
 
-- Upgrade to use langgraph-api>=0.2.3. If you are deploying LangGraph Platform, this will be done for you automatically if you create a new revision.
-- MCP tools (agents) will be automatically exposed.
-- Connect with any MCP-compliant client that supports Streamable HTTP.
+- 升级到使用 langgraph-api>=0.2.3。如果您正在部署 LangGraph Platform，在创建新修订版时会自动完成此操作。
+- MCP 工具（代理）将自动公开。
+- 连接到任何支持 Streamable HTTP 的符合 MCP 的客户端。
 
 
-### Client
+### 客户端
 
-Use an MCP-compliant client to connect to the LangGraph server. The following examples show how to connect using different programming languages.
+使用符合 MCP 的客户端连接到 LangGraph 服务器。以下示例展示了如何使用不同的编程语言进行连接。
 
 === "JavaScript/TypeScript"
 
@@ -46,14 +46,14 @@ Use an MCP-compliant client to connect to the LangGraph server. The following ex
     npm install @modelcontextprotocol/sdk
     ```
 
-    > **Note**
-    > Replace `serverUrl` with your LangGraph server URL and configure authentication headers as needed.
+    > **注意**
+    > 将 `serverUrl` 替换为您的 LangGraph 服务器 URL，并根据需要配置身份验证标头。
 
     ```js
     import { Client } from "@modelcontextprotocol/sdk/client/index.js";
     import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-    // Connects to the LangGraph MCP endpoint
+    // 连接到 LangGraph MCP 端点
     async function connectClient(url) {
         const baseUrl = new URL(url);
         const client = new Client({
@@ -83,16 +83,16 @@ Use an MCP-compliant client to connect to the LangGraph server. The following ex
 === "Python"
 
 
-    Install the adapter with:
+    使用以下命令安装适配器：
 
     ```bash
     pip install langchain-mcp-adapters
     ```
 
-    Here is an example of how to connect to a remote MCP endpoint and use an agent as a tool:
+    以下是如何连接到远程 MCP 端点并使用代理作为工具的示例：
 
     ```python
-    # Create server parameters for stdio connection
+    # 为 stdio 连接创建服务器参数
     from mcp import ClientSession
     from mcp.client.streamable_http import streamablehttp_client
     import asyncio
@@ -110,16 +110,16 @@ Use an MCP-compliant client to connect to the LangGraph server. The following ex
     async def main():
         async with streamablehttp_client(**server_params) as (read, write, _):
             async with ClientSession(read, write) as session:
-                # Initialize the connection
+                # 初始化连接
                 await session.initialize()
 
-                # Load the remote graph as if it was a tool
+                # 加载远程图，就像它是一个工具一样
                 tools = await load_mcp_tools(session)
 
-                # Create and run a react agent with the tools
+                # 使用工具创建并运行一个 react 代理
                 agent = create_react_agent("openai:gpt-4.1", tools)
 
-                # Invoke the agent with a message
+                # 使用消息调用代理
                 agent_response = await agent.ainvoke({"messages": "What can the finance agent do for me?"})
                 print(agent_response)
 
@@ -127,18 +127,17 @@ Use an MCP-compliant client to connect to the LangGraph server. The following ex
         asyncio.run(main())
     ```
 
-## Expose an agent as MCP tool
+## 将代理公開为 MCP 工具
 
-When deployed, your agent will appear as a tool in the MCP endpoint
-with this configuration:
+部署后，您的代理将作为工具出现在 MCP 端点中，配置如下：
 
-- **Tool name**: The agent's name.
-- **Tool description**: The agent's description.
-- **Tool input schema**: The agent's input schema.
+- **工具名称 (Tool name)**：代理的名称。
+- **工具描述 (Tool description)**：代理的描述。
+- **工具输入模式 (Tool input schema)**：代理的输入模式。
 
-### Setting name and description 
+### 设置名称和描述
 
-You can set the name and description of your agent in `langgraph.json`:
+您可以在 `langgraph.json` 中设置代理的名称和描述：
 
 ```json
 {
@@ -152,66 +151,66 @@ You can set the name and description of your agent in `langgraph.json`:
 }
 ```
 
-After deployment, you can update the name and description using the LangGraph SDK.
+部署后，您可以使用 LangGraph SDK 更新名称和描述。
 
-### Schema
+### 模式 (Schema)
 
-Define clear, minimal input and output schemas to avoid exposing unnecessary internal complexity to the LLM.
+定义清晰、最小化的输入和输出模式，以避免向 LLM 公开不必要的内部复杂性。
 
-The default [MessagesState](./low_level.md#messagesstate) uses `AnyMessage`, which supports many message types but is too general for direct LLM exposure.
+默认的 [MessagesState](./low_level.md#messagesstate) 使用 `AnyMessage`，它支持许多消息类型，但对于直接暴露给 LLM 来说过于通用。
 
-Instead, define **custom agents or workflows** that use explicitly typed input and output structures.
+相反，请定义**自定义代理或工作流**，它们使用显式类型化的输入和输出结构。
 
-For example, a workflow answering documentation questions might look like this:
+例如，一个用于回答文档问题的示例工作流可能如下所示：
 
 ```python
 from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
 
-# Define input schema
+# 定义输入模式
 class InputState(TypedDict):
     question: str
 
-# Define output schema
+# 定义输出模式
 class OutputState(TypedDict):
     answer: str
 
-# Combine input and output
+# 合并输入和输出
 class OverallState(InputState, OutputState):
     pass
 
-# Define the processing node
+# 定义处理节点
 def answer_node(state: InputState):
-    # Replace with actual logic and do something useful
+    # 替换为实际逻辑并执行有用的操作
     return {"answer": "bye", "question": state["question"]}
 
-# Build the graph with explicit schemas
+# 使用显式模式构建图
 builder = StateGraph(OverallState, input_schema=InputState, output_schema=OutputState)
 builder.add_node(answer_node)
 builder.add_edge(START, "answer_node")
 builder.add_edge("answer_node", END)
 graph = builder.compile()
 
-# Run the graph
+# 运行图
 print(graph.invoke({"question": "hi"}))
 ```
 
-For more details, see the [low-level concepts guide](https://langchain-ai.github.io/langgraph/concepts/low_level/#state).
+有关更多详细信息，请参阅 [低级概念指南](https://langchain-ai.github.io/langgraph/concepts/low_level/#state)。
 
-## Use user-scoped MCP tools in your deployment
+## 在您的部署中使用用户范围的 MCP 工具
 
-!!! tip "Prerequisites"
+!!! tip "先决条件"
 
-    You have added your own [custom auth middleware](https://langchain-ai.github.io/langgraph/how-tos/auth/custom_auth/) that populates the `langgraph_auth_user` object, making it accessible through configurable context for every node in your graph. 
+    您已添加自己的 [自定义身份验证中间件](https://langchain-ai.github.io/langgraph/how-tos/auth/custom_auth/)，该中间件会填充 `langgraph_auth_user` 对象，使其可通过可配置上下文供图中的每个节点访问。
 
-To make user-scoped tools available to your LangGraph Platform deployment, start with implementing a snippet like the following: 
+要使您的 LangGraph Platform 部署可用用户范围的工具，请从实现以下代码段开始：
 
 ```python
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 def mcp_tools_node(state, config):
     user = config["configurable"].get("langgraph_auth_user")
-		 # e.g., user["github_token"], user["email"], etc.
+		 # 例如，user["github_token"], user["email"] 等
 		
     client = MultiServerMCPClient({
         "github": {
@@ -224,29 +223,29 @@ def mcp_tools_node(state, config):
     })
     tools = await client.get_tools() # (3)
     
-    # Your tool-calling logic here
+    # 您的工具调用逻辑
     
     tool_messages = ...
     return {"messages": tool_messages}
 ```
 
-1. MCP only supports adding headers to requests made to `streamable_http` and `sse` `transport` servers.
-2. Your MCP server URL.
-3. Get available tools from your MCP server.
+1. MCP 仅支持向 `streamable_http` 和 `sse` `transport` 服务器发出的请求添加标头。
+2. 您的 MCP 服务器 URL。
+3. 从您的 MCP 服务器获取可用工具。
 
-_This can also be done by [rebuilding your graph at runtime](https://langchain-ai.github.io/langgraph/cloud/deployment/graph_rebuild/) to have a different configuration for a new run_
+_也可以通过[在运行时重建您的图](https://langchain-ai.github.io/langgraph/cloud/deployment/graph_rebuild/) 来为新运行配置不同的设置来完成此操作_
 
-## Session behavior  
+## 会话行为
 
-The current LangGraph MCP implementation does not support sessions. Each `/mcp` request is stateless and independent.
+当前的 LangGraph MCP 实现不支持会话。每个 `/mcp` 请求都是无状态且独立的。
 
-## Authentication
+## 身份验证
 
-The `/mcp` endpoint uses the same authentication as the rest of the LangGraph API. Refer to the [authentication guide](./auth.md) for setup details.
+`/mcp` 端点使用与 LangGraph API 其余部分相同的身份验证。有关设置详细信息，请参阅[身份验证指南](./auth.md)。
 
-## Disable MCP
+## 禁用 MCP
 
-To disable the MCP endpoint, set `disable_mcp` to `true` in your `langgraph.json` configuration file:
+要禁用 MCP 端点，请在 `langgraph.json` 配置文件中将 `disable_mcp` 设置为 `true`：
 
 ```json
 {
@@ -256,4 +255,4 @@ To disable the MCP endpoint, set `disable_mcp` to `true` in your `langgraph.json
 }
 ```
 
-This will prevent the server from exposing the `/mcp` endpoint.
+这将阻止服务器公开 `/mcp` 端点。

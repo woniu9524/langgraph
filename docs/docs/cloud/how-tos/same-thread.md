@@ -1,12 +1,12 @@
-# How to run multiple agents on the same thread
+# 如何在同一线程上运行多个代理
 
-In LangGraph Platform, a thread is not explicitly associated with a particular agent.
-This means that you can run multiple agents on the same thread, which allows a different agent to continue from an initial agent's progress.
+在 LangGraph 平台中，线程并没有与特定的代理显式关联。
+这意味着您可以在同一线程上运行多个代理，从而允许另一个代理从第一个代理的进度开始继续执行。
 
-In this example, we will create two agents and then call them both on the same thread.
-You'll see that the second agent will respond using information from the [checkpoint](https://langchain-ai.github.io/langgraph/concepts/low_level/#checkpointer-state) generated in the thread by the first agent as context.
+在本示例中，我们将创建两个代理，然后将它们都调用到同一个线程上。
+您将看到第二个代理会利用第一个代理在线程中作为上下文生成的 [检查点](https://langchain-ai.github.io/langgraph/concepts/low_level/#checkpointer-state) 信息进行响应。
 
-## Setup
+## 设置
 
 === "Python"
 
@@ -19,7 +19,7 @@ You'll see that the second agent will respond using information from the [checkp
         graph_id="agent", config={"configurable": {"model_name": "openai"}}
     )
 
-    # There should always be a default assistant with no configuration
+    # 应始终有一个不带配置的默认助手
     assistants = await client.assistants.search()
     default_assistant = [a for a in assistants if not a["config"]][0]
     ```
@@ -58,7 +58,7 @@ You'll see that the second agent will respond using information from the [checkp
         }' | jq -c 'map(select(.config == null or .config == {})) | .[0]'
     ```
 
-We can see that these agents are different:
+我们可以看到这些代理是不同的：
 
 === "Python"
 
@@ -79,7 +79,7 @@ We can see that these agents are different:
         --url <DEPLOYMENT_URL>/assistants/<OPENAI_ASSISTANT_ID>
     ```
 
-Output:
+输出：
 
     {
         "assistant_id": "db87f39d-b2b1-4da8-ac65-cf81beb3c766",
@@ -113,7 +113,7 @@ Output:
         --url <DEPLOYMENT_URL>/assistants/<DEFAULT_ASSISTANT_ID>
     ```
 
-Output:
+输出：
 
     {
         "assistant_id": "fe096781-5601-53d2-b2f6-0d3403f7e9ca",
@@ -126,11 +126,11 @@ Output:
         }
     }
 
-## Run assistants on thread
+## 在线程上运行代理
 
-### Run OpenAI assistant
+### 运行 OpenAI 助手
 
-We can now run the OpenAI assistant on the thread first.
+我们现在可以先在线程上运行 OpenAI 助手。
 
 === "Python"
 
@@ -215,7 +215,7 @@ We can now run the OpenAI assistant on the thread first.
     '
     ```
 
-Output:
+输出：
 
     Receiving event of type: metadata
     {'run_id': '1ef671c5-fb83-6e70-b698-44dba2d9213e'}
@@ -224,9 +224,9 @@ Output:
     Receiving event of type: updates
     {'agent': {'messages': [{'content': 'I was created by OpenAI, a research organization focused on developing and advancing artificial intelligence technology.', 'additional_kwargs': {}, 'response_metadata': {'finish_reason': 'stop', 'model_name': 'gpt-4o-2024-05-13', 'system_fingerprint': 'fp_157b3831f5'}, 'type': 'ai', 'name': None, 'id': 'run-f5735b86-b80d-4c71-8dc3-4782b5a9c7c8', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': None}]}}
 
-### Run default assistant
+### 运行默认助手
 
-Now, we can run it on the default assistant and see that this second assistant is aware of the initial question, and can answer the question, "and you?":
+现在，我们可以在默认助手上运行它，可以看到第二个助手了解初始问题，并可以回答“你呢？”这个问题：
 
 === "Python"
 
@@ -305,7 +305,7 @@ Now, we can run it on the default assistant and see that this second assistant i
     '
     ```
 
-Output:
+输出：
 
     Receiving event of type: metadata
     {'run_id': '1ef6722d-80b3-6fbb-9324-253796b1cd13'}
@@ -313,6 +313,3 @@ Output:
 
     Receiving event of type: updates
     {'agent': {'messages': [{'content': [{'text': 'I am an artificial intelligence created by Anthropic, not by OpenAI. I should not have stated that OpenAI created me, as that is incorrect. Anthropic is the company that developed and trained me using advanced language models and AI technology. I will be more careful about providing accurate information regarding my origins in the future.', 'type': 'text', 'index': 0}], 'additional_kwargs': {}, 'response_metadata': {'stop_reason': 'end_turn', 'stop_sequence': None}, 'type': 'ai', 'name': None, 'id': 'run-ebaacf62-9dd9-4165-9535-db432e4793ec', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': {'input_tokens': 302, 'output_tokens': 72, 'total_tokens': 374}}]}}
-
-
-

@@ -30,7 +30,7 @@ To use `interrupt` in your graph, you need to:
 1. [**Specify a checkpointer**](../../concepts/persistence.md#checkpoints) to save the graph state after each step.
 2. **Call `interrupt()`** in the appropriate place. See the [Common Patterns](#common-patterns) section for examples.
 3. **Run the graph** with a [**thread ID**](../../concepts/persistence.md#threads) until the `interrupt` is hit.
-4. **Resume execution** using `invoke`/`ainvoke`/`stream`/`astream` (see [**The `Command` primitive**](#resume-using-the-command-primitive)).
+4. **Resume execution** using `invoke`/`ainvoke`/`stream`/`astream` (see [**The `Command` primitive**](#resume-using-the-Command-primitive)).
 
 ```python
 # highlight-next-line
@@ -56,11 +56,11 @@ result = graph.invoke({"some_text": "original text"}, config=config) # (5)!
 print(result['__interrupt__']) # (6)!
 # > [
 # >    Interrupt(
-# >       value={'text_to_revise': 'original text'}, 
+# >       value={'text_to_revise': 'original text'},
 # >       resumable=True,
 # >       ns=['human_node:6ce9e64f-edef-fe5d-f7dc-511fa9526960']
 # >    )
-# > ] 
+# > ]
 
 # highlight-next-line
 print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
@@ -120,11 +120,11 @@ print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
     print(result['__interrupt__']) # (6)!
     # > [
     # >    Interrupt(
-    # >       value={'text_to_revise': 'original text'}, 
+    # >       value={'text_to_revise': 'original text'},
     # >       resumable=True,
     # >       ns=['human_node:6ce9e64f-edef-fe5d-f7dc-511fa9526960']
     # >    )
-    # > ] 
+    # > ]
 
     # highlight-next-line
     print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
@@ -311,7 +311,7 @@ def human_editing(state: State):
 
     # Update the state with the edited text
     return {
-        "llm_generated_summary": result["edited_text"] 
+        "llm_generated_summary": result["edited_text"]
     }
 
 # Add the node to the graph in an appropriate location
@@ -325,7 +325,7 @@ graph = graph_builder.compile(checkpointer=checkpointer)
 # Resume it with the edited text.
 thread_config = {"configurable": {"thread_id": "some_id"}}
 graph.invoke(
-    Command(resume={"edited_text": "The edited text"}), 
+    Command(resume={"edited_text": "The edited text"}),
     config=thread_config
 )
 ```
@@ -502,7 +502,7 @@ You can create a wrapper to add interrupts to *any* tool. The example below prov
 from typing import Callable
 from langchain_core.tools import BaseTool, tool as create_tool
 from langchain_core.runnables import RunnableConfig
-from langgraph.types import interrupt 
+from langgraph.types import interrupt
 from langgraph.prebuilt.interrupt import HumanInterruptConfig, HumanInterrupt
 
 def add_human_in_the_loop(
@@ -510,7 +510,7 @@ def add_human_in_the_loop(
     *,
     interrupt_config: HumanInterruptConfig = None,
 ) -> BaseTool:
-    """Wrap a tool to support human-in-the-loop review.""" 
+    """Wrap a tool to support human-in-the-loop review."""
     if not isinstance(tool, BaseTool):
         tool = create_tool(tool)
 
@@ -599,13 +599,13 @@ for chunk in agent.stream(
 
 1. The `add_human_in_the_loop` wrapper is used to add `interrupt()` to the tool. This allows the agent to pause execution and wait for human input before proceeding with the tool call.
 
-> You should see that the agent runs until it reaches the `interrupt()` call, 
+> You should see that the agent runs until it reaches the `interrupt()` call,
 >  at which point it pauses and waits for human input.
 
 Resume the agent with a `Command(resume=...)`  to continue based on human input.
 
 ```python
-from langgraph.types import Command 
+from langgraph.types import Command
 
 for chunk in agent.stream(
     # highlight-next-line
@@ -639,7 +639,7 @@ def human_node(state: State):
         else:
             # If the answer is valid, we can proceed.
             break
-            
+
     print(f"The human in the loop is {answer} years old.")
     return {
         "age": answer
@@ -760,14 +760,14 @@ To debug and test a graph, use [static interrupts](../../concepts/human_in_the_l
     ```python
     # highlight-next-line
     graph.invoke( # (1)!
-        inputs, 
+        inputs,
         # highlight-next-line
         interrupt_before=["node_a"], # (2)!
         # highlight-next-line
         interrupt_after=["node_b", "node_c"] # (3)!
         config={
             "configurable": {"thread_id": "some_thread"}
-        }, 
+        },
     )
 
     config = {
@@ -799,30 +799,30 @@ To debug and test a graph, use [static interrupts](../../concepts/human_in_the_l
     ```python
     from IPython.display import Image, display
     from typing_extensions import TypedDict
-    
-    from langgraph.checkpoint.memory import InMemorySaver 
+
+    from langgraph.checkpoint.memory import InMemorySaver
     from langgraph.graph import StateGraph, START, END
-    
-    
+
+
     class State(TypedDict):
         input: str
-    
-    
+
+
     def step_1(state):
         print("---Step 1---")
         pass
-    
-    
+
+
     def step_2(state):
         print("---Step 2---")
         pass
-    
-    
+
+
     def step_3(state):
         print("---Step 3---")
         pass
-    
-    
+
+
     builder = StateGraph(State)
     builder.add_node("step_1", step_1)
     builder.add_node("step_2", step_2)
@@ -831,33 +831,33 @@ To debug and test a graph, use [static interrupts](../../concepts/human_in_the_l
     builder.add_edge("step_1", "step_2")
     builder.add_edge("step_2", "step_3")
     builder.add_edge("step_3", END)
-    
-    # Set up a checkpointer 
+
+    # Set up a checkpointer
     checkpointer = InMemorySaver() # (1)!
-    
+
     graph = builder.compile(
         checkpointer=checkpointer, # (2)!
         interrupt_before=["step_3"] # (3)!
     )
-    
+
     # View
     display(Image(graph.get_graph().draw_mermaid_png()))
-    
-    
+
+
     # Input
     initial_input = {"input": "hello world"}
-    
+
     # Thread
     thread = {"configurable": {"thread_id": "1"}}
-    
+
     # Run the graph until the first interruption
     for event in graph.stream(initial_input, thread, stream_mode="values"):
         print(event)
-        
+
     # This will run until the breakpoint
     # You can get the state of the graph at this point
     print(graph.get_state(config))
-    
+
     # You can continue the graph execution by passing in `None` for the input
     for event in graph.stream(None, thread, stream_mode="values"):
         print(event)
@@ -869,7 +869,7 @@ You can use [LangGraph Studio](../../concepts/langgraph_studio.md) to debug your
 
 ![image](../../concepts/img/human_in_the_loop/static-interrupt.png){: style="max-height:400px"}
 
-LangGraph Studio is free with [locally deployed applications](../../tutorials/langgraph-platform/local-server.md) using `langgraph dev`. 
+LangGraph Studio is free with [locally deployed applications](../../tutorials/langgraph-platform/local-server.md) using `langgraph dev`.
 
 ## Considerations
 
@@ -886,9 +886,9 @@ Place code with side effects, such as API calls, after the `interrupt` or in a s
 
     def human_node(state: State):
         """Human node with validation."""
-        
+
         answer = interrupt(question)
-        
+
         api_call(answer) # OK as it's after the interrupt
     ```
 
@@ -899,9 +899,9 @@ Place code with side effects, such as API calls, after the `interrupt` or in a s
 
     def human_node(state: State):
         """Human node with validation."""
-        
+
         answer = interrupt(question)
-        
+
         return {
             "answer": answer
         }
@@ -996,7 +996,7 @@ def node_in_parent_graph(state: State):
         counter_parent_node += 1 # This code will run again on resuming!
         print(f"Entered `parent_node` a total of {counter_parent_node} times")
 
-        # Please note that we're intentionally incrementing the state counter
+        # Please note that we're unintentionally incrementing the state counter
         # in the graph state as well to demonstrate that the subgraph update
         # of the same key will not conflict with the parent graph (until
         subgraph_state = subgraph.invoke(state)
@@ -1055,7 +1055,7 @@ To avoid issues, refrain from dynamically changing the node's structure between 
     from typing import TypedDict, Optional
 
     from langgraph.graph import StateGraph
-    from langgraph.constants import START 
+    from langgraph.constants import START
     from langgraph.types import interrupt, Command
     from langgraph.checkpoint.memory import MemorySaver
 
@@ -1077,9 +1077,9 @@ To avoid issues, refrain from dynamically changing the node's structure between 
             age = interrupt("what is your age?")
         else:
             age = "N/A"
-            
+
         print(f"Name: {name}. Age: {age}")
-        
+
         return {
             "age": age,
             "name": name,

@@ -1,5 +1,5 @@
 site_name: "LangGraph"
-site_description: Build reliable, stateful AI systems, without giving up control
+site_description: 构建可靠、有状态的 AI 系统，同时保持控制权
 site_url: https://langchain-ai.github.io/langgraph/
 repo_url: https://github.com/langchain-ai/langgraph
 edit_uri: edit/main/docs/docs/
@@ -39,13 +39,13 @@ theme:
       accent: gray
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
+        name: 切换到深色模式
     - scheme: slate
       primary: grey
       accent: white
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: 切换到浅色模式
   font:
     text: "Public Sans"
     code: "Roboto Mono"
@@ -90,88 +90,88 @@ plugins:
                 - "!^_"
 
 nav:
-  - Get started:
+  - 开始使用:
     - index.md
-    - Quickstarts:
-      - Start with a prebuilt agent: agents/agents.md
-      - Build a custom workflow:
+    - 快速入门:
+      - 从预构建代理开始: agents/agents.md
+      - 构建自定义工作流:
           -  concepts/why-langgraph.md
-          -  1. Build a basic chatbot: tutorials/get-started/1-build-basic-chatbot.md
-          -  2. Add tools: tutorials/get-started/2-add-tools.md
-          -  3. Add memory: tutorials/get-started/3-add-memory.md
-          -  4. Add human-in-the-loop: tutorials/get-started/4-human-in-the-loop.md
-          -  5. Customize state: tutorials/get-started/5-customize-state.md
-          -  6. Time travel: tutorials/get-started/6-time-travel.md
-      - Run a local server: tutorials/langgraph-platform/local-server.md
-    - Agent development:
-      - Workflows & agents: tutorials/workflows.md
-      - Prebuilt components: agents/overview.md
-      - Run an agent: agents/run_agents.md
-      - Agent architectures: concepts/agentic_concepts.md
+          -  1. 构建基础聊天机器人: tutorials/get-started/1-build-basic-chatbot.md
+          -  2. 添加工具: tutorials/get-started/2-add-tools.md
+          -  3. 添加记忆: tutorials/get-started/3-add-memory.md
+          -  4. 添加人工干预: tutorials/get-started/4-human-in-the-loop.md
+          -  5. 自定义状态: tutorials/get-started/5-customize-state.md
+          -  6. 时间旅行: tutorials/get-started/6-time-travel.md
+      - 运行本地服务器: tutorials/langgraph-platform/local-server.md
+    - 代理开发:
+      - 工作流和代理: tutorials/workflows.md
+      - 预构建组件: agents/overview.md
+      - 运行代理: agents/run_agents.md
+      - 代理架构: concepts/agentic_concepts.md
 
-  - Guides:
+  - 指南:
     - guides/index.md
-    - LangGraph APIs:
-      - Graph API:
-          - Overview: concepts/low_level.md
-          - Use the Graph API: how-tos/graph-api.md
-      - Functional API:
-          - Overview: concepts/functional_api.md
-          - Use the Functional API: how-tos/use-functional-api.md
-      - Runtime: concepts/pregel.md
-    - Core capabilities:
-      - Streaming:
-          - Overview: concepts/streaming.md
-          - Stream outputs: how-tos/streaming.md
-          - Use Server API: cloud/how-tos/streaming.md
-      - Persistence:
-          - Overview: concepts/persistence.md
-      - Durable execution:
-          - Overview: concepts/durable_execution.md
-      - Memory:
-          - Overview: concepts/memory.md
-          - Add memory: how-tos/memory/add-memory.md
-      - Context:
-          - Add context: agents/context.md
-      - Models:
-          - Configure model: agents/models.md
-      - Tools:
-          - Overview: concepts/tools.md
-          - Call tools: how-tos/tool-calling.md
-      - Human-in-the-loop:
-          - Overview: concepts/human_in_the_loop.md
-          - Add human intervention: how-tos/human_in_the_loop/add-human-in-the-loop.md
-          - Use Server API: cloud/how-tos/add-human-in-the-loop.md
-      - Time travel:
-          - Overview: concepts/time-travel.md
-          - Use time travel: how-tos/human_in_the_loop/time-travel.md
-          - Use Server API: cloud/how-tos/human_in_the_loop_time_travel.md
-      - Subgraphs:
-          - Overview: concepts/subgraphs.md
-          - Use subgraphs: how-tos/subgraph.md
-      - Multi-agent:
-          - Overview: concepts/multi_agent.md
-          - Prebuilt implementation: agents/multi-agent.md
-          - Custom implementation: how-tos/multi_agent.md
+    - LangGraph API:
+      - 图 API:
+          - 概述: concepts/low_level.md
+          - 使用图 API: how-tos/graph-api.md
+      - 函数式 API:
+          - 概述: concepts/functional_api.md
+          - 使用函数式 API: how-tos/use-functional-api.md
+      - 运行时: concepts/pregel.md
+    - 核心功能:
+      - 流式传输:
+          - 概述: concepts/streaming.md
+          - 流式输出: how-tos/streaming.md
+          - 使用服务器 API: cloud/how-tos/streaming.md
+      - 持久化:
+          - 概述: concepts/persistence.md
+      - 持久执行:
+          - 概述: concepts/durable_execution.md
+      - 记忆:
+          - 概述: concepts/memory.md
+          - 添加记忆: how-tos/memory/add-memory.md
+      - 上下文:
+          - 添加上下文: agents/context.md
+      - 模型:
+          - 配置模型: agents/models.md
+      - 工具:
+          - 概述: concepts/tools.md
+          - 调用工具: how-tos/tool-calling.md
+      - 人工干预:
+          - 概述: concepts/human_in_the_loop.md
+          - 添加人工干预: how-tos/human_in_the_loop/add-human-in-the-loop.md
+          - 使用服务器 API: cloud/how-tos/add-human-in-the-loop.md
+      - 时间旅行:
+          - 概述: concepts/time-travel.md
+          - 使用时间旅行: how-tos/human_in_the_loop/time-travel.md
+          - 使用服务器 API: cloud/how-tos/human_in_the_loop_time_travel.md
+      - 子图:
+          - 概述: concepts/subgraphs.md
+          - 使用子图: how-tos/subgraph.md
+      - 多代理:
+          - 概述: concepts/multi_agent.md
+          - 预构建实现: agents/multi-agent.md
+          - 自定义实现: how-tos/multi_agent.md
       - MCP:
-          - Overview: concepts/mcp.md
-          - Use MCP: agents/mcp.md
-          - Server API: concepts/server-mcp.md
-      - Evaluation:
-          - Basic implementation: agents/evals.md
-    - Platform-only capabilities:
-      - LangGraph Platform:
-          - Overview: concepts/langgraph_platform.md
-          - Components:
-            - Overview: concepts/langgraph_components.md
-            - LangGraph Server:
-              - Overview: concepts/langgraph_server.md
-              - Data plane: concepts/langgraph_data_plane.md
-              - Control plane: concepts/langgraph_control_plane.md
+          - 概述: concepts/mcp.md
+          - 使用 MCP: agents/mcp.md
+          - 服务器 API: concepts/server-mcp.md
+      - 评估:
+          - 基础实现: agents/evals.md
+    - 仅平台功能:
+      - LangGraph 平台:
+          - 概述: concepts/langgraph_platform.md
+          - 组件:
+            - 概述: concepts/langgraph_components.md
+            - LangGraph 服务器:
+              - 概述: concepts/langgraph_server.md
+              - 数据平面: concepts/langgraph_data_plane.md
+              - 控制平面: concepts/langgraph_control_plane.md
             - LangGraph CLI: concepts/langgraph_cli.md
             - LangGraph Studio: 
-              - Overview: concepts/langgraph_studio.md
-              - Quickstart: cloud/how-tos/studio/quick_start.md
+              - 概述: concepts/langgraph_studio.md
+              - 快速入门: cloud/how-tos/studio/quick_start.md
               - cloud/how-tos/invoke_studio.md
               - cloud/how-tos/studio/manage_assistants.md
               - cloud/how-tos/threads_studio.md
@@ -180,121 +180,121 @@ nav:
               - cloud/how-tos/clone_traces_studio.md
               - cloud/how-tos/datasets_studio.md
             - LangGraph SDK: concepts/sdk.md
-          - Plans & pricing: concepts/plans.md
-          - Application structure: concepts/application_structure.md
-          - Scalability & resilience: concepts/scalability_and_resilience.md
-      - Authentication & access control:
-          - Overview: concepts/auth.md
+          - 计划和定价: concepts/plans.md
+          - 应用程序结构: concepts/application_structure.md
+          - 可扩展性和弹性: concepts/scalability_and_resilience.md
+      - 身份验证和访问控制:
+          - 概述: concepts/auth.md
           - how-tos/auth/custom_auth.md
           - how-tos/auth/openapi_security.md
-      - Assistants:
-          - Overview: concepts/assistants.md
+      - 助手:
+          - 概述: concepts/assistants.md
           - cloud/how-tos/configuration_cloud.md
-          - Threads: cloud/how-tos/use_threads.md
-          - Runs:
+          - 线程: cloud/how-tos/use_threads.md
+          - 运行:
             - cloud/how-tos/background_run.md
             - cloud/how-tos/same-thread.md
             - cloud/how-tos/cron_jobs.md
             - cloud/how-tos/stateless_runs.md
             - cloud/how-tos/configurable_headers.md
-      - Double-texting: 
-          - Overview: concepts/double_texting.md
+      - 双重文本: 
+          - 概述: concepts/double_texting.md
           - cloud/how-tos/interrupt_concurrent.md
           - cloud/how-tos/rollback_concurrent.md
           - cloud/how-tos/reject_concurrent.md
           - cloud/how-tos/enqueue_concurrent.md
       - Webhooks:
-          - Overview: cloud/concepts/webhooks.md
-          - Use webhooks: cloud/how-tos/webhooks.md
-      - Cron jobs:
-          - Overview: cloud/concepts/cron_jobs.md
+          - 概述: cloud/concepts/webhooks.md
+          - 使用 webhooks: cloud/how-tos/webhooks.md
+      - Cron 作业:
+          - 概述: cloud/concepts/cron_jobs.md
           - cloud/how-tos/cron_jobs.md
-      - Server customization:
+      - 服务器自定义:
           - how-tos/http/custom_lifespan.md
           - how-tos/http/custom_middleware.md
           - how-tos/http/custom_routes.md
-      - Data management:
+      - 数据管理:
         - cloud/concepts/data_storage_and_privacy.md
-        - Add semantic search: cloud/deployment/semantic_search.md
-        - Add TTLs: how-tos/ttl/configure_ttl.md
-      - Deployment:
-          - Overview: concepts/deployment_options.md
-          - Quickstart: cloud/quick_start.md
-          - Set up your application:
-            - Use requirements.txt: cloud/deployment/setup.md
-            - Use pyproject.toml: cloud/deployment/setup_pyproject.md
-            - Use JavaScript: cloud/deployment/setup_javascript.md
-            - Use custom Docker: cloud/deployment/custom_docker.md
-            - Rebuild graph at runtime: cloud/deployment/graph_rebuild.md
-          - Deployment options:
-            - Cloud SaaS: concepts/langgraph_cloud.md
-            - Self-Hosted Data Plane: concepts/langgraph_self_hosted_data_plane.md
-            - Self-Hosted Control Plane: concepts/langgraph_self_hosted_control_plane.md
-            - Standalone Container: concepts/langgraph_standalone_container.md
-          - Deploy to production:
-            - Cloud SaaS: cloud/deployment/cloud.md
-            - Self-Hosted Data Plane: cloud/deployment/self_hosted_data_plane.md
-            - Self-Hosted Control Plane: cloud/deployment/self_hosted_control_plane.md
-            - Standalone Container: cloud/deployment/standalone_container.md
+        - 添加语义搜索: cloud/deployment/semantic_search.md
+        - 添加 TTL: how-tos/ttl/configure_ttl.md
+      - 部署:
+          - 概述: concepts/deployment_options.md
+          - 快速入门: cloud/quick_start.md
+          - 设置您的应用程序:
+            - 使用 requirements.txt: cloud/deployment/setup.md
+            - 使用 pyproject.toml: cloud/deployment/setup_pyproject.md
+            - 使用 JavaScript: cloud/deployment/setup_javascript.md
+            - 使用自定义 Docker: cloud/deployment/custom_docker.md
+            - 运行时重建图: cloud/deployment/graph_rebuild.md
+          - 部署选项:
+            - 云 SaaS: concepts/langgraph_cloud.md
+            - 自托管数据平面: concepts/langgraph_self_hosted_data_plane.md
+            - 自托管控制平面: concepts/langgraph_self_hosted_control_plane.md
+            - 独立容器: concepts/langgraph_standalone_container.md
+          - 部署到生产环境:
+            - 云 SaaS: cloud/deployment/cloud.md
+            - 自托管数据平面: cloud/deployment/self_hosted_data_plane.md
+            - 自托管控制平面: cloud/deployment/self_hosted_control_plane.md
+            - 独立容器: cloud/deployment/standalone_container.md
 
-  - Reference:
+  - 参考:
     - reference/index.md
     - LangGraph:
-      - Graphs: reference/graphs.md
-      - Functional API: reference/func.md
+      - 图: reference/graphs.md
+      - 函数式 API: reference/func.md
       - Pregel: reference/pregel.md
-      - Checkpointing: reference/checkpoints.md
-      - Storage: reference/store.md
-      - Caching: reference/cache.md
-      - Types: reference/types.md
-      - Config: reference/config.md
-      - Errors: reference/errors.md
-      - Constants: reference/constants.md
-      - Channels: reference/channels.md
-    - Prebuilt:
-      - Agents: reference/agents.md
-      - Supervisor: reference/supervisor.md
-      - Swarm: reference/swarm.md
-      - MCP Adapters: reference/mcp.md
-    - LangGraph Platform:
-      - Server API: cloud/reference/api/api_ref.md
-      - Server changelog: cloud/reference/langgraph_server_changelog.md
-      - Control Plane API: cloud/reference/api/api_ref_control_plane.md
+      - 检查点: reference/checkpoints.md
+      - 存储: reference/store.md
+      - 缓存: reference/cache.md
+      - 类型: reference/types.md
+      - 配置: reference/config.md
+      - 错误: reference/errors.md
+      - 常量: reference/constants.md
+      - 通道: reference/channels.md
+    - 预构建:
+      - 代理: reference/agents.md
+      - 监督器: reference/supervisor.md
+      - 群组: reference/swarm.md
+      - MCP 适配器: reference/mcp.md
+    - LangGraph 平台:
+      - 服务器 API: cloud/reference/api/api_ref.md
+      - 服务器更新日志: cloud/reference/langgraph_server_changelog.md
+      - 控制平面 API: cloud/reference/api/api_ref_control_plane.md
       - CLI: cloud/reference/cli.md
       - SDK (Python): cloud/reference/sdk/python_sdk_ref.md
       - SDK (JS/TS): https://langchain-ai.github.io/langgraphjs/reference/modules/sdk.html
       - RemoteGraph: reference/remote_graph.md
-      - Environment variables: cloud/reference/env_var.md
+      - 环境变量: cloud/reference/env_var.md
 
-  - Examples:
+  - 示例:
     - examples/index.md
-    - Template applications: concepts/template_applications.md  # TODO: make tutorial
-    - Agentic RAG: tutorials/rag/langgraph_agentic_rag.md
-    - Agent Supervisor: tutorials/multi_agent/agent_supervisor.md
-    - SQL agent: tutorials/sql/sql-agent.md
-    - Prebuilt chat UI: agents/ui.md
-    - Graph runs in LangSmith: how-tos/run-id-langsmith.md
-    - LangGraph Platform:
-      - Authentication:
+    - 模板应用程序: concepts/template_applications.md  # TODO: 制作教程
+    - 代理式 RAG: tutorials/rag/langgraph_agentic_rag.md
+    - 代理监督器: tutorials/multi_agent/agent_supervisor.md
+    - SQL 代理: tutorials/sql/sql-agent.md
+    - 预构建聊天界面: agents/ui.md
+    - LangSmith 中的图运行: how-tos/run-id-langsmith.md
+    - LangGraph 平台:
+      - 身份验证:
         - tutorials/auth/getting_started.md
         - tutorials/auth/resource_auth.md
         - tutorials/auth/add_auth_server.md
-      - Use RemoteGraph: how-tos/use-remote-graph.md
-      - Deploy CrewAI, AutoGen, and other frameworks: how-tos/autogen-integration.md
-      - Front-end and generative UI:
-        - Integrate LangGraph into a React app: cloud/how-tos/use_stream_react.md
-        - Implement generative UI with LangGraph: cloud/how-tos/generative_ui_react.md
+      - 使用 RemoteGraph: how-tos/use-remote-graph.md
+      - 部署 CrewAI、AutoGen 和其他框架: how-tos/autogen-integration.md
+      - 前端和生成式 UI:
+        - 将 LangGraph 集成到 React 应用中: cloud/how-tos/use_stream_react.md
+        - 使用 LangGraph 实现生成式 UI: cloud/how-tos/generative_ui_react.md
 
-  - Additional resources:
+  - 其他资源:
     - additional-resources/index.md
-    - agents/prebuilt.md # NOTE: prebuilt.md is auto-generated by `make build-prebuilt`
-    - LangGraph Academy course: https://academy.langchain.com/courses/intro-to-langgraph
-    - Case studies: adopters.md
+    - agents/prebuilt.md # 注意: prebuilt.md 由 `make build-prebuilt` 自动生成
+    - LangGraph 学院课程: https://academy.langchain.com/courses/intro-to-langgraph
+    - 案例研究: adopters.md
     - concepts/faq.md
     - llms.txt: llms-txt-overview.md
-    - LangChain Forum: https://forum.langchain.com/
-    - Troubleshooting:
-        - Errors:
+    - LangChain 论坛: https://forum.langchain.com/
+    - 故障排除:
+        - 错误:
           - troubleshooting/errors/index.md
           - troubleshooting/errors/GRAPH_RECURSION_LIMIT.md
           - troubleshooting/errors/INVALID_CONCURRENT_GRAPH_UPDATE.md
@@ -367,15 +367,15 @@ extra:
       link: https://twitter.com/LangChainAI
 validation:
   # https://www.mkdocs.org/user-guide/configuration/
-  # We are still raising for omitted files because they determine the breadcrumbs for pages.
+  # 我们仍然为省略的文件发出警告，因为它们决定了页面的面包屑导航。
   omitted_files: info 
   absolute_links: warn
   unrecognized_links: warn
   anchors: warn
-  # this is needed to handle headers with anchors for nav
+  # 这是处理导航中带锚点的标题所必需的
   not_found: info
 copyright: >
-  Copyright &copy; 2025 LangChain, Inc | <a href="#__consent">Consent Preferences</a>
+  Copyright &copy; 2025 LangChain, Inc | <a href="#__consent">同意偏好设置</a>
 extra_css:
   - stylesheets/version_admonitions.css
   - stylesheets/logos.css

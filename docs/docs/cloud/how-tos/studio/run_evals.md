@@ -1,57 +1,57 @@
-# Run experiments over a dataset
+# 在数据集上运行实验
 
-LangGraph Studio supports evaluations by allowing you to run your assistant over a pre-defined LangSmith dataset. This enables you to understand how your application performs over a variety of inputs, compare the results to reference outputs, and score the results using [evaluators](../../../agents/evals.md).
+LangGraph Studio 支持通过允许您在预定义 的 LangSmith 数据集上运行助手来提供评估。这使您能够了解应用程序在各种输入上的表现、将结果与参考输出进行比较，并使用 [evaluators](../../../agents/evals.md) 对结果进行评分。
 
-This guide shows you how to run an experiment end-to-end from Studio.
-
----
-
-## Prerequisites
-
-Before running an experiment, ensure you have the following:
-
-1.  **A LangSmith dataset**: Your dataset should contain the inputs you want to test and optionally, reference outputs for comparison.
-
-    - The schema for the inputs must match the required input schema for the assistant. For more information on schemas, see [here](../../../concepts/low_level.md#schema).
-    - For more on creating datasets, see [How to Manage Datasets](https://docs.smith.langchain.com/evaluation/how_to_guides/manage_datasets_in_application#set-up-your-dataset).
-
-2.  **(Optional) Evaluators**: You can attach evaluators (e.g., LLM-as-a-Judge, heuristics, or custom functions) to your dataset in LangSmith. These will run automatically after the graph has processed all inputs.
-
-    - To learn more, read about [Evaluation Concepts](https://docs.smith.langchain.com/evaluation/concepts#evaluators).
-
-3.  **A running application**: The experiment can be run against:
-    - An application deployed on [LangGraph Platform](../../quick_start.md).
-    - A locally running application started via the [langgraph-cli](../../../tutorials/langgraph-platform/local-server.md).
+本指南将向您展示如何从 Studio 端到端地运行实验。
 
 ---
 
-## Step-by-step guide
+## 前提条件
 
-### 1. Launch the experiment
+在运行实验之前，请确保您已具备以下条件：
 
-Click the **Run experiment** button in the top right corner of the Studio page.
+1.  **LangSmith 数据集**：您的数据集应包含您要测试的输入，以及可选的用于比较的参考输出。
 
-### 2. Select your dataset
+    -   输入的 schema 必须与助手所需的输入 schema 相匹配。有关 schema 的更多信息，请参阅 [此处](../../../concepts/low_level.md#schema)。
+    -   有关创建数据集的更多信息，请参阅 [如何管理数据集](https://docs.smith.langchain.com/evaluation/how_to_guides/manage_datasets_in_application#set-up-your-dataset)。
 
-In the modal that appears, select the dataset (or a specific dataset split) to use for the experiment and click **Start**.
+2.  **（可选）评估器**：您可以将评估器（例如，LLM 即判官、启发式方法或自定义函数）附加到 LangSmith 中的数据集。这些评估器将在图处理完所有输入后自动运行。
 
-### 3. Monitor the progress
+    -   要了解更多信息，请阅读 [评估概念](https://docs.smith.langchain.com/evaluation/concepts#evaluators)。
 
-All of the inputs in the dataset will now be run against the active assistant. Monitor the experiment's progress via the badge in the top right corner.
-
-You can continue to work in Studio while the experiment runs in the background. Click the arrow icon button at any time to navigate to LangSmith and view the detailed experiment results.
+3.  **正在运行的应用程序**：实验可以针对以下内容运行：
+    -   部署在 [LangGraph Platform](../../quick_start.md) 上的应用程序。
+    -   通过 [langgraph-cli](../../../tutorials/langgraph-platform/local-server.md) 启动的本地运行的应用程序。
 
 ---
 
-## Troubleshooting
+## 分步指南
 
-### "Run experiment" button is disabled
+### 1. 启动实验
 
-If the "Run experiment" button is disabled, check the following:
+点击 Studio 页面右上角的 **Run experiment** 按钮。
 
-- **Deployed application**: If your application is deployed on LangGraph Platform, you may need to create a new revision to enable this feature.
-- **Local development server**: If you are running your application locally, make sure you have upgraded to the latest version of the `langgraph-cli` (`pip install -U langgraph-cli`). Additionally, ensure you have tracing enabled by setting the `LANGSMITH_API_KEY` in your project's `.env` file.
+### 2. 选择您的数据集
 
-### Evaluator results are missing
+在出现的模态框中，选择要用于实验的数据集（或特定的数据集拆分），然后点击 **Start**。
 
-When you run an experiment, any attached evaluators are scheduled for execution in a queue. If you don't see results immediately, it likely means they are still pending.
+### 3. 监控进度
+
+现在，数据集中的所有输入都将针对活动助手运行。通过右上角的徽章监控实验的进度。
+
+实验运行时，您可以继续在 Studio 中工作。随时点击箭头图标按钮导航到 LangSmith 并查看详细的实验结果。
+
+---
+
+## 故障排除
+
+### "Run experiment" 按钮被禁用
+
+如果 "Run experiment" 按钮被禁用，请检查以下几项：
+
+-   **已部署的应用程序**：如果您的应用程序已部署在 LangGraph Platform 上，您可能需要创建新的版本才能启用此功能。
+-   **本地开发服务器**：如果您在本地运行应用程序，请确保您已升级到最新版本的 `langgraph-cli`（`pip install -U langgraph-cli`）。此外，请确保通过在项目的 `.env` 文件中设置 `LANGSMITH_API_KEY` 来启用跟踪。
+
+### 评估器结果缺失
+
+当您运行实验时，任何附加的评估器都会被安排在队列中执行。如果您没有立即看到结果，那很可能是因为它们仍在等待处理。

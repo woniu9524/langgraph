@@ -1,24 +1,24 @@
 # LangGraph Control Plane API Reference
 
-The LangGraph Control Plane API is used to programmatically create and manage LangGraph Server deployments. For example, the APIs can be orchestrated to create custom CI/CD workflows.
+LangGraph Control Plane API 用于以编程方式创建和管理 LangGraph Server 部署。例如，可以编排这些 API 来创建自定义 CI/CD 工作流。
 
-Click <a href="https://api.host.langchain.com/docs" target="_blank">here</a> to view the API reference.
+点击 <a href="https://api.host.langchain.com/docs" target="_blank">此处</a> 查看 API 参考。
 
 ## Host
 
-LangGraph Control Plane hosts for Cloud SaaS data regions:
+LangGraph Control Plane 托管的 Cloud SaaS 数据区域：
 
 | US | EU |
 |----|----|
 | `https://api.host.langchain.com` | `https://eu.api.host.langchain.com` |
 
-**Note**: Self-hosted deployments of LangGraph Platform will have a custom host for the LangGraph Control Plane.
+**注意**: LangGraph Platform 的自托管部署将拥有 LangGraph Control Plane 的自定义主机。
 
 ## Authentication
 
-To authenticate with the LangGraph Control Plane API, set the `X-Api-Key` header to a valid LangSmith API key.
+要与 LangGraph Control Plane API 进行身份验证，请将 `X-Api-Key` 头设置为有效的 LangSmith API 密钥。
 
-Example `curl` command:
+示例 `curl` 命令：
 ```shell
 curl --request GET \
   --url http://localhost:8124/v2/deployments \
@@ -27,17 +27,17 @@ curl --request GET \
 
 ## Versioning
 
-Each endpoint path is prefixed with a version (e.g. `v1`, `v2`).
+每个端点路径都以版本号（例如 `v1`、`v2`）作为前缀。
 
 ## Quick Start
 
-1. Call `POST /v2/deployments` to create a new Deployment. The response body contains the Deployment ID (`id`) and the ID of the latest (and first) revision (`latest_revision_id`).
-1. Call `GET /v2/deployments/{deployment_id}` to retrieve the Deployment. Set `deployment_id` in the URL to the value of Deployment ID (`id`).
-1. Poll for revision `status` until `status` is `DEPLOYED` by calling `GET /v2/deployments/{deployment_id}/revisions/{latest_revision_id}`.
-1. Call `PATCH /v2/deployments/{deployment_id}` to update the deployment.
+1. 调用 `POST /v2/deployments` 来创建一个新的 Deployment。响应体包含 Deployment ID (`id`) 和最新（也是第一个）修订版的 ID (`latest_revision_id`)。
+1. 调用 `GET /v2/deployments/{deployment_id}` 来检索 Deployment。将 URL 中的 `deployment_id` 设置为 Deployment ID (`id`) 的值。
+1. 调用 `GET /v2/deployments/{deployment_id}/revisions/{latest_revision_id}` 来轮询修订版的 `status`，直到 `status` 为 `DEPLOYED`。
+1. 调用 `PATCH /v2/deployments/{deployment_id}` 来更新部署。
 
 ## Example Code
-Below is example Python code that demonstrates how to orchestrate the LangGraph Control Plane APIs to create a deployment, update the deployment, and delete the deployment.
+下面是演示如何编排 LangGraph Control Plane API 来创建、更新和删除部署的示例 Python 代码。
 ```python
 import os
 import time

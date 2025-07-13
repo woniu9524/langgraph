@@ -1,4 +1,3 @@
-
 <a name="readmemd"></a>
 
 **[@langchain/langgraph-sdk](https://github.com/langchain-ai/langgraph/tree/main/libs/sdk-js)**
@@ -72,6 +71,8 @@ Defined in: [src/auth/index.ts:11](https://github.com/langchain-ai/langgraph/blo
 #### new Auth()
 
 > **new Auth**\<`TExtra`, `TAuthReturn`, `TUser`\>(): [`Auth`](#authclassesauthmd)\<`TExtra`, `TAuthReturn`, `TUser`\>
+
+Defined in: [src/auth/index.ts:11](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/auth/index.ts#L11)
 
 ##### Returns
 
@@ -155,20 +156,6 @@ Defined in: [src/auth/error.ts:70](https://github.com/langchain-ai/langgraph/blo
 ###### status
 
 `number`
-
-###### options?
-
-####### cause?
-
-`unknown`
-
-####### headers?
-
-`HeadersInit`
-
-####### message?
-
-`string`
 
 ##### Returns
 
@@ -258,10 +245,6 @@ Optional override for formatting stack traces
 
 `Error`
 
-###### stackTraces
-
-`CallSite`[]
-
 ##### Returns
 
 `any`
@@ -301,10 +284,6 @@ Create .stack property on a target object
 ###### targetObject
 
 `object`
-
-###### constructorOpt?
-
-`Function`
 
 ##### Returns
 
@@ -865,13 +844,13 @@ Defined in: [client.ts:88](https://github.com/langchain-ai/langgraph/blob/d4f644
 
 Defined in: [client.ts:359](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L359)
 
-Create a new assistant.
+创建一个助手。
 
 ##### Parameters
 
 ###### payload
 
-Payload for creating an assistant.
+创建助手的载荷。
 
 ####### assistantId?
 
@@ -905,7 +884,7 @@ Payload for creating an assistant.
 
 `Promise`\<`Assistant`\>
 
-The created assistant.
+创建的助手。
 
 ***
 
@@ -915,7 +894,7 @@ The created assistant.
 
 Defined in: [client.ts:415](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L415)
 
-Delete an assistant.
+删除助手。
 
 ##### Parameters
 
@@ -923,7 +902,7 @@ Delete an assistant.
 
 `string`
 
-ID of the assistant.
+助手的 ID。
 
 ##### Returns
 
@@ -937,7 +916,7 @@ ID of the assistant.
 
 Defined in: [client.ts:301](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L301)
 
-Get an assistant by ID.
+按 ID 获取助手。
 
 ##### Parameters
 
@@ -945,13 +924,13 @@ Get an assistant by ID.
 
 `string`
 
-The ID of the assistant.
+助手的 ID。
 
 ##### Returns
 
 `Promise`\<`Assistant`\>
 
-Assistant
+助手
 
 ***
 
@@ -961,7 +940,7 @@ Assistant
 
 Defined in: [client.ts:311](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L311)
 
-Get the JSON representation of the graph assigned to a runnable
+获取分配给可运行对象的图形的 JSON 表示。
 
 ##### Parameters
 
@@ -969,7 +948,7 @@ Get the JSON representation of the graph assigned to a runnable
 
 `string`
 
-The ID of the assistant.
+助手的 ID。
 
 ###### options?
 
@@ -977,13 +956,13 @@ The ID of the assistant.
 
 `number` \| `boolean`
 
-Whether to include subgraphs in the serialized graph representation. If an integer value is provided, only subgraphs with a depth less than or equal to the value will be included.
+是否在序列化图形表示中包含子图形。如果提供整数值，则仅包含深度小于或等于该值的子图形。
 
 ##### Returns
 
 `Promise`\<`AssistantGraph`\>
 
-Serialized graph
+序列化的图形
 
 ***
 
@@ -993,7 +972,7 @@ Serialized graph
 
 Defined in: [client.ts:325](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L325)
 
-Get the state and config schema of the graph assigned to a runnable
+获取分配给可运行对象的图形的状态和配置模式。
 
 ##### Parameters
 
@@ -1001,13 +980,13 @@ Get the state and config schema of the graph assigned to a runnable
 
 `string`
 
-The ID of the assistant.
+助手的 ID。
 
 ##### Returns
 
 `Promise`\<`GraphSchema`\>
 
-Graph schema
+图形模式
 
 ***
 
@@ -1017,7 +996,7 @@ Graph schema
 
 Defined in: [client.ts:336](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L336)
 
-Get the schemas of an assistant by ID.
+按 ID 获取助手的子图形模式。
 
 ##### Parameters
 
@@ -1025,11 +1004,11 @@ Get the schemas of an assistant by ID.
 
 `string`
 
-The ID of the assistant to get the schema of.
+要获取其模式的助手的 ID。
 
 ###### options?
 
-Additional options for getting subgraphs, such as namespace or recursion extraction.
+获取子图形的其他选项，例如命名空间或递归提取。
 
 ####### namespace?
 
@@ -1043,7 +1022,7 @@ Additional options for getting subgraphs, such as namespace or recursion extract
 
 `Promise`\<`Subgraphs`\>
 
-The subgraphs of the assistant.
+助手的子图形。
 
 ***
 
@@ -1053,7 +1032,7 @@ The subgraphs of the assistant.
 
 Defined in: [client.ts:453](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L453)
 
-List all versions of an assistant.
+列出助手的全部版本。
 
 ##### Parameters
 
@@ -1061,7 +1040,7 @@ List all versions of an assistant.
 
 `string`
 
-ID of the assistant.
+助手的 ID。
 
 ###### payload?
 
@@ -1081,7 +1060,7 @@ ID of the assistant.
 
 `Promise`\<`AssistantVersion`[]\>
 
-List of assistant versions.
+助手版本列表。
 
 ***
 
@@ -1091,13 +1070,13 @@ List of assistant versions.
 
 Defined in: [client.ts:426](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L426)
 
-List assistants.
+列出助手。
 
 ##### Parameters
 
 ###### query?
 
-Query options.
+查询选项。
 
 ####### graphId?
 
@@ -1127,7 +1106,7 @@ Query options.
 
 `Promise`\<`Assistant`[]\>
 
-List of assistants.
+助手列表。
 
 ***
 
@@ -1137,7 +1116,7 @@ List of assistants.
 
 Defined in: [client.ts:481](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L481)
 
-Change the version of an assistant.
+更改助手的版本。
 
 ##### Parameters
 
@@ -1145,19 +1124,19 @@ Change the version of an assistant.
 
 `string`
 
-ID of the assistant.
+助手的 ID。
 
 ###### version
 
 `number`
 
-The version to change to.
+要更改到的版本。
 
 ##### Returns
 
 `Promise`\<`Assistant`\>
 
-The updated assistant.
+更新后的助手。
 
 ***
 
@@ -1167,7 +1146,7 @@ The updated assistant.
 
 Defined in: [client.ts:388](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L388)
 
-Update an assistant.
+更新助手。
 
 ##### Parameters
 
@@ -1175,11 +1154,11 @@ Update an assistant.
 
 `string`
 
-ID of the assistant.
+助手的 ID。
 
 ###### payload
 
-Payload for updating the assistant.
+更新助手的载荷。
 
 ####### config?
 
@@ -1205,7 +1184,7 @@ Payload for updating the assistant.
 
 `Promise`\<`Assistant`\>
 
-The updated assistant.
+更新后的助手。
 
 
 <a name="classesclientmd"></a>
@@ -1256,8 +1235,8 @@ Defined in: [client.ts:1482](https://github.com/langchain-ai/langgraph/blob/d4f6
 
 **`Internal`**
 
-The client for interacting with the UI.
- Used by LoadExternalComponent and the API might change in the future.
+用于与 UI 交互的客户端。
+由 LoadExternalComponent 和 API 使用，未来可能会发生变化。
 
 ***
 
@@ -1267,7 +1246,7 @@ The client for interacting with the UI.
 
 Defined in: [client.ts:1456](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1456)
 
-The client for interacting with assistants.
+用于与助手交互的客户端。
 
 ***
 
@@ -1277,7 +1256,7 @@ The client for interacting with assistants.
 
 Defined in: [client.ts:1471](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1471)
 
-The client for interacting with cron runs.
+用于与 cron 任务交互的客户端。
 
 ***
 
@@ -1287,7 +1266,7 @@ The client for interacting with cron runs.
 
 Defined in: [client.ts:1466](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1466)
 
-The client for interacting with runs.
+用于与运行交互的客户端。
 
 ***
 
@@ -1297,7 +1276,7 @@ The client for interacting with runs.
 
 Defined in: [client.ts:1476](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1476)
 
-The client for interacting with the KV store.
+用于与 KV 存储交互的客户端。
 
 ***
 
@@ -1307,7 +1286,7 @@ The client for interacting with the KV store.
 
 Defined in: [client.ts:1461](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1461)
 
-The client for interacting with threads.
+用于与线程交互的客户端。
 
 
 <a name="classescronsclientmd"></a>
@@ -1362,13 +1341,13 @@ Defined in: [client.ts:238](https://github.com/langchain-ai/langgraph/blob/d4f64
 
 `string`
 
-Assistant ID to use for this cron job.
+将用于此 cron 作业的助手 ID。
 
 ###### payload?
 
 `CronsCreatePayload`
 
-Payload for creating a cron job.
+创建 cron 作业的载荷。
 
 ##### Returns
 
@@ -1388,25 +1367,25 @@ Defined in: [client.ts:205](https://github.com/langchain-ai/langgraph/blob/d4f64
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### assistantId
 
 `string`
 
-Assistant ID to use for this cron job.
+将用于此 cron 作业的助手 ID。
 
 ###### payload?
 
 `CronsCreatePayload`
 
-Payload for creating a cron job.
+创建 cron 作业的载荷。
 
 ##### Returns
 
 `Promise`\<`CronCreateForThreadResponse`\>
 
-The created background run.
+创建的后台运行。
 
 ***
 
@@ -1422,7 +1401,7 @@ Defined in: [client.ts:265](https://github.com/langchain-ai/langgraph/blob/d4f64
 
 `string`
 
-Cron ID of Cron job to delete.
+要删除的 Cron 作业的 Cron ID。
 
 ##### Returns
 
@@ -1440,7 +1419,7 @@ Defined in: [client.ts:276](https://github.com/langchain-ai/langgraph/blob/d4f64
 
 ###### query?
 
-Query options.
+查询选项。
 
 ####### assistantId?
 
@@ -1462,7 +1441,7 @@ Query options.
 
 `Promise`\<`Cron`[]\>
 
-List of crons.
+Cron 列表。
 
 
 <a name="classesrunsclientmd"></a>
@@ -1519,7 +1498,7 @@ Defined in: [client.ts:88](https://github.com/langchain-ai/langgraph/blob/d4f644
 
 Defined in: [client.ts:1063](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1063)
 
-Cancel a run.
+取消运行。
 
 ##### Parameters
 
@@ -1527,25 +1506,25 @@ Cancel a run.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### runId
 
 `string`
 
-The ID of the run.
+运行的 ID。
 
 ###### wait
 
 `boolean` = `false`
 
-Whether to block when canceling
+取消时是否阻塞
 
 ###### action
 
 `CancelAction` = `"interrupt"`
 
-Action to take when cancelling the run. Possible values are `interrupt` or `rollback`. Default is `interrupt`.
+取消运行时要执行的操作。可能的值为 `interrupt` 或 `rollback`。默认为 `interrupt`。
 
 ##### Returns
 
@@ -1559,7 +1538,7 @@ Action to take when cancelling the run. Possible values are `interrupt` or `roll
 
 Defined in: [client.ts:885](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L885)
 
-Create a run.
+创建运行。
 
 ##### Parameters
 
@@ -1567,25 +1546,25 @@ Create a run.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### assistantId
 
 `string`
 
-Assistant ID to use for this run.
+将用于此运行的助手 ID。
 
 ###### payload?
 
 `RunsCreatePayload`
 
-Payload for creating a run.
+创建运行的载荷。
 
 ##### Returns
 
 `Promise`\<`Run`\>
 
-The created run.
+创建的运行。
 
 ***
 
@@ -1595,7 +1574,7 @@ The created run.
 
 Defined in: [client.ts:921](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L921)
 
-Create a batch of stateless background runs.
+创建一组无状态后台运行。
 
 ##### Parameters
 
@@ -1603,13 +1582,13 @@ Create a batch of stateless background runs.
 
 `RunsCreatePayload` & `object`[]
 
-An array of payloads for creating runs.
+用于创建运行的载荷数组。
 
 ##### Returns
 
 `Promise`\<`Run`[]\>
 
-An array of created runs.
+已创建的运行数组。
 
 ***
 
@@ -1619,7 +1598,7 @@ An array of created runs.
 
 Defined in: [client.ts:1157](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1157)
 
-Delete a run.
+删除运行。
 
 ##### Parameters
 
@@ -1627,13 +1606,13 @@ Delete a run.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### runId
 
 `string`
 
-The ID of the run.
+运行的 ID。
 
 ##### Returns
 
@@ -1647,7 +1626,7 @@ The ID of the run.
 
 Defined in: [client.ts:1050](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1050)
 
-Get a run by ID.
+按 ID 获取运行。
 
 ##### Parameters
 
@@ -1655,19 +1634,19 @@ Get a run by ID.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### runId
 
 `string`
 
-The ID of the run.
+运行的 ID。
 
 ##### Returns
 
 `Promise`\<`Run`\>
 
-The run.
+运行。
 
 ***
 
@@ -1677,7 +1656,7 @@ The run.
 
 Defined in: [client.ts:1085](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1085)
 
-Block until a run is done.
+阻塞直到运行完成。
 
 ##### Parameters
 
@@ -1685,13 +1664,13 @@ Block until a run is done.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### runId
 
 `string`
 
-The ID of the run.
+运行的 ID。
 
 ###### options?
 
@@ -1711,9 +1690,8 @@ The ID of the run.
 
 Defined in: [client.ts:1111](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1111)
 
-Stream output from a run in real-time, until the run is done.
-Output is not buffered, so any output produced before this call will
-not be received here.
+实时流式传输运行输出，直到运行完成。
+输出不会被缓冲，“所以任何在此调用之前生成的输出都不会在此处收到”。
 
 ##### Parameters
 
@@ -1721,22 +1699,21 @@ not be received here.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### runId
 
 `string`
 
-The ID of the run.
+运行的 ID。
 
 ###### options?
 
-Additional options for controlling the stream behavior:
-  - signal: An AbortSignal that can be used to cancel the stream request
-  - cancelOnDisconnect: When true, automatically cancels the run if the client disconnects from the stream
-  - streamMode: Controls what types of events to receive from the stream (can be a single mode or array of modes)
-       Must be a subset of the stream modes passed when creating the run. Background runs default to having the union of all
-       stream modes enabled.
+用于控制流行为的附加选项：
+  - signal：可用于取消流请求的 AbortSignal
+  - cancelOnDisconnect：如果为 true，当客户端断开流连接时自动取消运行
+  - streamMode：控制从流中接收什么类型的事件（可以是单个模式或模式数组）
+       必须是创建运行后启用的所有流模式的子集。后台运行默认启用所有流模式的并集。
 
 `AbortSignal` | \{ `cancelOnDisconnect`: `boolean`; `signal`: `AbortSignal`; `streamMode`: `StreamMode` \| `StreamMode`[]; \}
 
@@ -1744,7 +1721,7 @@ Additional options for controlling the stream behavior:
 
 `AsyncGenerator`\<\{ `data`: `any`; `event`: `StreamEvent`; \}\>
 
-An async generator yielding stream parts.
+产生流部分的异步生成器。
 
 ***
 
@@ -1754,7 +1731,7 @@ An async generator yielding stream parts.
 
 Defined in: [client.ts:1013](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1013)
 
-List all runs for a thread.
+列出线程的所有运行。
 
 ##### Parameters
 
@@ -1762,55 +1739,55 @@ List all runs for a thread.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### options?
 
-Filtering and pagination options.
+过滤和分页选项。
 
 ####### limit?
 
 `number`
 
-Maximum number of runs to return.
-Defaults to 10
+要返回的最大运行次数。
+默认为 10
 
 ####### offset?
 
 `number`
 
-Offset to start from.
-Defaults to 0.
+开始的偏移量。
+默认为 0。
 
 ####### status?
 
 `RunStatus`
 
-Status of the run to filter by.
+要过滤的运行状态。
 
 ##### Returns
 
 `Promise`\<`Run`[]\>
 
-List of runs.
+运行列表。
 
 ***
 
 #### stream()
 
-Create a run and stream the results.
+创建运行并流式传输结果。
 
 ##### Param
 
-The ID of the thread.
+线程的 ID。
 
 ##### Param
 
-Assistant ID to use for this run.
+将用于此运行的助手 ID。
 
 ##### Param
 
-Payload for creating a run.
+创建运行的载荷。
 
 ##### Call Signature
 
@@ -1876,19 +1853,19 @@ Defined in: [client.ts:799](https://github.com/langchain-ai/langgraph/blob/d4f64
 
 #### wait()
 
-Create a run and wait for it to complete.
+创建运行并等待其完成。
 
 ##### Param
 
-The ID of the thread.
+线程的 ID。
 
 ##### Param
 
-Assistant ID to use for this run.
+将用于此运行的助手 ID。
 
 ##### Param
 
-Payload for creating a run.
+创建运行的载荷。
 
 ##### Call Signature
 
@@ -1985,7 +1962,7 @@ Defined in: [client.ts:88](https://github.com/langchain-ai/langgraph/blob/d4f644
 
 Defined in: [client.ts:1296](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1296)
 
-Delete an item.
+删除一个条目。
 
 ##### Parameters
 
@@ -1993,13 +1970,13 @@ Delete an item.
 
 `string`[]
 
-A list of strings representing the namespace path.
+表示命名空间路径的字符串列表。
 
 ###### key
 
 `string`
 
-The unique identifier for the item.
+条目的唯一标识符。
 
 ##### Returns
 
@@ -2015,7 +1992,7 @@ Promise<void>
 
 Defined in: [client.ts:1252](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1252)
 
-Retrieve a single item.
+检索单个条目。
 
 ##### Parameters
 
@@ -2023,13 +2000,13 @@ Retrieve a single item.
 
 `string`[]
 
-A list of strings representing the namespace path.
+表示命名空间路径的字符串列表。
 
 ###### key
 
 `string`
 
-The unique identifier for the item.
+条目的唯一标识符。
 
 ###### options?
 
@@ -2037,7 +2014,7 @@ The unique identifier for the item.
 
 `null` \| `boolean`
 
-Whether to refresh the TTL on this read operation. If null, uses the store's default behavior.
+是否在此读取操作上刷新 TTL。如果为 null，则使用存储的默认行为。
 
 ##### Returns
 
@@ -2071,7 +2048,7 @@ console.log(item);
 
 Defined in: [client.ts:1392](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1392)
 
-List namespaces with optional match conditions.
+列出具有可选匹配条件的命名空间。
 
 ##### Parameters
 
@@ -2081,31 +2058,31 @@ List namespaces with optional match conditions.
 
 `number`
 
-Maximum number of namespaces to return (default is 100).
+要返回的最大命名空间数量（默认为 100）。
 
 ####### maxDepth?
 
 `number`
 
-Optional integer specifying the maximum depth of namespaces to return.
+可选整数，指定要返回的命名空间的最大深度。
 
 ####### offset?
 
 `number`
 
-Number of namespaces to skip before returning results (default is 0).
+在返回结果之前要跳过的命名空间数量（默认为 0）。
 
 ####### prefix?
 
 `string`[]
 
-Optional list of strings representing the prefix to filter namespaces.
+可选字符串列表，表示用于过滤命名空间的字符串。
 
 ####### suffix?
 
 `string`[]
 
-Optional list of strings representing the suffix to filter namespaces.
+可选字符串列表，表示用于过滤命名空间的后缀。
 
 ##### Returns
 
@@ -2121,7 +2098,7 @@ Promise<ListNamespaceResponse>
 
 Defined in: [client.ts:1196](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1196)
 
-Store or update an item.
+存储或更新条目。
 
 ##### Parameters
 
@@ -2129,19 +2106,19 @@ Store or update an item.
 
 `string`[]
 
-A list of strings representing the namespace path.
+表示命名空间路径的字符串列表。
 
 ###### key
 
 `string`
 
-The unique identifier for the item within the namespace.
+命名空间内条目的唯一标识符。
 
 ###### value
 
 `Record`\<`string`, `any`\>
 
-A dictionary containing the item's data.
+包含条目数据的字典。
 
 ###### options?
 
@@ -2149,13 +2126,13 @@ A dictionary containing the item's data.
 
 `null` \| `false` \| `string`[]
 
-Controls search indexing - null (use defaults), false (disable), or list of field paths to index.
+控制搜索索引 - null（使用默认值），false（禁用），或要索引的字段路径列表。
 
 ####### ttl?
 
 `null` \| `number`
 
-Optional time-to-live in minutes for the item, or null for no expiration.
+条目的生存时间（以分钟为单位），或 null 表示无过期。
 
 ##### Returns
 
@@ -2182,7 +2159,7 @@ await client.store.putItem(
 
 Defined in: [client.ts:1347](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L1347)
 
-Search for items within a namespace prefix.
+在命名空间前缀内搜索条目。
 
 ##### Parameters
 
@@ -2190,7 +2167,7 @@ Search for items within a namespace prefix.
 
 `string`[]
 
-List of strings representing the namespace prefix.
+表示命名空间前缀的字符串列表。
 
 ###### options?
 
@@ -2198,31 +2175,31 @@ List of strings representing the namespace prefix.
 
 `Record`\<`string`, `any`\>
 
-Optional dictionary of key-value pairs to filter results.
+用于过滤结果的可选键值对字典。
 
 ####### limit?
 
 `number`
 
-Maximum number of items to return (default is 10).
+要返回的最大条目数（默认为 10）。
 
 ####### offset?
 
 `number`
 
-Number of items to skip before returning results (default is 0).
+在返回结果之前要跳过的条目数（默认为 0）。
 
 ####### query?
 
 `string`
 
-Optional search query.
+可选搜索查询。
 
 ####### refreshTtl?
 
 `null` \| `boolean`
 
-Whether to refresh the TTL on items returned by this search. If null, uses the store's default behavior.
+是否刷新此搜索返回的条目的 TTL。如果为 null，则使用存储的默认行为。
 
 ##### Returns
 
@@ -2309,7 +2286,7 @@ Defined in: [client.ts:88](https://github.com/langchain-ai/langgraph/blob/d4f644
 
 Defined in: [client.ts:566](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L566)
 
-Copy an existing thread
+复制现有线程。
 
 ##### Parameters
 
@@ -2317,13 +2294,13 @@ Copy an existing thread
 
 `string`
 
-ID of the thread to be copied
+要复制的线程 ID。
 
 ##### Returns
 
 `Promise`\<`Thread`\<`TStateType`\>\>
 
-Newly copied thread
+新复制的线程。
 
 ***
 
@@ -2333,27 +2310,27 @@ Newly copied thread
 
 Defined in: [client.ts:511](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L511)
 
-Create a new thread.
+创建一个新线程。
 
 ##### Parameters
 
 ###### payload?
 
-Payload for creating a thread.
+创建线程的载荷。
 
 ####### graphId?
 
 `string`
 
-Graph ID to associate with the thread.
+要与线程关联的 Graph ID。
 
 ####### ifExists?
 
 `OnConflictBehavior`
 
-How to handle duplicate creation.
+如何处理重复创建。
 
-**Default**
+**`Default`**
 
 ```ts
 "raise"
@@ -2363,29 +2340,27 @@ How to handle duplicate creation.
 
 `Metadata`
 
-Metadata for the thread.
+线程的元数据。
 
 ####### supersteps?
 
 `object`[]
 
-Apply a list of supersteps when creating a thread, each containing a sequence of updates.
-
-Used for copying a thread between deployments.
+在创建线程时应用一组 supersteps，每个 superstep 包含一系列更新。
+用于在部署之间复制线程。
 
 ####### threadId?
 
 `string`
 
-ID of the thread to create.
-
-If not provided, a random UUID will be generated.
+要创建的线程 ID。
+如果未提供，将生成随机 UUID。
 
 ##### Returns
 
 `Promise`\<`Thread`\<`TStateType`\>\>
 
-The created thread.
+创建的线程。
 
 ***
 
@@ -2395,7 +2370,7 @@ The created thread.
 
 Defined in: [client.ts:599](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L599)
 
-Delete a thread.
+删除线程。
 
 ##### Parameters
 
@@ -2403,7 +2378,7 @@ Delete a thread.
 
 `string`
 
-ID of the thread.
+线程 ID。
 
 ##### Returns
 
@@ -2417,7 +2392,7 @@ ID of the thread.
 
 Defined in: [client.ts:499](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L499)
 
-Get a thread by ID.
+按 ID 获取线程。
 
 ##### Type Parameters
 
@@ -2429,13 +2404,13 @@ Get a thread by ID.
 
 `string`
 
-ID of the thread.
+线程 ID。
 
 ##### Returns
 
 `Promise`\<`Thread`\<`ValuesType`\>\>
 
-The thread.
+线程。
 
 ***
 
@@ -2445,7 +2420,7 @@ The thread.
 
 Defined in: [client.ts:752](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L752)
 
-Get all past states for a thread.
+获取线程的所有 past states。
 
 ##### Type Parameters
 
@@ -2457,11 +2432,11 @@ Get all past states for a thread.
 
 `string`
 
-ID of the thread.
+线程 ID。
 
 ###### options?
 
-Additional options.
+附加选项。
 
 ####### before?
 
@@ -2483,7 +2458,7 @@ Additional options.
 
 `Promise`\<`ThreadState`\<`ValuesType`\>[]\>
 
-List of thread states.
+线程状态列表。
 
 ***
 
@@ -2493,7 +2468,7 @@ List of thread states.
 
 Defined in: [client.ts:659](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L659)
 
-Get state for a thread.
+获取线程的状态。
 
 ##### Type Parameters
 
@@ -2505,7 +2480,7 @@ Get state for a thread.
 
 `string`
 
-ID of the thread.
+线程 ID。
 
 ###### checkpoint?
 
@@ -2521,7 +2496,7 @@ ID of the thread.
 
 `Promise`\<`ThreadState`\<`ValuesType`\>\>
 
-Thread state.
+线程状态。
 
 ***
 
@@ -2531,21 +2506,19 @@ Thread state.
 
 Defined in: [client.ts:722](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L722)
 
-Patch the metadata of a thread.
+更新线程的元数据。
 
 ##### Parameters
 
 ###### threadIdOrConfig
 
-Thread ID or config to patch the state of.
+要更新状态的线程 ID 或配置。
 
 `string` | `Config`
 
 ###### metadata
 
-`Metadata`
-
-Metadata to patch the state with.
+要用作状态更新的元数据。
 
 ##### Returns
 
@@ -2559,7 +2532,7 @@ Metadata to patch the state with.
 
 Defined in: [client.ts:611](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L611)
 
-List threads
+列出线程。
 
 ##### Type Parameters
 
@@ -2569,52 +2542,52 @@ List threads
 
 ###### query?
 
-Query options
+查询选项
 
 ####### limit?
 
 `number`
 
-Maximum number of threads to return.
-Defaults to 10
+要返回的最大线程数。
+默认为 10
 
 ####### metadata?
 
 `Metadata`
 
-Metadata to filter threads by.
+用于过滤线程的元数据。
 
 ####### offset?
 
 `number`
 
-Offset to start from.
+开始的偏移量。
 
 ####### sortBy?
 
 `ThreadSortBy`
 
-Sort by.
+排序依据。
 
 ####### sortOrder?
 
 `SortOrder`
 
-Sort order.
-Must be one of 'asc' or 'desc'.
+排序顺序。
+必须是 'asc' 或 'desc' 之一。
 
 ####### status?
 
 `ThreadStatus`
 
-Thread status to filter on.
-Must be one of 'idle', 'busy', 'interrupted' or 'error'.
+要过滤的线程状态。
+必须是 'idle'、'busy'、'interrupted' 或 'error' 之一。
 
 ##### Returns
 
 `Promise`\<`Thread`\<`ValuesType`\>[]\>
 
-List of threads
+线程列表。
 
 ***
 
@@ -2624,7 +2597,7 @@ List of threads
 
 Defined in: [client.ts:579](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L579)
 
-Update a thread.
+更新线程。
 
 ##### Parameters
 
@@ -2632,23 +2605,23 @@ Update a thread.
 
 `string`
 
-ID of the thread.
+线程 ID。
 
 ###### payload?
 
-Payload for updating the thread.
+更新线程的载荷。
 
 ####### metadata?
 
 `Metadata`
 
-Metadata for the thread.
+线程的元数据。
 
 ##### Returns
 
 `Promise`\<`Thread`\<`DefaultValues`\>\>
 
-The updated thread.
+更新后的线程。
 
 ***
 
@@ -2658,7 +2631,7 @@ The updated thread.
 
 Defined in: [client.ts:693](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L693)
 
-Add state to a thread.
+向线程添加状态。
 
 ##### Type Parameters
 
@@ -2670,7 +2643,7 @@ Add state to a thread.
 
 `string`
 
-The ID of the thread.
+线程的 ID。
 
 ###### options
 
@@ -2709,9 +2682,9 @@ The ID of the thread.
 
 Defined in: [client.ts:53](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/client.ts#L53)
 
-Get the API key from the environment.
-Precedence:
-  1. explicit argument
+从环境变量中获取 API 密钥。
+优先级：
+  1. 显式参数
   2. LANGGRAPH_API_KEY
   3. LANGSMITH_API_KEY
   4. LANGCHAIN_API_KEY
@@ -2722,13 +2695,13 @@ Precedence:
 
 `string`
 
-Optional API key provided as an argument
+作为参数提供的可选 API 密钥。
 
 ### Returns
 
 `undefined` \| `string`
 
-The API key if found, otherwise undefined
+如果找到 API 密钥，则返回该密钥，否则返回 undefined。
 
 
 <a name="interfacesclientconfigmd"></a>
@@ -2863,7 +2836,7 @@ Defined in: [react/stream.tsx:507](https://github.com/langchain-ai/langgraph/blo
 
 Defined in: [react/stream.tsx:592](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L592)
 
-The ID of the assistant to use.
+要使用的助手 ID。
 
 ***
 
@@ -2873,7 +2846,7 @@ The ID of the assistant to use.
 
 Defined in: [react/stream.tsx:542](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L542)
 
-The current branch of the thread.
+线程的当前分支。
 
 ***
 
@@ -2883,7 +2856,7 @@ The current branch of the thread.
 
 Defined in: [react/stream.tsx:587](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L587)
 
-LangGraph SDK client used to send request and receive responses.
+用于发送请求和接收响应的 LangGraph SDK 客户端。
 
 ***
 
@@ -2893,7 +2866,7 @@ LangGraph SDK client used to send request and receive responses.
 
 Defined in: [react/stream.tsx:519](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L519)
 
-Last seen error from the thread or during streaming.
+最后看到的来自线程或流式传输中的错误。
 
 ***
 
@@ -2905,7 +2878,7 @@ Defined in: [react/stream.tsx:558](https://github.com/langchain-ai/langgraph/blo
 
 **`Experimental`**
 
-Tree of all branches for the thread.
+线程的所有分支树。
 
 ***
 
@@ -2915,8 +2888,7 @@ Tree of all branches for the thread.
 
 Defined in: [react/stream.tsx:579](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L579)
 
-Get the metadata for a message, such as first thread state the message
-was seen in and branch information.
+获取消息的元数据，例如消息首次出现的线程状态和分支信息。
 
 ##### Parameters
 
@@ -2924,19 +2896,19 @@ was seen in and branch information.
 
 `Message`
 
-The message to get the metadata for.
+要获取其元数据的消息。
 
 ###### index?
 
 `number`
 
-The index of the message in the thread.
+消息在线程中的索引。
 
 ##### Returns
 
 `undefined` \| [`MessageMetadata`](#reacttype-aliasesmessagemetadatamd)\<`StateType`\>
 
-The metadata for the message.
+消息的元数据。
 
 ***
 
@@ -2946,7 +2918,7 @@ The metadata for the message.
 
 Defined in: [react/stream.tsx:552](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L552)
 
-Flattened history of thread states of a thread.
+线程状态的历史记录（扁平化）。
 
 ***
 
@@ -2956,7 +2928,7 @@ Flattened history of thread states of a thread.
 
 Defined in: [react/stream.tsx:563](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L563)
 
-Get the interrupt value for the stream if interrupted.
+如果线程被中断，则获取流的中断值。
 
 ***
 
@@ -2966,7 +2938,7 @@ Get the interrupt value for the stream if interrupted.
 
 Defined in: [react/stream.tsx:524](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L524)
 
-Whether the stream is currently running.
+流是否正在运行。
 
 ***
 
@@ -2976,8 +2948,8 @@ Whether the stream is currently running.
 
 Defined in: [react/stream.tsx:569](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L569)
 
-Messages inferred from the thread.
-Will automatically update with incoming message chunks.
+从线程推断出的消息。
+将自动更新接收到的消息块。
 
 ***
 
@@ -2987,7 +2959,7 @@ Will automatically update with incoming message chunks.
 
 Defined in: [react/stream.tsx:547](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L547)
 
-Set the branch of the thread.
+设置线程的分支。
 
 ##### Parameters
 
@@ -3007,7 +2979,7 @@ Set the branch of the thread.
 
 Defined in: [react/stream.tsx:529](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L529)
 
-Stops the stream.
+停止流。
 
 ##### Returns
 
@@ -3021,7 +2993,7 @@ Stops the stream.
 
 Defined in: [react/stream.tsx:534](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L534)
 
-Create and stream a run to the thread.
+创建并流式传输线程的运行。
 
 ##### Parameters
 
@@ -3045,7 +3017,7 @@ Create and stream a run to the thread.
 
 Defined in: [react/stream.tsx:514](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L514)
 
-The current values of the thread.
+线程的当前值。
 
 
 <a name="reactinterfacesusestreamoptionsmd"></a>
@@ -3074,7 +3046,7 @@ Defined in: [react/stream.tsx:408](https://github.com/langchain-ai/langgraph/blo
 
 Defined in: [react/stream.tsx:430](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L430)
 
-The API key to use.
+要使用的 API 密钥。
 
 ***
 
@@ -3084,7 +3056,7 @@ The API key to use.
 
 Defined in: [react/stream.tsx:425](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L425)
 
-The URL of the API to use.
+要使用的 API 的 URL。
 
 ***
 
@@ -3094,7 +3066,7 @@ The URL of the API to use.
 
 Defined in: [react/stream.tsx:415](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L415)
 
-The ID of the assistant to use.
+要使用的助手 ID。
 
 ***
 
@@ -3104,7 +3076,7 @@ The ID of the assistant to use.
 
 Defined in: [react/stream.tsx:435](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L435)
 
-Custom call options, such as custom fetch implementation.
+自定义调用选项，例如自定义 fetch 实现。
 
 ***
 
@@ -3114,7 +3086,7 @@ Custom call options, such as custom fetch implementation.
 
 Defined in: [react/stream.tsx:420](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L420)
 
-Client used to send requests.
+用于发送请求的客户端。
 
 ***
 
@@ -3124,7 +3096,7 @@ Client used to send requests.
 
 Defined in: [react/stream.tsx:440](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L440)
 
-Default headers to send with requests.
+随请求发送的默认标头。
 
 ***
 
@@ -3134,8 +3106,8 @@ Default headers to send with requests.
 
 Defined in: [react/stream.tsx:448](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L448)
 
-Specify the key within the state that contains messages.
-Defaults to "messages".
+指定包含消息的状态中的键。
+默认为 "messages"。
 
 ##### Default
 
@@ -3151,7 +3123,7 @@ Defaults to "messages".
 
 Defined in: [react/stream.tsx:470](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L470)
 
-Callback that is called when a custom event is received.
+接收到自定义事件时调用。
 
 ##### Parameters
 
@@ -3179,8 +3151,8 @@ Defined in: [react/stream.tsx:494](https://github.com/langchain-ai/langgraph/blo
 
 **`Internal`**
 
-Callback that is called when a debug event is received.
- This API is experimental and subject to change.
+接收到调试事件时调用。
+此 API 是实验性的，可能会发生更改。
 
 ##### Parameters
 
@@ -3200,7 +3172,7 @@ Callback that is called when a debug event is received.
 
 Defined in: [react/stream.tsx:453](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L453)
 
-Callback that is called when an error occurs.
+发生错误时调用。
 
 ##### Parameters
 
@@ -3220,7 +3192,7 @@ Callback that is called when an error occurs.
 
 Defined in: [react/stream.tsx:458](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L458)
 
-Callback that is called when the stream is finished.
+流完成时调用。
 
 ##### Parameters
 
@@ -3240,7 +3212,7 @@ Callback that is called when the stream is finished.
 
 Defined in: [react/stream.tsx:488](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L488)
 
-Callback that is called when a LangChain event is received.
+接收到 LangChain 事件时调用。
 
 ##### Parameters
 
@@ -3280,7 +3252,7 @@ Callback that is called when a LangChain event is received.
 
 ##### See
 
-https://langchain-ai.github.io/langgraph/cloud/how-tos/stream_events/#stream-graph-in-events-mode for more details.
+https://langchain-ai.github.io/langgraph/cloud/how-tos/stream_events/#stream-graph-in-events-mode 以获取更多详细信息。
 
 ***
 
@@ -3290,7 +3262,7 @@ https://langchain-ai.github.io/langgraph/cloud/how-tos/stream_events/#stream-gra
 
 Defined in: [react/stream.tsx:482](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L482)
 
-Callback that is called when a metadata event is received.
+接收到元数据事件时调用。
 
 ##### Parameters
 
@@ -3316,7 +3288,7 @@ Callback that is called when a metadata event is received.
 
 Defined in: [react/stream.tsx:504](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L504)
 
-Callback that is called when the thread ID is updated (ie when a new thread is created).
+线程 ID 更新时调用（例如，创建新线程时）。
 
 ##### Parameters
 
@@ -3336,7 +3308,7 @@ Callback that is called when the thread ID is updated (ie when a new thread is c
 
 Defined in: [react/stream.tsx:463](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L463)
 
-Callback that is called when an update event is received.
+接收到更新事件时调用。
 
 ##### Parameters
 
@@ -3354,7 +3326,7 @@ Callback that is called when an update event is received.
 
 Defined in: [react/stream.tsx:499](https://github.com/langchain-ai/langgraph/blob/d4f644877db6264bd46d0b00fc4c37f174e502d5/libs/sdk-js/src/react/stream.tsx#L499)
 
-The ID of the thread to fetch history and current values from.
+用于获取历史记录和当前值的线程 ID。
 
 
 <a name="reacttype-aliasesmessagemetadatamd"></a>
@@ -3381,23 +3353,23 @@ Defined in: [react/stream.tsx:169](https://github.com/langchain-ai/langgraph/blo
 
 > **branch**: `string` \| `undefined`
 
-The branch of the message.
+消息的分支。
 
 #### branchOptions
 
 > **branchOptions**: `string`[] \| `undefined`
 
-The list of branches this message is part of.
-This is useful for displaying branching controls.
+该消息所属的分支列表。
+这对于显示分支控件很有用。
 
 #### firstSeenState
 
 > **firstSeenState**: `ThreadState`\<`StateType`\> \| `undefined`
 
-The first thread state the message was seen in.
+消息首次出现的线程状态。
 
 #### messageId
 
 > **messageId**: `string`
 
-The ID of the message used.
+使用的消息 ID。

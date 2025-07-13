@@ -1,36 +1,36 @@
-# How to Deploy Self-Hosted Control Plane
+# 如何部署自托管控制平面
 
-Before deploying, review the [conceptual guide for the Self-Hosted Control Plane](../../concepts/langgraph_self_hosted_control_plane.md) deployment option.
+在部署之前，请查阅关于自托管控制平面部署选项的[概念指南](../../concepts/langgraph_self_hosted_control_plane.md)。
 
-!!! info "Important"
-    The Self-Hosted Control Plane deployment option requires an [Enterprise](../../concepts/plans.md) plan.
+!!! info "重要提示"
+    自托管控制平面部署选项需要[企业版](../../concepts/plans.md)套餐。
 
-## Prerequisites
+## 先决条件
 
-1. You are using Kubernetes.
-1. You have self-hosted LangSmith deployed.
-1. Use the [LangGraph CLI](../../concepts/langgraph_cli.md) to [test your application locally](../../tutorials/langgraph-platform/local-server.md).
-1. Use the [LangGraph CLI](../../concepts/langgraph_cli.md) to build a Docker image (i.e. `langgraph build`) and push it to a registry your Kubernetes cluster has access to.
-1. `KEDA` is installed on your cluster.
+1. 你正在使用 Kubernetes。
+1. 你已部署自托管的 LangSmith。
+1. 使用 [LangGraph CLI](../../concepts/langgraph_cli.md) 在[本地测试你的应用程序](../../tutorials/langgraph-platform/local-server.md)。
+1. 使用 [LangGraph CLI](../../concepts/langgraph_cli.md) 构建 Docker 镜像（即 `langgraph build`），并将其推送到你的 Kubernetes 集群可以访问的注册表中。
+1. 你的集群上已安装 `KEDA`。
 
-         helm repo add kedacore https://kedacore.github.io/charts 
+         helm repo add kedacore https://kedacore.github.io/charts
          helm install keda kedacore/keda --namespace keda --create-namespace
-1. Ingress Configuration
-    1. You must set up an ingress for your LangSmith instance. All agents will be deployed as Kubernetes services behind this ingress.
-    1. You can use this guide to [set up an ingress](https://docs.smith.langchain.com/self_hosting/configuration/ingress) for your instance.
-1. You have slack space in your cluster for multiple deployments. `Cluster-Autoscaler` is recommended to automatically provision new nodes.
-1. A valid Dynamic PV provisioner or PVs available on your cluster. You can verify this by running:
+1. Ingress 配置
+    1. 你必须为你的 LangSmith 实例设置一个入口。所有代理都将作为 Kubernetes 服务部署在此入口之后。
+    1. 你可以使用此指南为你的实例[设置入口](https://docs.smith.langchain.com/self_hosting/configuration/ingress)。
+1. 你的集群中有足够的空间来容纳多个部署。建议使用 `Cluster-Autoscaler` 来自动配置新节点。
+1. 你的集群中有可用的动态 PV provisioner 或 PV。你可以通过运行以下命令进行验证：
 
         kubectl get storageclass
 
-## Setup
+## 设置
 
-1. As part of configuring your Self-Hosted LangSmith instance, you enable the `langgraphPlatform` option. This will provision a few key resources.
-    1. `listener`: This is a service that listens to the [control plane](../../concepts/langgraph_control_plane.md) for changes to your deployments and creates/updates downstream CRDs.
-    1. `LangGraphPlatform CRD`: A CRD for LangGraph Platform deployments. This contains the spec for managing an instance of a LangGraph platform deployment.
-    1. `operator`: This operator handles changes to your LangGraph Platform CRDs.
-    1. `host-backend`: This is the [control plane](../../concepts/langgraph_control_plane.md).
-1. Two additional images will be used by the chart. Use the images that are specified in the latest release.
+1. 作为配置自托管 LangSmith 实例的一部分，你需要启用 `langgraphPlatform` 选项。这将配置一些关键资源。
+    1. `listener`：这是一个服务，它监听来自[控制平面](../../concepts/langgraph_control_plane.md)的部署更改，并创建/更新下游的 CRD。
+    1. `LangGraphPlatform CRD`：LangGraph 平台部署的 CRD。它包含管理 LangGraph 平台部署实例的规范。
+    1. `operator`：此 Operator 处理 LangGraph 平台 CRD 的更改。
+    1. `host-backend`：这是[控制平面](../../concepts/langgraph_control_plane.md)。
+1. 该图表还将使用两个附加镜像。使用最新发布版本中指定的镜像。
 
         hostBackendImage:
           repository: "docker.io/langchain/hosted-langserve-backend"
@@ -39,13 +39,13 @@ Before deploying, review the [conceptual guide for the Self-Hosted Control Plane
           repository: "docker.io/langchain/langgraph-operator"
           pullPolicy: IfNotPresent
 
-1. In your config file for langsmith (usually `langsmith_config.yaml`, enable the `langgraphPlatform` option. Note that you must also have a valid ingress setup:
+1. 在你的 LangSmith 配置文件中（通常是 `langsmith_config.yaml`），启用 `langgraphPlatform` 选项。请注意，你还必须具有有效的入口设置：
 
         config:
           langgraphPlatform:
             enabled: true
             langgraphPlatformLicenseKey: "YOUR_LANGGRAPH_PLATFORM_LICENSE_KEY"
-1. In your `values.yaml` file, configure the `hostBackendImage` and `operatorImage` options (if you need to mirror images)
+1. 在你的 `values.yaml` 文件中，配置 `hostBackendImage` 和 `operatorImage` 选项（如果你需要镜像镜像）。
 
-1. You can also configure base templates for your agents by overriding the base templates [here](https://github.com/langchain-ai/helm/blob/main/charts/langsmith/values.yaml#L898).
-1. You create a deployment from the [control plane UI](../../concepts/langgraph_control_plane.md#control-plane-ui).
+1. 你还可以通过覆盖[此处](https://github.com/langchain-ai/helm/blob/main/charts/langsmith/values.yaml#L898)的基础模板来配置代理的基础模板。
+1. 你从[控制平面 UI](../../concepts/langgraph_control_plane.md#control-plane-ui)创建部署。

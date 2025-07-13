@@ -1,67 +1,69 @@
-# Deployment quickstart
+# 部署快速入门
 
-This guide shows you how to set up and use LangGraph Platform for a cloud deployment.
+本指南将向您展示如何为云部署设置和使用 LangGraph Platform。
 
-## Prerequisites
+## 先决条件
 
-Before you begin, ensure you have the following:
+在开始之前，请确保您已满足以下条件：
 
-- A [GitHub account](https://github.com/)
-- A [LangSmith account](https://smith.langchain.com/) – free to sign up
+- 一个 [GitHub 账户](https://github.com/)
+- 一个 [LangSmith 账户](https://smith.langchain.com/) – 免费注册
 
-## 1. Create a repository on GitHub
+## 1. 在 GitHub 上创建仓库
 
-To deploy an application to **LangGraph Platform**, your application code must reside in a GitHub repository. Both public and private repositories are supported. For this quickstart, use the [`new-langgraph-project` template](https://github.com/langchain-ai/react-agent) for your application:
+要将应用程序部署到 **LangGraph Platform**，您的应用程序代码必须位于 GitHub 仓库中。支持公共仓库和私有仓库。对于本快速入门，请使用 [`new-langgraph-project` 模板](https://github.com/langchain-ai/react-agent) 作为您的应用程序：
 
-1. Go to the [`new-langgraph-project` repository](https://github.com/langchain-ai/new-langgraph-project) or [`new-langgraphjs-project` template](https://github.com/langchain-ai/new-langgraphjs-project).
-1. Click the `Fork` button in the top right corner to fork the repository to your GitHub account.
-1. Click **Create fork**. 
+1. 转到 [`new-langgraph-project` 仓库](https://github.com/langchain-ai/new-langgraph-project) 或 [`new-langgraphjs-project` 模板](https://github.com/langchain-ai/new-langgraphjs-project)。
+1. 点击右上角的 `Fork` 按钮，将仓库 fork 到您的 GitHub 账户。
+1. 点击 **Create fork**。
 
-## 2. Deploy to LangGraph Platform
+## 2. 部署到 LangGraph Platform
 
-1. Log in to [LangSmith](https://smith.langchain.com/).
-1. In the left sidebar, select **Deployments**.
-1. Click the **+ New Deployment** button. A pane will open where you can fill in the required fields.
-1. If you are a first time user or adding a private repository that has not been previously connected, click the **Import from GitHub** button and follow the instructions to connect your GitHub account.
-1. Select your New LangGraph Project repository.
-1. Click **Submit** to deploy.
+1. 登录 [LangSmith](https://smith.langchain.com/)。
+1. 在左侧边栏中，选择 **Deployments**。
+1. 点击 **+ New Deployment** 按钮。将打开一个窗格，您可以在其中填写必填字段。
+1. 如果您是首次使用或正在添加 ранее 未连接过的私有仓库，请点击 **Import from GitHub** 按钮并按照说明连接您的 GitHub 账户。
+1. 选择您的 New LangGraph Project 仓库。
+1. 点击 **Submit** 进行部署。
 
-    This may take about 15 minutes to complete. You can check the status in the **Deployment details** view.
+    这可能需要大约 15 分钟才能完成。您可以在 **Deployment details** 视图中查看状态。
 
-## 3. Test your application in LangGraph Studio
+> **注意：** 此处可能存在翻译不准确的地方，因为我无法访问您的项目。
 
-Once your application is deployed:
+## 3. 在 LangGraph Studio 中测试您的应用程序
 
-1. Select the deployment you just created to view more details.
-1. Click the **LangGraph Studio** button in the top right corner.
+部署应用程序后：
 
-    LangGraph Studio will open to display your graph.
+1. 选择您刚创建的部署以查看更多详细信息。
+1. 点击右上角的 **LangGraph Studio** 按钮。
+
+    LangGraph Studio 将打开以显示您的图形。
 
     <figure markdown="1">
     [![image](deployment/img/langgraph_studio.png){: style="max-height:400px"}](deployment/img/langgraph_studio.png)
     <figcaption>
-        Sample graph run in LangGraph Studio.
+        在 LangGraph Studio 中运行的示例图形。
     </figcaption>
     </figure>
 
-## 4. Get the API URL for your deployment
+## 4. 获取部署的 API URL
 
-1. In the **Deployment details** view in LangGraph, click the **API URL** to copy it to your clipboard.
-1. Click the `URL` to copy it to the clipboard.
+1. 在 LangGraph 的 **Deployment details** 视图中，点击 **API URL** 将其复制到剪贴板。
+1. 点击 `URL` 将其复制到剪贴板。
 
-## 5. Test the API
+## 5. 测试 API
 
-You can now test the API:
+现在您可以测试 API：
 
 === "Python SDK (Async)"
 
-    1. Install the LangGraph Python SDK:
+    1. 安装 LangGraph Python SDK：
 
         ```shell
         pip install langgraph-sdk
         ```
 
-    1. Send a message to the assistant (threadless run):
+    1. 向助手发送消息（无线程运行）：
 
         ```python
         from langgraph_sdk import get_client
@@ -70,7 +72,7 @@ You can now test the API:
 
         async for chunk in client.runs.stream(
             None,  # Threadless run
-            "agent", # Name of assistant. Defined in langgraph.json.
+            "agent", # Assistant name. Defined in langgraph.json.
             input={
                 "messages": [{
                     "role": "human",
@@ -86,13 +88,13 @@ You can now test the API:
 
 === "Python SDK (Sync)"
 
-    1. Install the LangGraph Python SDK:
+    1. 安装 LangGraph Python SDK：
 
         ```shell
         pip install langgraph-sdk
         ```
 
-    1. Send a message to the assistant (threadless run):
+    1. 向助手发送消息（无线程运行）：
 
         ```python
         from langgraph_sdk import get_sync_client
@@ -101,7 +103,7 @@ You can now test the API:
 
         for chunk in client.runs.stream(
             None,  # Threadless run
-            "agent", # Name of assistant. Defined in langgraph.json.
+            "agent", # Assistant name. Defined in langgraph.json.
             input={
                 "messages": [{
                     "role": "human",
@@ -117,13 +119,13 @@ You can now test the API:
 
 === "JavaScript SDK"
 
-    1. Install the LangGraph JS SDK
+    1. 安装 LangGraph JS SDK
 
         ```shell
         npm install @langchain/langgraph-sdk
         ```
 
-    1. Send a message to the assistant (threadless run):
+    1. 向助手发送消息（无线程运行）：
 
         ```js
         const { Client } = await import("@langchain/langgraph-sdk");
@@ -168,17 +170,14 @@ You can now test the API:
                 ]
             },
             \"stream_mode\": \"updates\"
-        }" 
+        }"
     ```
 
+## 后续步骤
 
-## Next steps
+恭喜！您已使用 LangGraph Platform 部署了应用程序。
 
-Congratulations! You have deployed an application using LangGraph Platform.
+您可以查看以下其他资源：
 
-Here are some other resources to check out:
-
-- [LangGraph Platform overview](../concepts/langgraph_platform.md)
-- [Deployment options](../concepts/deployment_options.md)
-
-
+- [LangGraph Platform 概览](../concepts/langgraph_platform.md)
+- [部署选项](../concepts/deployment_options.md)

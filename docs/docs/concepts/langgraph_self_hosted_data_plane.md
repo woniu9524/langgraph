@@ -3,38 +3,38 @@ search:
   boost: 2
 ---
 
-# Self-Hosted Data Plane
+# 自托管数据平面
 
-There are two versions of the self-hosted deployment: [Self-Hosted Data Plane](./deployment_options.md#self-hosted-data-plane) and [Self-Hosted Control Plane](./deployment_options.md#self-hosted-control-plane).
+自托管部署有两种版本：[自托管数据平面](./deployment_options.md#self-hosted-data-plane) 和 [自托管控制平面](./deployment_options.md#self-hosted-control-plane)。
 
-!!! info "Important"
-    The Self-Hosted Data Plane deployment option requires an [Enterprise](plans.md) plan.
+!!! info "重要提示"
+    自托管数据平面部署选项需要企业版 [Enterprise](plans.md)。
 
-## Requirements
+## 要求
 
-- You use `langgraph-cli` and/or [LangGraph Studio](./langgraph_studio.md) app to test graph locally.
-- You use `langgraph build` command to build image.
+- 您将使用 `langgraph-cli` 和/或 [LangGraph Studio](./langgraph_studio.md) 应用在本地测试图。
+- 您将使用 `langgraph build` 命令来构建镜像。
 
-## Self-Hosted Data Plane
+## 自托管数据平面
 
-The [Self-Hosted Data Plane](../cloud/deployment/self_hosted_data_plane.md) deployment option is a "hybrid" model for deployment where we manage the [control plane](./langgraph_control_plane.md) in our cloud and you manage the [data plane](./langgraph_data_plane.md) in your cloud. This option provides a way to securely manage your data plane infrastructure, while offloading control plane management to us. When using the Self-Hosted Data Plane version, you authenticate with a [LangSmith](https://smith.langchain.com/) API key.
+[自托管数据平面](../cloud/deployment/self_hosted_data_plane.md) 部署选项是一种“混合”部署模式，其中我们管理云中的 [控制平面](./langgraph_control_plane.md)，而您管理云中的 [数据平面](./langgraph_data_plane.md)。此选项提供了一种安全管理数据平面基础设施的方法，同时将控制平面管理委托给我们。在使用自托管数据平面版本时，您将使用 [LangSmith](https://smith.langchain.com/) API 密钥进行身份验证。
 
-|                   | [Control plane](../concepts/langgraph_control_plane.md) | [Data plane](../concepts/langgraph_data_plane.md) |
-|-------------------|-------------------|------------|
-| **What is it?** | <ul><li>Control plane UI for creating deployments and revisions</li><li>Control plane APIs for creating deployments and revisions</li></ul> | <ul><li>Data plane "listener" for reconciling deployments with control plane state</li><li>LangGraph Servers</li><li>Postgres, Redis, etc</li></ul> |
-| **Where is it hosted?** | LangChain's cloud | Your cloud |
-| **Who provisions and manages it?** | LangChain | You |
+|                   | [控制平面](../concepts/langgraph_control_plane.md) | [数据平面](../concepts/langgraph_data_plane.md) |
+|-------------------|---------------------------------------------------|---------------------------------------------------|
+| **是什么？** | <ul><li>用于创建部署和修订的控制平面 UI</li><li>用于创建部署和修订的控制平面 API</li></ul> | <ul><li>用于将部署与控制平面状态进行协调的数据平面“监听器”</li><li>LangGraph 服务器</li><li>Postgres, Redis 等</li></ul> |
+| **托管在哪里？** | LangChain 的云                                    | 您的云                                            |
+| **谁负责配置和管理？** | LangChain                                         | 您                                                |
 
-For information on how to deploy a [LangGraph Server](../concepts/langgraph_server.md) to Self-Hosted Data Plane, see [Deploy to Self-Hosted Data Plane](../cloud/deployment/self_hosted_data_plane.md)
+有关如何将 [LangGraph 服务器](../concepts/langgraph_server.md) 部署到自托管数据平面的信息，请参阅 [部署到自托管数据平面](../cloud/deployment/self_hosted_data_plane.md)。
 
-### Architecture
+### 架构
 
-![Self-Hosted Data Plane Architecture](./img/self_hosted_data_plane_architecture.png)
+![自托管数据平面架构](./img/self_hosted_data_plane_architecture.png)
 
-### Compute Platforms
+### 计算平台
 
-- **Kubernetes**: The Self-Hosted Data Plane deployment option supports deploying data plane infrastructure to any Kubernetes cluster.
-- **Amazon ECS**: Coming soon!
+- **Kubernetes**: 自托管数据平面部署选项支持将数据平面基础设施部署到任何 Kubernetes 集群。
+- **Amazon ECS**: 即将推出！
 
 !!! tip
-    If you would like to deploy to Kubernetes, you can follow the [Self-Hosted Data Plane deployment guide](../cloud/deployment/self_hosted_data_plane.md).
+    如果您想部署到 Kubernetes，可以遵循 [自托管数据平面部署指南](../cloud/deployment/self_hosted_data_plane.md)。

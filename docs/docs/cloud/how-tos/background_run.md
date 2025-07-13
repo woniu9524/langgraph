@@ -1,12 +1,11 @@
-# How to kick off background runs
- 
+# 如何启动后台运行
 
-This guide covers how to kick off background runs for your agent.
-This can be useful for long running jobs.
+本指南涵盖了如何为您的代理启动后台运行。
+这对于长时间运行的任务非常有用。
 
-## Setup
+## 设置
 
-First let's set up our client and thread:
+首先，我们来设置我们的客户端和线程：
 
 === "Python"
 
@@ -14,9 +13,9 @@ First let's set up our client and thread:
     from langgraph_sdk import get_client
 
     client = get_client(url=<DEPLOYMENT_URL>)
-    # Using the graph deployed with the name "agent"
+    # 使用名为 "agent" 的已部署图
     assistant_id = "agent"
-    # create thread
+    # 创建线程
     thread = await client.threads.create()
     print(thread)
     ```
@@ -27,9 +26,9 @@ First let's set up our client and thread:
     import { Client } from "@langchain/langgraph-sdk";
 
     const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
-    // Using the graph deployed with the name "agent"
+    // 使用名为 "agent" 的已部署图
     const assistantID = "agent";
-    // create thread
+    // 创建线程
     const thread = await client.threads.create();
     console.log(thread);
     ```
@@ -43,7 +42,7 @@ First let's set up our client and thread:
       --data '{}'
     ```
 
-Output:
+输出：
 
     {
         'thread_id': '5cb1e8a1-34b3-4a61-a34e-71a9799bd00d',
@@ -55,9 +54,9 @@ Output:
         'values': None
     }
 
-## Check runs on thread
+## 检查线程上的运行
 
-If we list the current runs on this thread, we will see that it's empty:
+如果我们列出此线程上的当前运行，我们会发现它是空的：
 
 === "Python"
 
@@ -80,13 +79,13 @@ If we list the current runs on this thread, we will see that it's empty:
         --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/runs
     ```
 
-Output:
+输出：
 
     []
 
-## Start runs on thread
+## 在线程上启动运行
 
-Now let's kick off a run:
+现在我们来启动一个运行：
 
 === "Python"
 
@@ -113,7 +112,7 @@ Now let's kick off a run:
         }'
     ```
 
-The first time we poll it, we can see `status=pending`:
+当我们第一次轮询时，我们可以看到 `status=pending`：
 
 === "Python"
 
@@ -134,7 +133,7 @@ The first time we poll it, we can see `status=pending`:
         --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/runs/<RUN_ID>
     ```
 
-Output:
+输出：
 
         {
             "run_id": "1ef6a5f8-bd86-6763-bbd6-bff042db7b1b",
@@ -180,7 +179,7 @@ Output:
 
 
 
-Now we can join the run, wait for it to finish and check that status again:
+现在我们可以加入该运行，等待它完成，然后再次检查状态：
 
 === "Python"
 
@@ -205,7 +204,7 @@ Now we can join the run, wait for it to finish and check that status again:
         --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/runs/<RUN_ID>
     ```
 
-Output:
+输出：
 
     {
         "run_id": "1ef6a5f8-bd86-6763-bbd6-bff042db7b1b",
@@ -250,7 +249,7 @@ Output:
     }
 
 
-Perfect! The run succeeded as we would expect. We can double check that the run worked as expected by printing out the final state:
+太好了！运行正如我们预期的那样成功了。我们可以通过打印最终状态来仔细检查运行是否按预期工作：
 
 === "Python"
 
@@ -273,7 +272,7 @@ Perfect! The run succeeded as we would expect. We can double check that the run 
         --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/state
     ```
 
-Output:
+输出：
 
     {
         "values": {
@@ -325,7 +324,7 @@ Output:
                     }
                 },
                 {
-                    "content": "[{\"url\": \"https://www.weatherapi.com/\", \"content\": \"{'location': {'name': 'San Francisco', 'region': 'California', 'country': 'United States of America', 'lat': 37.78, 'lon': -122.42, 'tz_id': 'America/Los_Angeles', 'localtime_epoch': 1725052131, 'localtime': '2024-08-30 14:08'}, 'current': {'last_updated_epoch': 1725051600, 'last_updated': '2024-08-30 14:00', 'temp_c': 21.1, 'temp_f': 70.0, 'is_day': 1, 'condition': {'text': 'Partly cloudy', 'icon': '//cdn.weatherapi.com/weather/64x64/day/116.png', 'code': 1003}, 'wind_mph': 11.9, 'wind_kph': 19.1, 'wind_degree': 290, 'wind_dir': 'WNW', 'pressure_mb': 1018.0, 'pressure_in': 30.07, 'precip_mm': 0.0, 'precip_in': 0.0, 'humidity': 59, 'cloud': 25, 'feelslike_c': 21.1, 'feelslike_f': 70.0, 'windchill_c': 18.6, 'windchill_f': 65.5, 'heatindex_c': 18.6, 'heatindex_f': 65.5, 'dewpoint_c': 12.2, 'dewpoint_f': 54.0, 'vis_km': 16.0, 'vis_miles': 9.0, 'uv': 5.0, 'gust_mph': 15.0, 'gust_kph': 24.2}}\"}]",
+                    "content": "[{\"url\": \"https://www.weatherapi.com/\", \"content\": \"{'location': {'name': 'San Francisco', 'region': 'California', 'country': 'United States of America', 'lat': 37.78, 'lon': -122.42, 'tz_id': 'America/Los_Angeles', 'localtime_epoch': 1725052131, 'localtime': '2024-08-30 14:08'}, 'current': {'last_updated_epoch': 1725051600, 'last_updated': '2024-08-30 14:00', 'temp_c': 21.1, 'temp_f': 70.0, 'is_day': 1, 'condition': {'text': 'Partly cloudy', 'icon': '//cdn.weatherapi.com/weather/64x64/day/116.png', 'code': 1003}, 'wind_mph': 11.9, 'wind_kph': 19.1, 'wind_degree': 290, 'wind_dir': 'WNW', 'pressure_mb': 1018.0, 'pressure_in': 30.07, 'precip_mm': 0.0, 'precip_in': 0.0, 'humidity': 59, 'cloud': 25, 'feelslike_c': 21.1, 'feelslike_f': 70.0, 'windchill_c': 18.6, 'windchill_f': 65.5, 'heatindex_c': 18.6, 'heatindex_f': 65.5, 'dewpoint_c': 12.2, 'dewpoint_f': 54.0, 'vis_km': 16.0, 'vis_miles': 9.0, 'uv': 5.0, 'gust_mph': 15.0, 'gust_kph': 24.2}}\", \"json\": \"{\\\"query\\\": \\\"weather in san francisco\\\"}\"}]",
                     "additional_kwargs": {},
                     "response_metadata": {},
                     "type": "tool",
@@ -425,7 +424,7 @@ Output:
         "parent_checkpoint_id": "1ef67141-2129-6b37-8002-61fc3bf69cb5"
     }
 
-We can also just print the content of the last AIMessage:
+我们也可以直接打印最后一个 AIMessage 的内容：
 
 === "Python"
 
@@ -446,6 +445,6 @@ We can also just print the content of the last AIMessage:
         --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/state | jq -r '.values.messages[-1].content.[0].text'
     ```
 
-Output:
+输出：
 
     The search results provide the current weather conditions in San Francisco. According to the data, as of 2:00 PM on August 30, 2024, the temperature in San Francisco is 70°F (21.1°C) with partly cloudy skies. The wind is blowing from the west-northwest at around 12 mph (19 km/h). The humidity is 59% and visibility is 9 miles (16 km). Overall, it looks like a nice late summer day in San Francisco with comfortable temperatures and partly sunny conditions.

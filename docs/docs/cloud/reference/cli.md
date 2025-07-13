@@ -1,11 +1,11 @@
 # LangGraph CLI
 
-The LangGraph command line interface includes commands to build and run a LangGraph Platform API server locally in [Docker](https://www.docker.com/). For development and testing, you can use the CLI to deploy a local API server.
+LangGraph 命令行界面 (CLI) 包含用于在本地 [Docker](https://www.docker.com/) 中构建和运行 LangGraph Platform API 服务器的命令。在开发和测试期间，您可以使用 CLI 部署本地 API 服务器。
 
-## Installation
+## 安装
 
-1.  Ensure that Docker is installed (e.g. `docker --version`).
-2.  Install the CLI package:
+1.  确保已安装 Docker（例如：`docker --version`）。
+2.  安装 CLI 包：
 
     === "Python"
         ```bash
@@ -16,62 +16,62 @@ The LangGraph command line interface includes commands to build and run a LangGr
         ```bash
         npx @langchain/langgraph-cli
 
-        # Install globally, will be available as `langgraphjs`
+        # 全局安装，将可用作 `langgraphjs`
         npm install -g @langchain/langgraph-cli
         ```
 
-3.  Run the command `langgraph --help` or `npx @langchain/langgraph-cli --help` to confirm that the CLI is working correctly.
+3.  运行命令 `langgraph --help` 或 `npx @langchain/langgraph-cli --help` 以确认 CLI 正常工作。
 
 [](){#langgraph.json}
 
-## Configuration File {#configuration-file}
+## 配置文件 {#configuration-file}
 
-The LangGraph CLI requires a JSON configuration file that follows this [schema](https://raw.githubusercontent.com/langchain-ai/langgraph/refs/heads/main/libs/cli/schemas/schema.json). It contains the following properties:
+LangGraph CLI 需要一个遵循此 [架构](https://raw.githubusercontent.com/langchain-ai/langgraph/refs/heads/main/libs/cli/schemas/schema.json) 的 JSON 配置文件。它包含以下属性：
 
 <div class="admonition tip">
-    <p class="admonition-title">Note</p>
+    <p class="admonition-title">注意</p>
     <p>
-        The LangGraph CLI defaults to using the configuration file <strong>langgraph.json</strong> in the current directory.
+        LangGraph CLI 默认使用当前目录下的配置文件 <strong>langgraph.json</strong>。
     </p>
 </div>
 
 === "Python"
 
-    | Key                                                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-    | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | <span style="white-space: nowrap;">`dependencies`</span>     | **Required**. Array of dependencies for LangGraph Platform API server. Dependencies can be one of the following: <ul><li>A single period (`"."`), which will look for local Python packages.</li><li>The directory path where `pyproject.toml`, `setup.py` or `requirements.txt` is located.</br></br>For example, if `requirements.txt` is located in the root of the project directory, specify `"./"`. If it's located in a subdirectory called `local_package`, specify `"./local_package"`. Do not specify the string `"requirements.txt"` itself.</li><li>A Python package name.</li></ul> |
-    | <span style="white-space: nowrap;">`graphs`</span>           | **Required**. Mapping from graph ID to path where the compiled graph or a function that makes a graph is defined. Example: <ul><li>`./your_package/your_file.py:variable`, where `variable` is an instance of `langgraph.graph.state.CompiledStateGraph`</li><li>`./your_package/your_file.py:make_graph`, where `make_graph` is a function that takes a config dictionary (`langchain_core.runnables.RunnableConfig`) and returns an instance of `langgraph.graph.state.StateGraph` or `langgraph.graph.state.CompiledStateGraph`. See [how to rebuild a graph at runtime](../../cloud/deployment/graph_rebuild.md) for more details.</li></ul>                                    |
-    | <span style="white-space: nowrap;">`auth`</span>             | _(Added in v0.0.11)_ Auth configuration containing the path to your authentication handler. Example: `./your_package/auth.py:auth`, where `auth` is an instance of `langgraph_sdk.Auth`. See [authentication guide](../../concepts/auth.md) for details.                                                                                                                                                                                                                                                                                                                        |
-    | <span style="white-space: nowrap;">`base_image`</span>       | Optional. Base image to use for the LangGraph API server. Defaults to `langchain/langgraph-api` or `langchain/langgraphjs-api`. Use this to pin your builds to a particular version of the langgraph API, such as `"langchain/langgraph-server:0.2"`. See https://hub.docker.com/r/langchain/langgraph-server/tags for more details. (added in `langgraph-cli==0.2.8`) |
-    | <span style="white-space: nowrap;">`image_distro`</span>     | Optional. Linux distribution for the base image. Must be either `"debian"` or `"wolfi"`. If omitted, defaults to `"debian"`. Available in `langgraph-cli>=0.2.11`.|
-    | <span style="white-space: nowrap;">`env`</span>              | Path to `.env` file or a mapping from environment variable to its value.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-    | <span style="white-space: nowrap;">`store`</span>            | Configuration for adding semantic search and/or time-to-live (TTL) to the BaseStore. Contains the following fields: <ul><li>`index` (optional): Configuration for semantic search indexing with fields `embed`, `dims`, and optional `fields`.</li><li>`ttl` (optional): Configuration for item expiration. An object with optional fields: `refresh_on_read` (boolean, defaults to `true`), `default_ttl` (float, lifespan in **minutes**, defaults to no expiration), and `sweep_interval_minutes` (integer, how often to check for expired items, defaults to no sweeping).</li></ul> |
-    | <span style="white-space: nowrap;">`ui`</span>               | Optional. Named definitions of UI components emitted by the agent, each pointing to a JS/TS file. (added in `langgraph-cli==0.1.84`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-    | <span style="white-space: nowrap;">`python_version`</span>   | `3.11`, `3.12`, or `3.13`. Defaults to `3.11`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-    | <span style="white-space: nowrap;">`node_version`</span>     | Specify `node_version: 20` to use LangGraph.js.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-    | <span style="white-space: nowrap;">`pip_config_file`</span>  | Path to `pip` config file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-    | <span style="white-space: nowrap;">`pip_installer`</span> | _(Added in v0.3)_ Optional. Python package installer selector. It can be set to `"auto"`, `"pip"`, or `"uv"`. From version&nbsp;0.3 onward the default strategy is to run `uv pip`, which typically delivers faster builds while remaining a drop-in replacement. In the uncommon situation where `uv` cannot handle your dependency graph or the structure of your `pyproject.toml`, specify `"pip"` here to revert to the earlier behaviour. |
-    | <span style="white-space: nowrap;">`keep_pkg_tools`</span> | _(Added in v0.3.4)_ Optional. Control whether to retain Python packaging tools (`pip`, `setuptools`, `wheel`) in the final image. Accepted values: <ul><li><code>true</code> : Keep all three tools (skip uninstall).</li><li><code>false</code> / omitted : Uninstall all three tools (default behaviour).</li><li><code>list[str]</code> : Names of tools <strong>to retain</strong>. Each value must be one of "pip", "setuptools", "wheel".</li></ul>. By default, all three tools are uninstalled. |
-    | <span style="white-space: nowrap;">`dockerfile_lines`</span> | Array of additional lines to add to Dockerfile following the import from parent image.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-    | <span style="white-space: nowrap;">`checkpointer`</span>   | Configuration for the checkpointer. Contains a `ttl` field which is an object with the following keys: <ul><li>`strategy`: How to handle expired checkpoints (e.g., `"delete"`).</li><li>`sweep_interval_minutes`: How often to check for expired checkpoints (integer).</li><li>`default_ttl`: Default time-to-live for checkpoints in **minutes** (integer). Defines how long checkpoints are kept before the specified strategy is applied.</li></ul> |
-    | <span style="white-space: nowrap;">`http`</span>            | HTTP server configuration with the following fields: <ul><li>`app`: Path to custom Starlette/FastAPI app (e.g., `"./src/agent/webapp.py:app"`). See [custom routes guide](../../how-tos/http/custom_routes.md).</li><li>`cors`: CORS configuration with fields for `allow_origins`, `allow_methods`, `allow_headers`, etc.</li><li>`configurable_headers`: Define which request headers to exclude or include as a run's configurable values.</li><li>`disable_assistants`: Disable `/assistants` routes</li><li>`disable_mcp`: Disable `/mcp` routes</li><li>`disable_meta`: Disable `/ok`, `/info`, `/metrics`, and `/docs` routes</li><li>`disable_runs`: Disable `/runs` routes</li><li>`disable_store`: Disable `/store` routes</li><li>`disable_threads`: Disable `/threads` routes</li><li>`disable_ui`: Disable `/ui` routes</li><li>`disable_webhooks`: Disable webhooks calls on run completion in all routes</li><li>`mount_prefix`: Prefix for mounted routes (e.g., "/my-deployment/api")</li></ul> |
+    | 键                                                           | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+    | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | <span style="white-space: nowrap;">`dependencies`</span>     | **必需**。LangGraph Platform API 服务器的依赖项数组。依赖项可以是以下之一：<ul><li>单个句点 (`"."`)，它将查找本地 Python 包。</li><li>包含 `pyproject.toml`、`setup.py` 或 `requirements.txt` 的目录路径。</br></br>例如，如果 `requirements.txt` 位于项目目录的根目录，请指定 `"./"`。如果它位于名为 `local_package` 的子目录中，请指定 `"./local_package"`。不要指定字符串本身 `"requirements.txt"`。</li><li>一个 Python 包名。</li></ul> |
+    | <span style="white-space: nowrap;">`graphs`</span>           | **必需**。从图 ID 到编译后的图或定义图的函数的路径的映射。示例：<ul><li>`./your_package/your_file.py:variable`，其中 `variable` 是 `langgraph.graph.state.CompiledStateGraph` 的实例</li><li>`./your_package/your_file.py:make_graph`，其中 `make_graph` 是一个函数，它接受一个配置字典 (`langchain_core.runnables.RunnableConfig`) 并返回一个 `langgraph.graph.state.StateGraph` 或 `langgraph.graph.state.CompiledStateGraph` 的实例。有关如何在运行时重建图的更多详细信息，请参阅 [如何重建图](../../cloud/deployment/graph_rebuild.md)。</li></ul>                                    |
+    | <span style="white-space: nowrap;">`auth`</span>             | _(v0.0.11 添加)_ 身份验证配置，包含指向您的身份验证处理程序的路径。示例：`./your_package/auth.py:auth`，其中 `auth` 是 `langgraph_sdk.Auth` 的实例。有关详细信息，请参阅 [身份验证指南](../../concepts/auth.md)。                                                                                                                                                                                                                                                                                                                        |
+    | <span style="white-space: nowrap;">`base_image`</span>       | 可选。用于 LangGraph API 服务器的基础映像。默认为 `langchain/langgraph-api` 或 `langchain/langgraphjs-api`。使用此项将构建固定到特定版本的 langgraph API，例如 `"langchain/langgraph-server:0.2"`。有关更多详细信息，请参阅 https://hub.docker.com/r/langchain/langgraph-server/tags。（在 `langgraph-cli==0.2.8` 中添加） |
+    | <span style="white-space: nowrap;">`image_distro`</span>     | 可选。基础映像的 Linux 发行版。必须是 `"debian"` 或 `"wolfi"`。如果省略，则默认为 `"debian"`。在 `langgraph-cli>=0.2.11` 中可用。|
+    | <span style="white-space: nowrap;">`env`</span>              | `.env` 文件的路径或从环境变量到其值的映射。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+    | <span style="white-space: nowrap;">`store`</span>            | 用于向 BaseStore 添加语义搜索和/或生存时间 (TTL) 的配置。包含以下字段：<ul><li>`index` (可选)：用于语义搜索索引的配置，包含 `embed`、`dims` 和可选的 `fields` 字段。</li><li>`ttl` (可选)：用于项目过期的配置。一个包含可选字段的对象：`refresh_on_read`（布尔值，默认为 `true`）、`default_ttl`（浮点数，**分钟**为单位的生存时间，默认为不过期）和 `sweep_interval_minutes`（整数，检查过期项目的频率，默认为不清理）。</li></ul> |
+    | <span style="white-space: nowrap;">`ui`</span>               | 可选。由代理发出的 UI 组件的命名定义，每个定义都指向一个 JS/TS 文件。（在 `langgraph-cli==0.1.84` 中添加）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+    | <span style="white-space: nowrap;">`python_version`</span>   | `3.11`、`3.12` 或 `3.13`。默认为 `3.11`。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+    | <span style="white-space: nowrap;">`node_version`</span>     | 指定 `node_version: 20` 以使用 LangGraph.js。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+    | <span style="white-space: nowrap;">`pip_config_file`</span>  | `pip` 配置文件路径。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+    | <span style="white-space: nowrap;">`pip_installer`</span> | _(v0.3 添加)_ 可选。Python 包安装程序选择器。可以设置为 `"auto"`、`"pip"` 或 `"uv"`。从 0.3 版本开始，默认策略是运行 `uv pip`，它通常提供更快的构建，同时仍保持为即插即用。在极少数情况下 `uv` 无法处理您的依赖关系图或 `pyproject.toml` 的结构时，请在此处指定 `"pip"` 以恢复到之前的行为。 |
+    | <span style="white-space: nowrap;">`keep_pkg_tools`</span> | _(v0.3.4 添加)_ 可选。控制是否在最终映像中保留 Python 打包工具（`pip`、`setuptools`、`wheel`）。可接受的值：<ul><li><code>true</code> ：保留所有三个工具（跳过卸载）。</li><li><code>false</code> / 忽略：卸载所有三个工具（默认行为）。</li><li><code>list[str]</code> ：要<strong>保留</strong>的工具名称。每个值必须是 "pip"、"setuptools" 或 "wheel" 之一。</li></ul>。默认情况下，所有三个工具都会被卸载。 |
+    | <span style="white-space: nowrap;">`dockerfile_lines`</span> | 要添加到 Dockerfile 的额外行数组，在导入父映像后添加。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+    | <span style="white-space: nowrap;">`checkpointer`</span>   | Checkpointer 的配置。包含一个 `ttl` 字段，该字段是一个包含以下键的对象：<ul><li>`strategy`：如何处理过期的检查点（例如 `"delete"`）。</li><li>`sweep_interval_minutes`：检查过期检查点的频率（整数）。</li><li>`default_ttl`：检查点的默认生存时间（**分钟**）(整数)。定义检查点在应用指定策略之前保留多长时间。</li></ul> |
+    | <span style="white-space: nowrap;">`http`</span>            | HTTP 服务器配置，包含以下字段：<ul><li>`app`：自定义 Starlette/FastAPI 应用的路径（例如 `"./src/agent/webapp.py:app"`）。请参阅 [自定义路由指南](../../how-tos/http/custom_routes.md)。</li><li>`cors`：CORS 配置，包含 `allow_origins`、`allow_methods`、`allow_headers` 等字段。</li><li>`configurable_headers`：定义哪些请求头将被排除或包含作为运行的可配置值。</li><li>`disable_assistants`：禁用 `/assistants` 路由</li><li>`disable_mcp`：禁用 `/mcp` 路由</li><li>`disable_meta`：禁用 `/ok`、`/info`、`/metrics` 和 `/docs` 路由</li><li>`disable_runs`：禁用 `/runs` 路由</li><li>`disable_store`：禁用 `/store` 路由</li><li>`disable_threads`：禁用 `/threads` 路由</li><li>`disable_ui`：禁用 `/ui` 路由</li><li>`disable_webhooks`：在所有路由的运行完成时禁用 Webhook 调用</li><li>`mount_prefix`：挂载路由的前缀（例如 "/my-deployment/api"）</li></ul> |
 
 === "JS"
 
-    | Key                                                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-    | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | <span style="white-space: nowrap;">`graphs`</span>           | **Required**. Mapping from graph ID to path where the compiled graph or a function that makes a graph is defined. Example: <ul><li>`./src/graph.ts:variable`, where `variable` is an instance of `CompiledStateGraph`</li><li>`./src/graph.ts:makeGraph`, where `makeGraph` is a function that takes a config dictionary (`LangGraphRunnableConfig`) and returns an instance of `StateGraph` or `CompiledStateGraph`. See [how to rebuild a graph at runtime](../../cloud/deployment/graph_rebuild.md) for more details.</li></ul>                                    |
-    | <span style="white-space: nowrap;">`env`</span>              | Path to `.env` file or a mapping from environment variable to its value.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-    | <span style="white-space: nowrap;">`store`</span>            | Configuration for adding semantic search and/or time-to-live (TTL) to the BaseStore. Contains the following fields: <ul><li>`index` (optional): Configuration for semantic search indexing with fields `embed`, `dims`, and optional `fields`.</li><li>`ttl` (optional): Configuration for item expiration. An object with optional fields: `refresh_on_read` (boolean, defaults to `true`), `default_ttl` (float, lifespan in **minutes**, defaults to no expiration), and `sweep_interval_minutes` (integer, how often to check for expired items, defaults to no sweeping).</li></ul> |
-    | <span style="white-space: nowrap;">`node_version`</span>     | Specify `node_version: 20` to use LangGraph.js.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-    | <span style="white-space: nowrap;">`dockerfile_lines`</span> | Array of additional lines to add to Dockerfile following the import from parent image.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-    | <span style="white-space: nowrap;">`checkpointer`</span>   | Configuration for the checkpointer. Contains a `ttl` field which is an object with the following keys: <ul><li>`strategy`: How to handle expired checkpoints (e.g., `"delete"`).</li><li>`sweep_interval_minutes`: How often to check for expired checkpoints (integer).</li><li>`default_ttl`: Default time-to-live for checkpoints in **minutes** (integer). Defines how long checkpoints are kept before the specified strategy is applied.</li></ul> |
+    | 键                                                           | 描述                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+    | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | <span style="white-space: nowrap;">`graphs`</span>           | **必需**。从图 ID 到编译后的图或定义图的函数的路径的映射。示例：<ul><li>`./src/graph.ts:variable`，其中 `variable` 是 `CompiledStateGraph` 的实例</li><li>`./src/graph.ts:makeGraph`，其中 `makeGraph` 是一个函数，它接受一个配置字典 (`LangGraphRunnableConfig`) 并返回一个 `StateGraph` 或 `CompiledStateGraph` 的实例。有关如何在运行时重建图的更多详细信息，请参阅 [如何重建图](../../cloud/deployment/graph_rebuild.md)。</li></ul>                                    |
+    | <span style="white-space: nowrap;">`env`</span>              | `.env` 文件的路径或从环境变量到其值的映射。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+    | <span style="white-space: nowrap;">`store`</span>            | 用于向 BaseStore 添加语义搜索和/或生存时间 (TTL) 的配置。包含以下字段：<ul><li>`index` (可选)：用于语义搜索索引的配置，包含 `embed`、`dims` 和可选的 `fields` 字段。</li><li>`ttl` (可选)：用于项目过期的配置。一个包含可选字段的对象：`refresh_on_read`（布尔值，默认为 `true`）、`default_ttl`（浮点数，**分钟**为单位的生存时间，默认为不过期）和 `sweep_interval_minutes`（整数，检查过期项目的频率，默认为不清理）。</li></ul> |
+    | <span style="white-space: nowrap;">`node_version`</span>     | 指定 `node_version: 20` 以使用 LangGraph.js。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+    | <span style="white-space: nowrap;">`dockerfile_lines`</span> | 要添加到 Dockerfile 的额外行数组，在导入父映像后添加。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+    | <span style="white-space: nowrap;">`checkpointer`</span>   | Checkpointer 的配置。包含一个 `ttl` 字段，该字段是一个包含以下键的对象：<ul><li>`strategy`：如何处理过期的检查点（例如 `"delete"`）。</li><li>`sweep_interval_minutes`：检查过期检查点的频率（整数）。</li><li>`default_ttl`：检查点的默认生存时间（**分钟**）(整数)。定义检查点在应用指定策略之前保留多长时间。</li></ul> |
 
-### Examples
+### 示例
 
 === "Python"
     
-    #### Basic Configuration
+    #### 基本配置
 
     ```json
     {
@@ -82,9 +82,9 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    #### Using Wolfi Base Images
+    #### 使用 Wolfi 基础映像
 
-    You can specify the Linux distribution for your base image using the `image_distro` field. Valid options are `debian` or `wolfi`. Wolfi is the recommended option as it provides smaller and more secure images. This is available in `langgraph-cli>=0.2.11`.
+    您可以使用 `image_distro` 字段指定基础映像的 Linux 发行版。有效选项为 `debian` 或 `wolfi`。Wolfi 是推荐选项，因为它提供了更小、更安全映像。此功能在 `langgraph-cli>=0.2.11` 中可用。
 
     ```json
     {
@@ -96,16 +96,16 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    #### Adding semantic search to the store
+    #### 向存储添加语义搜索
 
-    All deployments come with a DB-backed BaseStore. Adding an "index" configuration to your `langgraph.json` will enable [semantic search](../deployment/semantic_search.md) within the BaseStore of your deployment.
+    所有部署都附带一个数据库支持的 BaseStore。在 `langgraph.json` 中添加 "index" 配置将启用部署的 BaseStore 中的[语义搜索](../deployment/semantic_search.md)。
 
-    The `index.fields` configuration determines which parts of your documents to embed:
+    `index.fields` 配置决定了要嵌入的文档部分：
 
-    - If omitted or set to `["$"]`, the entire document will be embedded
-    - To embed specific fields, use JSON path notation: `["metadata.title", "content.text"]`
-    - Documents missing specified fields will still be stored but won't have embeddings for those fields
-    - You can still override which fields to embed on a specific item at `put` time using the `index` parameter
+    - 如果省略或设置为 `["$"]`，则整个文档将被嵌入
+    - 要嵌入特定字段，请使用 JSON 路径表示法：`["metadata.title", "content.text"]`
+    - 缺少指定字段的文档仍将被存储，但这些字段没有嵌入
+    - 您仍然可以在 `put` 时使用 `index` 参数覆盖要嵌入的字段
 
     ```json
     {
@@ -123,7 +123,7 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    !!! note "Common model dimensions" 
+    !!! note "常见模型维度" 
         - `openai:text-embedding-3-large`: 3072 
         - `openai:text-embedding-3-small`: 1536 
         - `openai:text-embedding-ada-002`: 1536 
@@ -132,9 +132,9 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
         - `cohere:embed-multilingual-v3.0`: 1024 
         - `cohere:embed-multilingual-light-v3.0`: 384 
 
-    #### Semantic search with a custom embedding function
+    #### 使用自定义嵌入函数进行语义搜索
 
-    If you want to use semantic search with a custom embedding function, you can pass a path to a custom embedding function:
+    如果您想使用自定义嵌入函数进行语义搜索，您可以传入自定义嵌入函数的路径：
 
     ```json
     {
@@ -152,17 +152,17 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    The `embed` field in store configuration can reference a custom function that takes a list of strings and returns a list of embeddings. Example implementation:
+    `store` 配置中的 `embed` 字段可以引用一个自定义函数，该函数接受字符串列表并返回嵌入列表。示例实现：
 
     ```python
     # embeddings.py
     def embed_texts(texts: list[str]) -> list[list[float]]:
-        """Custom embedding function for semantic search."""
-        # Implementation using your preferred embedding model
-        return [[0.1, 0.2, ...] for _ in texts]  # dims-dimensional vectors
+        """用于语义搜索的自定义嵌入函数。"""
+        # 使用您偏好的嵌入模型进行实现
+        return [[0.1, 0.2, ...] for _ in texts]  # dims 维向量
     ```
 
-    #### Adding custom authentication
+    #### 添加自定义身份验证
 
     ```json
     {
@@ -187,19 +187,19 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    See the [authentication conceptual guide](../../concepts/auth.md) for details, and the [setting up custom authentication](../../tutorials/auth/getting_started.md) guide for a practical walk through of the process.
+    有关详细信息，请参阅[身份验证概念指南](../../concepts/auth.md)，并参阅[设置自定义身份验证](../../tutorials/auth/getting_started.md)指南以了解实际操作过程。
 
-    #### Configuring Store Item Time-to-Live (TTL)
+    #### 配置存储项的生存时间 (TTL)
 
-    You can configure default data expiration for items/memories in the BaseStore using the `store.ttl` key. This determines how long items are retained after they are last accessed (with reads potentially refreshing the timer based on `refresh_on_read`). Note that these defaults can be overwritten on a per-call basis by modifying the corresponding arguments in `get`, `search`, etc.
+    您可以使用 `store.ttl` 键配置 BaseStore 中项目/内存的默认数据过期时间。这决定了项目在最后访问后保留多长时间（读取可能会根据 `refresh_on_read` 重置计时器）。请注意，可以通过修改 `get`、`search` 等中的相应参数在每次调用时覆盖这些默认值。
     
-    The `ttl` configuration is an object containing optional fields:
+    `ttl` 配置是一个包含可选字段的对象：
 
-    - `refresh_on_read`: If `true` (the default), accessing an item via `get` or `search` resets its expiration timer. Set to `false` to only refresh TTL on writes (`put`).
-    - `default_ttl`: The default lifespan of an item in **minutes**. If not set, items do not expire by default.
-    - `sweep_interval_minutes`: How frequently (in minutes) the system should run a background process to delete expired items. If not set, sweeping does not occur automatically.
+    - `refresh_on_read`：如果为 `true`（默认值），通过 `get` 或 `search` 访问项目会重置其过期计时器。设置为 `false` 以仅在写入（`put`）时刷新 TTL。
+    - `default_ttl`：项目的默认生存时间（**分钟**）。如果未设置，则项目默认不会过期。
+    - `sweep_interval_minutes`：系统检查过期项目的频率（以分钟为单位）。如果未设置，则不会自动执行清理。
 
-    Here is an example enabling a 7-day TTL (10080 minutes), refreshing on reads, and sweeping every hour:
+    以下示例启用了 7 天 TTL（10080 分钟），读取时刷新，每小时清理一次：
 
     ```json
     {
@@ -217,15 +217,15 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    #### Configuring Checkpoint Time-to-Live (TTL)
+    #### 配置检查点的生存时间 (TTL)
 
-    You can configure the time-to-live (TTL) for checkpoints using the `checkpointer` key. This determines how long checkpoint data is retained before being automatically handled according to the specified strategy (e.g., deletion). The `ttl` configuration is an object containing:
+    您可以使用 `checkpointer` 键配置检查点的生存时间 (TTL)。这决定了在自动根据指定策略（例如删除）处理检查点数据之前会保留多长时间。`ttl` 配置是一个包含以下内容的は对象：
 
-    - `strategy`: The action to take on expired checkpoints (currently `"delete"` is the only accepted option).
-    - `sweep_interval_minutes`: How frequently (in minutes) the system checks for expired checkpoints.
-    - `default_ttl`: The default lifespan of a checkpoint in **minutes**.
+    - `strategy`：对过期检查点要执行的操作（目前 `"delete"` 是唯一可接受的选项）。
+    - `sweep_interval_minutes`：系统检查过期检查点的频率（以分钟为单位）。
+    - `default_ttl`：检查点的默认生存时间（**分钟**）。
 
-    Here's an example setting a default TTL of 30 days (43200 minutes):
+    以下示例设置了 30 天（43200 分钟）的默认 TTL：
 
     ```json
     {
@@ -243,12 +243,12 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     }
     ```
 
-    In this example, checkpoints older than 30 days will be deleted, and the check runs every 10 minutes.
+    在此示例中，将删除比 30 天更旧的检查点，并且检查每 10 分钟运行一次。
 
 
 === "JS"
     
-    #### Basic Configuration
+    #### 基本配置
 
     ```json
     {
@@ -259,222 +259,222 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     ```
 
 
-## Commands
+## 命令
 
-**Usage**
+**用法**
 
 === "Python"
 
-    The base command for the LangGraph CLI is `langgraph`.
+    LangGraph CLI 的基本命令是 `langgraph`。
 
     ```
     langgraph [OPTIONS] COMMAND [ARGS]
     ```
 === "JS"
 
-    The base command for the LangGraph.js CLI is `langgraphjs`. 
+    LangGraph.js CLI 的基本命令是 `langgraphjs`。
 
     ```
     npx @langchain/langgraph-cli [OPTIONS] COMMAND [ARGS]
     ```
 
-    We recommend using `npx` to always use the latest version of the CLI.
+    我们建议使用 `npx` 以始终使用最新版本的 CLI。
 
 ### `dev`
 
 === "Python"
 
-    Run LangGraph API server in development mode with hot reloading and debugging capabilities. This lightweight server requires no Docker installation and is suitable for development and testing. State is persisted to a local directory.
+    以开发模式运行 LangGraph API 服务器，支持热重载和调试功能。此轻量级服务器不需要安装 Docker，适用于开发和测试。状态会持久化到本地目录。
 
     !!! note
 
-        Currently, the CLI only supports Python >= 3.11.
+        目前，CLI 只支持 Python >= 3.11。
 
-    **Installation**
+    **安装**
 
-    This command requires the "inmem" extra to be installed:
+    此命令需要安装 "inmem" 额外项：
 
     ```bash
     pip install -U "langgraph-cli[inmem]"
     ```
 
-    **Usage**
+    **用法**
 
     ```
     langgraph dev [OPTIONS]
     ```
 
-    **Options**
+    **选项**
 
-    | Option                        | Default          | Description                                                                         |
-    | ----------------------------- | ---------------- | ----------------------------------------------------------------------------------- |
-    | `-c, --config FILE`           | `langgraph.json` | Path to configuration file declaring dependencies, graphs and environment variables |
-    | `--host TEXT`                 | `127.0.0.1`      | Host to bind the server to                                                          |
-    | `--port INTEGER`              | `2024`           | Port to bind the server to                                                          |
-    | `--no-reload`                 |                  | Disable auto-reload                                                                 |
-    | `--n-jobs-per-worker INTEGER` |                  | Number of jobs per worker. Default is 10                                            |
-    | `--debug-port INTEGER`        |                  | Port for debugger to listen on                                                      |
-    | `--wait-for-client`           | `False`          | Wait for a debugger client to connect to the debug port before starting the server   |
-    | `--no-browser`                |                  | Skip automatically opening the browser when the server starts                       |
-    | `--studio-url TEXT`           |                  | URL of the LangGraph Studio instance to connect to. Defaults to https://smith.langchain.com |
-    | `--allow-blocking`            | `False`          | Do not raise errors for synchronous I/O blocking operations in your code (added in `0.2.6`)           |
-    | `--tunnel`                    | `False`          | Expose the local server via a public tunnel (Cloudflare) for remote frontend access. This avoids issues with browsers like Safari or networks blocking localhost connections        |
-    | `--help`                      |                  | Display command documentation                                                       |
+    | 选项                        | 默认值          | 描述                                                                         |
+    | ----------------------------- | ---------------- | ---------------------------------------------------------------------------- |
+    | `-c, --config FILE`           | `langgraph.json` | 声明依赖项、图和环境变量的配置文件路径                                           |
+    | `--host TEXT`                 | `127.0.0.1`      | 服务器绑定的主机                                                               |
+    | `--port INTEGER`              | `2024`           | 服务器绑定的端口                                                               |
+    | `--no-reload`                 |                  | 禁用自动重载                                                                   |
+    | `--n-jobs-per-worker INTEGER` |                  | 每个 worker 的作业数。默认为 10                                                  |
+    | `--debug-port INTEGER`        |                  | 调试器监听的端口                                                               |
+    | `--wait-for-client`           | `False`          | 在服务器启动前等待调试器客户端连接到调试端口                                     |
+    | `--no-browser`                |                  | 跳过在服务器启动时自动打开浏览器                                                 |
+    | `--studio-url TEXT`           |                  | 要连接的 LangGraph Studio 实例的 URL。默认为 https://smith.langchain.com |
+    | `--allow-blocking`            | `False`          | 不为代码中的同步 I/O 阻塞操作引发错误（在 `0.2.6` 中添加）                           |
+    | `--tunnel`                    | `False`          | 通过公共隧道 (Cloudflare) 公开本地服务器，以便进行远程前端访问。这可以避免浏览器（如 Safari）或网络阻止 localhost 连接的问题。        |
+    | `--help`                      |                  | 显示命令文档                                                                   |
 
 
 === "JS"
 
-    Run LangGraph API server in development mode with hot reloading capabilities. This lightweight server requires no Docker installation and is suitable for development and testing. State is persisted to a local directory.
+    以开发模式运行 LangGraph API 服务器，支持热重载功能。此轻量级服务器不需要安装 Docker，适用于开发和测试。状态会持久化到本地目录。
 
-    **Usage**
+    **用法**
 
     ```
     npx @langchain/langgraph-cli dev [OPTIONS]
     ```
 
-    **Options**
+    **选项**
 
-    | Option                        | Default          | Description                                                                         |
-    | ----------------------------- | ---------------- | ----------------------------------------------------------------------------------- |
-    | `-c, --config FILE`           | `langgraph.json` | Path to configuration file declaring dependencies, graphs and environment variables |
-    | `--host TEXT`                 | `127.0.0.1`      | Host to bind the server to                                                          |
-    | `--port INTEGER`              | `2024`           | Port to bind the server to                                                          |
-    | `--no-reload`                 |                  | Disable auto-reload                                                                 |
-    | `--n-jobs-per-worker INTEGER` |                  | Number of jobs per worker. Default is 10                                            |
-    | `--debug-port INTEGER`        |                  | Port for debugger to listen on                                                      |
-    | `--wait-for-client`           | `False`          | Wait for a debugger client to connect to the debug port before starting the server   |
-    | `--no-browser`                |                  | Skip automatically opening the browser when the server starts                       |
-    | `--studio-url TEXT`           |                  | URL of the LangGraph Studio instance to connect to. Defaults to https://smith.langchain.com |
-    | `--allow-blocking`            | `False`          | Do not raise errors for synchronous I/O blocking operations in your code            |
-    | `--tunnel`                    | `False`          | Expose the local server via a public tunnel (Cloudflare) for remote frontend access. This avoids issues with browsers or networks blocking localhost connections        |
-    | `--help`                      |                  | Display command documentation                                                       |
+    | 选项                        | 默认值          | 描述                                                                         |
+    | ----------------------------- | ---------------- | ---------------------------------------------------------------------------- |
+    | `-c, --config FILE`           | `langgraph.json` | 声明依赖项、图和环境变量的配置文件路径                                           |
+    | `--host TEXT`                 | `127.0.0.1`      | 服务器绑定的主机                                                               |
+    | `--port INTEGER`              | `2024`           | 服务器绑定的端口                                                               |
+    | `--no-reload`                 |                  | 禁用自动重载                                                                   |
+    | `--n-jobs-per-worker INTEGER` |                  | 每个 worker 的作业数。默认为 10                                                  |
+    | `--debug-port INTEGER`        |                  | 调试器监听的端口                                                               |
+    | `--wait-for-client`           | `False`          | 在服务器启动前等待调试器客户端连接到调试端口                                     |
+    | `--no-browser`                |                  | 跳过在服务器启动时自动打开浏览器                                                 |
+    | `--studio-url TEXT`           |                  | 要连接的 LangGraph Studio 实例的 URL。默认为 https://smith.langchain.com |
+    | `--allow-blocking`            | `False`          | 不为代码中的同步 I/O 阻塞操作引发错误                                             |
+    | `--tunnel`                    | `False`          | 通过公共隧道 (Cloudflare) 公开本地服务器，以便进行远程前端访问。这可以避免浏览器或网络阻止 localhost 连接的问题。        |
+    | `--help`                      |                  | 显示命令文档                                                                   |
 
 ### `build`
 
 === "Python"
 
-    Build LangGraph Platform API server Docker image.
+    构建 LangGraph Platform API 服务器 Docker 映像。
 
-    **Usage**
+    **用法**
 
     ```
     langgraph build [OPTIONS]
     ```
 
-    **Options**
+    **选项**
 
-    | Option               | Default          | Description                                                                                                     |
-    | -------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-    | `--platform TEXT`    |                  | Target platform(s) to build the Docker image for. Example: `langgraph build --platform linux/amd64,linux/arm64`              |
-    | `-t, --tag TEXT`     |                  | **Required**. Tag for the Docker image. Example: `langgraph build -t my-image`                                               |
-    | `--pull / --no-pull` | `--pull`         | Build with latest remote Docker image. Use `--no-pull` for running the LangGraph Platform API server with locally built images. |
-    | `-c, --config FILE`  | `langgraph.json` | Path to configuration file declaring dependencies, graphs and environment variables.                                         |
-    | `--help`             |                  | Display command documentation.                                                                                               |
+    | 选项               | 默认值          | 描述                                                                                        |
+    | -------------------- | ---------------- | ------------------------------------------------------------------------------------------- |
+    | `--platform TEXT`    |                  | 要为 Docker 映像构建的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64`              |
+    | `-t, --tag TEXT`     |                  | **必需**。Docker 映像的标签。示例：`langgraph build -t my-image`                                               |
+    | `--pull / --no-pull` | `--pull`         | 使用最新的远程 Docker 映像进行构建。使用 `--no-pull` 可运行使用本地构建映像的 LangGraph Platform API 服务器。 |
+    | `-c, --config FILE`  | `langgraph.json` | 声明依赖项、图和环境变量的配置文件路径。                                                         |
+    | `--help`             |                  | 显示命令文档。                                                                            |
 
 === "JS"
 
-    Build LangGraph Platform API server Docker image.
+    构建 LangGraph Platform API 服务器 Docker 映像。
 
-    **Usage**
+    **用法**
 
     ```
     npx @langchain/langgraph-cli build [OPTIONS]
     ```
 
-    **Options**
+    **选项**
 
-    | Option               | Default          | Description                                                                                                     |
-    | -------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-    | `--platform TEXT`    |                  | Target platform(s) to build the Docker image for. Example: `langgraph build --platform linux/amd64,linux/arm64`              |
-    | `-t, --tag TEXT`     |                  | **Required**. Tag for the Docker image. Example: `langgraph build -t my-image`                                               |
-    | `--no-pull`          |                  | Use locally built images. Defaults to `false` to build with latest remote Docker image.                                      |
-    | `-c, --config FILE`  | `langgraph.json` | Path to configuration file declaring dependencies, graphs and environment variables.                                         |
-    | `--help`             |                  | Display command documentation.                                                                                               |
+    | 选项               | 默认值          | 描述                                                                                        |
+    | -------------------- | ---------------- | ------------------------------------------------------------------------------------------- |
+    | `--platform TEXT`    |                  | 要为 Docker 映像构建的目标平台。示例：`langgraph build --platform linux/amd64,linux/arm64`              |
+    | `-t, --tag TEXT`     |                  | **必需**。Docker 映像的标签。示例：`langgraph build -t my-image`                                               |
+    | `--no-pull`          |                  | 使用本地构建的映像。默认为 `false` 以使用最新的远程 Docker 映像进行构建。                                      |
+    | `-c, --config FILE`  | `langgraph.json` | 声明依赖项、图和环境变量的配置文件路径。                                                         |
+    | `--help`             |                  | 显示命令文档。                                                                            |
 
 
 ### `up`
 
 === "Python"
 
-    Start LangGraph API server. For local testing, requires a LangSmith API key with access to LangGraph Platform. Requires a license key for production use.
+    启动 LangGraph API 服务器。本地测试需要 LangSmith API 密钥才能访问 LangGraph Platform。生产使用需要许可证密钥。
 
-    **Usage**
+    **用法**
 
     ```
     langgraph up [OPTIONS]
     ```
 
-    **Options**
+    **选项**
 
-    | Option                       | Default                   | Description                                                                                                             |
-    | ---------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-    | `--wait`                     |                           | Wait for services to start before returning. Implies --detach                                                           |
-| `--base-image TEXT`          | `langchain/langgraph-api`  | Base image to use for the LangGraph API server. Pin to specific versions using version tags.                            |
-| `--image TEXT`               |                           | Docker image to use for the langgraph-api service. If specified, skips building and uses this image directly.           |
-    | `--postgres-uri TEXT`        | Local database            | Postgres URI to use for the database.                                                                                   |
-    | `--watch`                    |                           | Restart on file changes                                                                                                 |
-    | `--debugger-base-url TEXT`   | `http://127.0.0.1:[PORT]` | URL used by the debugger to access LangGraph API.                                                                       |
-    | `--debugger-port INTEGER`    |                           | Pull the debugger image locally and serve the UI on specified port                                                      |
-    | `--verbose`                  |                           | Show more output from the server logs.                                                                                  |
-    | `-c, --config FILE`          | `langgraph.json`          | Path to configuration file declaring dependencies, graphs and environment variables.                                    |
-    | `-d, --docker-compose FILE`  |                           | Path to docker-compose.yml file with additional services to launch.                                                     |
-    | `-p, --port INTEGER`         | `8123`                    | Port to expose. Example: `langgraph up --port 8000`                                                                     |
-    | `--pull / --no-pull`         | `pull`                    | Pull latest images. Use `--no-pull` for running the server with locally-built images. Example: `langgraph up --no-pull` |
-    | `--recreate / --no-recreate` | `no-recreate`             | Recreate containers even if their configuration and image haven't changed                                               |
-    | `--help`                     |                           | Display command documentation.                                                                                          |
+    | 选项                       | 默认值                   | 描述                                                                                                                              |
+    | ---------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+    | `--wait`                     |                           | 等待服务启动后再返回。表示 --detach                                                                                                |
+| `--base-image TEXT`          | `langchain/langgraph-api`  | 用于 LangGraph API 服务器的基础映像。使用版本标签固定到特定版本。                                                                     |
+| `--image TEXT`               |                           | 用于 langgraph-api 服务的 Docker 映像。如果指定，则跳过构建并直接使用此映像。                                                                |
+    | `--postgres-uri TEXT`        | 本地数据库              | 用于数据库的 Postgres URI。                                                                                                       |
+    | `--watch`                    |                           | 文件更改时重启                                                                                                                  |
+    | `--debugger-base-url TEXT`   | `http://127.0.0.1:[PORT]` | 调试器用于访问 LangGraph API 的 URL。                                                                                             |
+    | `--debugger-port INTEGER`    |                           | 在本地拉取调试器映像并在指定端口上提供 UI                                                                                            |
+    | `--verbose`                  |                           | 显示服务器日志的更多输出。                                                                                                        |
+    | `-c, --config FILE`          | `langgraph.json`          | 声明依赖项、图和环境变量的配置文件路径。                                                                                              |
+    | `-d, --docker-compose FILE`  |                           | 包含要启动的附加服务的 docker-compose.yml 文件路径。                                                                                   |
+    | `-p, --port INTEGER`         | `8123`                    | 要公开的端口。示例：`langgraph up --port 8000`                                                                                     |
+    | `--pull / --no-pull`         | `pull`                    | 拉取最新映像。使用 `--no-pull` 可运行使用本地构建映像的服务器。示例：`langgraph up --no-pull`                                                 |
+    | `--recreate / --no-recreate` | `no-recreate`             | 即使容器的配置和映像未更改，也要重新创建容器。                                                                                              |
+    | `--help`                     |                           | 显示命令文档。                                                                                                                    |
 
 === "JS"
 
-    Start LangGraph API server. For local testing, requires a LangSmith API key with access to LangGraph Platform. Requires a license key for production use.
+    启动 LangGraph API 服务器。本地测试需要 LangSmith API 密钥才能访问 LangGraph Platform。生产使用需要许可证密钥。
 
-    **Usage**
+    **用法**
 
     ```
     npx @langchain/langgraph-cli up [OPTIONS]
     ```
 
-    **Options**
+    **选项**
 
-    | Option                                                                 | Default                   | Description                                                                                                             |
-    | ---------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-    | <span style="white-space: nowrap;">`--wait`</span>                     |                           | Wait for services to start before returning. Implies --detach                                                           |
-| <span style="white-space: nowrap;">`--base-image TEXT`</span>          | <span style="white-space: nowrap;">`langchain/langgraph-api`</span> | Base image to use for the LangGraph API server. Pin to specific versions using version tags. |
-| <span style="white-space: nowrap;">`--image TEXT`</span>               |                           | Docker image to use for the langgraph-api service. If specified, skips building and uses this image directly. |
-    | <span style="white-space: nowrap;">`--postgres-uri TEXT`</span>        | Local database            | Postgres URI to use for the database.                                                                                   |
-    | <span style="white-space: nowrap;">`--watch`</span>                    |                           | Restart on file changes                                                                                                 |
-    | <span style="white-space: nowrap;">`-c, --config FILE`</span>          | `langgraph.json`          | Path to configuration file declaring dependencies, graphs and environment variables.                                    |
-    | <span style="white-space: nowrap;">`-d, --docker-compose FILE`</span>  |                           | Path to docker-compose.yml file with additional services to launch.                                                     |
-    | <span style="white-space: nowrap;">`-p, --port INTEGER`</span>         | `8123`                    | Port to expose. Example: `langgraph up --port 8000`                                                                     |
-    | <span style="white-space: nowrap;">`--no-pull`</span>                  |                           | Use locally built images. Defaults to `false` to build with latest remote Docker image.                                 |
-    | <span style="white-space: nowrap;">`--recreate`</span>                 |                           | Recreate containers even if their configuration and image haven't changed                                               |
-    | <span style="white-space: nowrap;">`--help`</span>                     |                           | Display command documentation.                                                                                          |
+    | 选项                                                                 | 默认值                   | 描述                                                                                                                              |
+    | ---------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+    | <span style="white-space: nowrap;">`--wait`</span>                     |                           | 等待服务启动后再返回。表示 --detach                                                                                                |
+| <span style="white-space: nowrap;">`--base-image TEXT`</span>          | <span style="white-space: nowrap;">`langchain/langgraph-api`</span> | 用于 LangGraph API 服务器的基础映像。使用版本标签固定到特定版本。 |
+| <span style="white-space: nowrap;">`--image TEXT`</span>               |                           | 用于 langgraph-api 服务的 Docker 映像。如果指定，则跳过构建并直接使用此映像。                                                                |
+    | <span style="white-space: nowrap;">`--postgres-uri TEXT`</span>        | 本地数据库              | 用于数据库的 Postgres URI。                                                                                                       |
+    | <span style="white-space: nowrap;">`--watch`</span>                    |                           | 文件更改时重启                                                                                                                  |
+    | <span style="white-space: nowrap;">`-c, --config FILE`</span>          | `langgraph.json`          | 声明依赖项、图和环境变量的配置文件路径。                                                                                              |
+    | <span style="white-space: nowrap;">`-d, --docker-compose FILE`</span>  |                           | 包含要启动的附加服务的 docker-compose.yml 文件路径。                                                                                   |
+    | <span style="white-space: nowrap;">`-p, --port INTEGER`</span>         | `8123`                    | 要公开的端口。示例：`langgraph up --port 8000`                                                                                     |
+    | <span style="white-space: nowrap;">`--no-pull`</span>                  |                           | 使用本地构建的映像。默认为 `false` 以使用最新的远程 Docker 映像进行构建。                                                                |
+    | <span style="white-space: nowrap;">`--recreate`</span>                 |                           | 即使容器的配置和映像未更改，也要重新创建容器。                                                                                              |
+    | <span style="white-space: nowrap;">`--help`</span>                     |                           | 显示命令文档。                                                                                                                    |
 
 ### `dockerfile`
 
 === "Python"
 
-    Generate a Dockerfile for building a LangGraph Platform API server Docker image.
+    为构建 LangGraph Platform API 服务器 Docker 映像生成 Dockerfile。
 
-    **Usage**
+    **用法**
 
     ```
     langgraph dockerfile [OPTIONS] SAVE_PATH
     ```
 
-    **Options**
+    **选项**
 
-    | Option              | Default          | Description                                                                                                     |
-    | ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-    | `-c, --config FILE` | `langgraph.json` | Path to the [configuration file](#configuration-file) declaring dependencies, graphs and environment variables. |
-    | `--help`            |                  | Show this message and exit.                                                                                     |
+    | 选项              | 默认值          | 描述                                                                                                     |
+    | ------------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
+    | `-c, --config FILE` | `langgraph.json` | [配置文件](#configuration-file)的路径，声明依赖项、图和环境变量。                                                  |
+    | `--help`            |                  | 显示此消息并退出。                                                                                       |
 
-    Example:
+    示例：
 
     ```bash
     langgraph dockerfile -c langgraph.json Dockerfile
     ```
 
-    This generates a Dockerfile that looks similar to:
+    这将生成一个类似以下的 Dockerfile：
 
     ```dockerfile
     FROM langchain/langgraph-api:3.11
@@ -498,33 +498,33 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     ENV LANGSERVE_GRAPHS='{"agent": "/deps/__outer_graphs/src/agent.py:graph", "storm": "/deps/__outer_graphs/src/storm.py:graph"}'
     ```
 
-    ???+ note "Updating your langgraph.json file"
-         The `langgraph dockerfile` command translates all the configuration in your `langgraph.json` file into Dockerfile commands. When using this command, you will have to re-run it whenever you update your `langgraph.json` file. Otherwise, your changes will not be reflected when you build or run the dockerfile.
+    ???+ note "更新您的 langgraph.json 文件"
+         `langgraph dockerfile` 命令会将您 `langgraph.json` 文件中的所有配置转换为 Dockerfile 命令。使用此命令时，您必须在每次更新 `langgraph.json` 文件后重新运行它。否则，在构建或运行 Dockerfile 时，您的更改将不会反映出来。
 
 === "JS"
 
-    Generate a Dockerfile for building a LangGraph Platform API server Docker image.
+    为构建 LangGraph Platform API 服务器 Docker 映像生成 Dockerfile。
 
-    **Usage**
+    **用法**
 
     ```
     npx @langchain/langgraph-cli dockerfile [OPTIONS] SAVE_PATH
     ```
 
-    **Options**
+    **选项**
 
-    | Option              | Default          | Description                                                                                                     |
-    | ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-    | `-c, --config FILE` | `langgraph.json` | Path to the [configuration file](#configuration-file) declaring dependencies, graphs and environment variables. |
-    | `--help`            |                  | Show this message and exit.                                                                                     |
+    | 选项              | 默认值          | 描述                                                                                                     |
+    | ------------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
+    | `-c, --config FILE` | `langgraph.json` | [配置文件](#configuration-file)的路径，声明依赖项、图和环境变量。                                                  |
+    | `--help`            |                  | 显示此消息并退出。                                                                                       |
 
-    Example:
+    示例：
 
     ```bash
     npx @langchain/langgraph-cli dockerfile -c langgraph.json Dockerfile
     ```
 
-    This generates a Dockerfile that looks similar to:
+    这将生成一个类似以下的 Dockerfile：
 
     ```dockerfile
     FROM langchain/langgraphjs-api:20
@@ -540,5 +540,5 @@ The LangGraph CLI requires a JSON configuration file that follows this [schema](
     RUN (test ! -f /api/langgraph_api/js/build.mts && echo "Prebuild script not found, skipping") || tsx /api/langgraph_api/js/build.mts
     ```
 
-    ???+ note "Updating your langgraph.json file"
-         The `npx @langchain/langgraph-cli dockerfile` command translates all the configuration in your `langgraph.json` file into Dockerfile commands. When using this command, you will have to re-run it whenever you update your `langgraph.json` file. Otherwise, your changes will not be reflected when you build or run the dockerfile.
+    ???+ note "更新您的 langgraph.json 文件"
+         `npx @langchain/langgraph-cli dockerfile` 命令会将您 `langgraph.json` 文件中的所有配置转换为 Dockerfile 命令。使用此命令时，您必须在每次更新 `langgraph.json` 文件后重新运行它。否则，在构建或运行 Dockerfile 时，您的更改将不会反映出来。

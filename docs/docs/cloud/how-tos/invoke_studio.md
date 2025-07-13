@@ -1,48 +1,46 @@
-# Run application
+# 运行应用程序
 
-!!!info  "Prerequisites"
-    - [Running agents](../../agents/run_agents.md#running-agents)
+!!!info  "先决条件"
+    - [运行 Agents](../../agents/run_agents.md#running-agents)
 
-This guide shows how to submit a [run](../../concepts/assistants.md#execution) to your application.
+本指南展示了如何向您的应用程序提交一次[运行](../../concepts/assistants.md#execution)。
 
-## Graph mode
+## Graph 模式
 
-### Specify input
-First define the input to your graph with in the "Input" section on the left side of the page, below the graph interface.
+### 指定输入
+首先在页面左侧的“Input”部分（位于 Graph 界面下方）定义 Graph 的输入。
 
-Studio will attempt to render a form for your input based on the graph's defined [state schema](../../concepts/low_level.md/#schema). To disable this, click the "View Raw" button, which will present you with a JSON editor.
+Studio 会尝试根据 Graph 定义的[状态 schema](../../concepts/low_level.md/#schema) 来渲染一个输入表单。若要禁用此功能，请点击“View Raw”按钮，它会弹出一个 JSON 编辑器。
 
-Click the up/down arrows at the top of the "Input" section to toggle through and use previously submitted inputs.
+点击“Input”部分顶部的向上/向下箭头，可以切换并使用之前提交过的输入。
 
-### Run settings
+### 运行设置
 
 #### Assistant
+要指定用于运行的[Assistant](../../concepts/assistants.md)，请点击左下角的设置按钮。如果当前已选择一个 Assistant，按钮上也会显示其名称。如果未选择 Assistant，则显示“Manage Assistants”。
 
-To specify the [assistant](../../concepts/assistants.md) that is used for the run click the settings button in the bottom left corner. If an assistant is currently selected the button will also list the assistant name. If no assistant is selected it will say "Manage Assistants".
-
-Select the assistant to run and click the "Active" toggle at the top of the modal to activate it. [See here](./studio/manage_assistants.md) for more information on managing assistants.
+选择要运行的 Assistant，然后点击模态框顶部的“Active”切换按钮来激活它。[此处](./studio/manage_assistants.md)有更多关于管理 Assistant 的信息。
 
 #### Streaming
-Click the dropdown next to "Submit" and click the toggle to enable/disable streaming.
+点击“Submit”旁边的下拉菜单，然后点击切换按钮来启用/禁用流式输出。
 
 #### Breakpoints
-To run your graph with breakpoints, click the "Interrupt" button. Select a node and whether to pause before and/or after that node has executed. Click "Continue" in the thread log to resume execution.
+若要使用断点运行您的 Graph，请点击“Interrupt”按钮。选择一个节点以及是在该节点执行之前或之后暂停（或两者都暂停）。点击线程日志中的“Continue”以恢复执行。
+
+有关断点的更多信息，请[此处](../../concepts/human_in_the_loop.md)。
+
+### 提交运行
+
+要使用指定的输入和运行设置提交运行，请点击“Submit”按钮。这将向当前选定的[线程](../../concepts/persistence.md#threads)添加一次[运行](../../concepts/assistants.md#execution)。如果当前未选择任何线程，则会创建一个新的线程。
+
+要取消正在进行的运行，请点击“Cancel”按钮。
 
 
-For more information on breakpoints see [here](../../concepts/human_in_the_loop.md).
+## Chat 模式
+在对话面板底部指定您的聊天应用程序的输入。点击“Send message”按钮将输入作为 Human 消息提交，并将响应流式传输回来。
 
-### Submit run
+要取消正在进行的运行，请点击“Cancel”按钮。点击“Show tool calls”切换按钮可以隐藏/显示对话中的工具调用。
 
-To submit the run with the specified input and run settings, click the "Submit" button. This will add a [run](../../concepts/assistants.md#execution) to the existing selected [thread](../../concepts/persistence.md#threads). If no thread is currently selected, a new one will be created.
+## 了解更多
 
-To cancel the ongoing run, click the "Cancel" button.
-
-
-## Chat mode
-Specify the input to your chat application in the bottom of the conversation panel. Click the "Send message" button to submit the input as a Human message and have the response streamed back.
-
-To cancel the ongoing run, click the "Cancel" button. Click the "Show tool calls" toggle to hide/show tool calls in the conversation.
-
-## Learn more
-
-To run your application from a specific checkpoint in an existing thread, see [this guide](./threads_studio.md#edit-thread-history).
+要从现有线程中的特定检查点运行您的应用程序，请参阅[本指南](./threads_studio.md#edit-thread-history)。

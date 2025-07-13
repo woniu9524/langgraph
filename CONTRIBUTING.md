@@ -1,248 +1,226 @@
-# Contributing to LangGraph
+# 贡献 LangGraph
 
-Thank you for being interested in contributing to LangGraph!
+感谢您对贡献 LangGraph 感兴趣！
 
-## General guidelines
+## 通用指南
 
-Here are some things to keep in mind for all types of contributions:
+以下是一些在所有类型贡献中需要牢记的事项：
 
-- Follow the ["fork and pull request"](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) workflow.
-- Fill out the checked-in pull request template when opening pull requests. Note related issues and tag relevant maintainers.
-- Ensure your PR passes formatting, linting, and testing checks before requesting a review.
-  - If you would like comments or feedback, please open an issue or discussion and tag a maintainer.
-- Backwards compatibility is key. Your changes must not be breaking, except in case of critical bug and security fixes.
-- Look for duplicate PRs or issues that have already been opened before opening a new one.
-- Keep scope as isolated as possible. As a general rule, your changes should not affect more than one package at a time.
+- 遵循“fork and pull request” 工作流程。
+- 在创建 pull request 时，填写已提交的 pull request 模板。注意相关的 issue 并标记相关的维护者。
+- 在请求审查之前，请确保您的 PR 通过了格式、linting 和测试检查。
+  - 如果您希望获得评论或反馈，请创建一个 issue 或 discussion 并标记维护者。
+- 向后兼容性是关键。您的更改不得破坏现有功能，除非是关键错误和安全修复。
+- 在创建新的 PR 或 issue 之前，请先查看是否已存在重复的 PR 或 issue。
+- 尽量保持修改范围隔离。通常情况下，您的更改一次不应影响多个包。
 
-### Bugfixes
+### Bug 修复
 
-For bug fixes, please open up an issue before proposing a fix to ensure the proposal properly addresses the underlying problem. In general, bug fixes should all have an accompanying unit test that fails before the fix.
+对于 Bug 修复，请在提出修复方案之前先创建一个 issue，以确保该方案能正确解决根本问题。通常，所有的 Bug 修复都应附带一个在修复前会失败的单元测试。
 
-### New features
+### 新功能
 
-For new features, please start a new [discussion](https://github.com/langchain-ai/langgraph/discussions), where the maintainers will help with scoping out the necessary changes.
+对于新功能，请先发起一个新的 [discussion](https://github.com/langchain-ai/langgraph/discussions)，维护者将协助您规划必要的更改。
 
-## Contribute Documentation
+## 贡献文档
 
-Documentation is a vital part of LangGraph. We welcome both new documentation for new features and
-community improvements to our current documentation. Please read the resources below before getting started:
+文档是 LangGraph 的重要组成部分。我们欢迎为新功能编写新文档，也欢迎社区对我们现有文档的改进。在开始之前，请阅读以下资源：
 
-- [Documentation style guide](#documentation-style-guide)
-- [Documentation setup](#setup)
+- [文档风格指南](#documentation-style-guide)
+- [文档设置](#setup)
 
-## Documentation Style Guide
+## 文档风格指南
 
-As LangGraph continues to grow, the surface area of documentation required to cover it continues to grow too.
-This page provides guidelines for anyone writing documentation for LangGraph, as well as some of our philosophies around organization and structure.
+随着 LangGraph 的不断发展，其所需的文档覆盖面也在不断扩大。
+本文档提供了 LangGraph 文档编写的指南，以及我们关于组织和结构的一些理念。
 
-## Philosophy
+## 理念
 
-LangGraph's documentation follows the [Diataxis framework](https://diataxis.fr).
-Under this framework, all documentation falls under one of four categories: [Tutorials](#tutorials),
-[How-to guides](#how-to-guides),
-[References](#references), and [Explanations (aka conceptual guides)](#conceptual-guide).
+LangGraph 的文档遵循 [Diataxis 框架](https://diataxis.fr)。
+在该框架下，所有文档都属于以下四类之一：[教程](#tutorials)、[操作指南](#how-to-guides)、[参考资料](#references) 和 [说明（又称概念指南）](#conceptual-guide)。
 
-### Tutorials
+### 教程
 
-Tutorials are lessons that take the reader through a practical activity. Their purpose is to help the user
-gain understanding of concepts and how they interact by showing one way to achieve some goal in a hands-on way.
+教程是指导读者完成实际活动的课程。其目的是通过展示一种动手实现目标的方式，帮助用户理解概念及其交互方式。
 
-They should **avoid** giving
-multiple permutations of ways to achieve that goal in-depth. Choice is burdensome. Instead, they should guide a new user through a recommended path to accomplishing a concrete goal. While the end result of a tutorial does not necessarily need to
-be completely production-ready, it should be useful and practically satisfy the goal that you clearly stated in the tutorial's introduction.
+它们应该**避免**深入探讨实现该目标的多种方法。选择太多会造成负担。相反，它们应该引导新用户通过推荐的路径来完成一个具体的目标。虽然教程的最终结果不一定完全是生产就绪的，但它应该是实用的，并且能够切实地满足教程开头明确陈述的目标。
 
-To quote the Diataxis website:
+引用 Diataxis 网站的话来说：
 
-> A tutorial serves the user’s *acquisition* of skills and knowledge - their study. Its purpose is not to help the user get something done, but to help them learn.
+> 教程服务于用户技能和知识的*获取*——他们的学习。其目的不是帮助用户完成某项工作，而是帮助他们学习。
 
-In LangGraph, these are often higher level guides that show off end-to-end use cases.
+在 LangGraph 中，这些通常是展示端到端用例的更高级别的指南。
 
-Some examples include:
+一些例子包括：
 
-- [Build a Customer Support Bot](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/)
-- [Build a SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)
+- [构建客户支持机器人](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/)
+- [构建 SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)
 
-Here are some high-level tips on writing a good tutorial:
+以下是编写优秀教程的一些高层提示：
 
-- Focus on guiding the user to get something done, but keep in mind the end-goal is more to impart principles than to create a perfect production system.
-- Be specific, not abstract and follow one path.
-  - No need to go deeply into alternative approaches, but it’s ok to reference them, ideally with a link to an appropriate how-to guide.
-- Get "a point on the board" as soon as possible - something the user can run that outputs something.
-  - You can iterate and expand afterwards.
-  - Try to frequently checkpoint at given steps where the user can run code and see progress.
-- Focus on results, not technical explanation.
-  - Crosslink heavily to appropriate conceptual/reference pages
-- The first time you mention a LangGraph concept, use its full name (e.g. "human-in-the-loop"), and link to its conceptual/other documentation page.
-  - It's also helpful to add a prerequisite callout that links to any pages with necessary background information.
-- End with a recap/next steps section summarizing what the tutorial covered and future reading, such as related how-to guides.
-- Use phrases like "Next we can run X & Y. We will expect Z.". Then afterwards, use language like "Notice Z" that recalls our expectations and directs the reader's attention to the topic we are trying to teach.
-- Do not shy away from repetition.
+- 专注于指导用户完成某项工作，但要记住最终目标是传授原则，而不是创建一个完美的生产系统。
+- 具体，而非抽象，并遵循一条路径。
+  - 无需深入探讨替代方法，但可以引用它们，最好是指向相应的操作指南。
+- 尽快“进球得分”——让用户能够运行一些东西并看到输出。
+  - 之后可以进行迭代和扩展。
+  - 尽量在用户可以运行代码并查看进度的给定步骤处频繁进行检查点。
+- 关注结果，而非技术解释。
+  - 大量交叉引用适当的概念/参考页面
+- 首次提及 LangGraph 概念时，使用其完整名称（例如，“human-in-the-loop”），并链接到其概念/其他文档页面。
+  - 添加一个预备知识提示，链接到任何具有必要背景信息的页面也会很有帮助。
+- 在最后添加一个回顾/后续步骤部分，总结教程内容以及未来的阅读方向，例如相关的操作指南。
+- 使用类似“接下来我们可以运行 X 和 Y。我们期望的结果是 Z。”的短语。然后，使用“注意 Z”之类的语言来回顾我们的期望并引导读者的注意力到我们试图教授的主题上。
+- 不要害怕重复。
 
-### How-to guides
+### 操作指南
 
-A how-to guide, as the name implies, demonstrates how to do something discrete and specific.
-It should assume that the user is already familiar with underlying concepts, and is trying to solve an immediate problem, but
-should still give some background or list the scenarios where the information contained within can be relevant.
-They can and should discuss alternatives if one approach may be better than another in certain cases.
+正如其名，操作指南演示如何执行离散且具体的某项操作。
+它应该假定用户已经熟悉底层概念，并且正在尝试解决一个即时问题，但仍应提供一些背景信息或列出包含该信息可能相关的场景。
+在某些情况下，它们可以并且应该讨论替代方案，如果一种方法可能比另一种更好。
 
-To quote the Diataxis website:
+引用 Diataxis 网站的话来说：
 
-> A how-to guide serves the work of the already-competent user, whom you can assume to know what they want to do, and to be able to follow your instructions correctly.
+> 操作指南服务于已经熟练的用户的工作，您可以假设他们知道自己想做什么，并能正确遵循您的指示。
 
-Some examples include:
+一些例子包括：
 
-- [How to add persistence to your graph](https://langchain-ai.github.io/langgraph/how-tos/persistence/)
-- [How to view and update past graph state](https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/time-travel/)
+- [如何为您的图添加持久化](https://langchain-ai.github.io/langgraph/how-tos/persistence/)
+- [如何查看和更新过去的图状态](https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/time-travel/)
 
-Here are some high-level tips on writing a good how-to guide:
+以下是编写优秀操作指南的一些高层提示：
 
-- Clearly explain what you are guiding the user through at the start
-- Assume higher intent than a tutorial and show what the user needs to do to get that task done
-- Assume familiarity of concepts, but explain why suggested actions are helpful
-  - Crosslink heavily to conceptual/reference pages
-- Discuss alternatives and responses to real-world tradeoffs that may arise when solving a problem
-- Use lots of example code, ideally within complete code blocks that the reader can copy and run.
-- End with a recap/next steps section summarizing what the tutorial covered and future reading, such as other related how-to guides
+- 在开头清楚地解释您将指导用户完成什么。
+- 假设比教程更高的意图，并展示用户需要做什么来完成该任务。
+- 假定用户熟悉概念，但要解释为什么建议的操作有帮助。
+  - 大量交叉引用概念/参考页面。
+- 讨论在解决问题时可能出现的实际权衡的替代方案和响应。
+- 使用大量示例代码，最好是在完整的代码块中，读者可以复制并运行。
+- 在结尾添加一个回顾/后续步骤部分，总结教程内容以及未来的阅读方向，例如其他相关的操作指南。
 
-### Conceptual guides
+### 概念指南
 
-LangGraph's conceptual guides fall under the **Explanation** quadrant of Diataxis. They should cover LangChain terms and concepts
-in a more abstract way than how-to guides or tutorials, and should be geared towards curious users interested in
-gaining a deeper understanding of the framework. Try to avoid excessively large code examples. The goal here is to
-impart perspective to the user rather than to finish a practical project. These guides should cover **why** things work the way they do.
+LangGraph 的概念指南属于 Diataxis 的**说明**部分。它们应该以比操作指南或教程更抽象的方式涵盖 LangChain 的术语和概念，并面向有兴趣更深入了解该框架的好奇用户。尽量避免使用过多的代码示例。这里的目标是向用户传递观点，而不是完成一个实际项目。这些指南应该涵盖事物为何如此运作的**原因**。
 
+引用 Diataxis 网站的话来说：
 
-To quote the Diataxis website:
+> 说明的视角比其他类型更高更广。它不像操作指南那样从用户的视角出发，也不像参考资料那样从机器的近距离视角出发。它在每次的情况下都会围绕一个主题——“一个知识领域”——这个主题需要以一种合理、有意义的方式进行界定。
 
-> The perspective of explanation is higher and wider than that of the other types. It does not take the user’s eye-level view, as in a how-to guide, or a close-up view of the machinery, like reference material. Its scope in each case is a topic - “an area of knowledge”, that somehow has to be bounded in a reasonable, meaningful way.
+一些例子包括：
 
-Some examples include:
+- [什么意味着具有代理性？](https://langchain-ai.github.io/langgraph/concepts/high_level/)
+- [工具调用](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#tool-calling)
 
-- [What does it mean to be agentic?](https://langchain-ai.github.io/langgraph/concepts/high_level/)
-- [Tool calling](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#tool-calling)
+以下是编写优秀概念指南的一些高层提示：
 
-Here are some high-level tips on writing a good conceptual guide:
+- 解释设计决策。概念 X 的存在原因以及为何这样设计？
+- 使用类比和引用其他概念及替代方案。
+- 避免混合过多的参考内容。
+- 您可以并且应该引用其他指南中涵盖的内容，但请确保链接它们。
 
-- Explain design decisions. Why does concept X exist and why was it designed this way?
-- Use analogies and reference other concepts and alternatives
-- Avoid blending in too much reference content
-- You can and should reference content covered in other guides, but make sure to link to them
+### 参考资料
 
-### References
+参考资料包含详细的底层信息，准确描述了存在哪些功能以及如何使用它们。
+在 LangGraph 中，这主要是我们的 API 参考页面，这些页面是从代码中的 docstrings 中填充的。
+参考页面通常不会被通读，而是在用户需要了解如何使用特定内容时按需查阅。
 
-References contain detailed, low-level information that describes exactly what functionality exists and how to use it.
-In LangGraph, this is mainly our API reference pages, which are populated from docstrings within code.
-References pages are generally not read end-to-end, but are consulted as necessary when a user needs to know
-how to use something specific.
+引用 Diataxis 网站的话来说：
 
-To quote the Diataxis website:
+> 参考指南的唯一目的是以有序的方式，尽可能简洁地进行描述。教程和操作指南的内容由用户的需求驱动，而参考资料的内容由其描述的产品驱动。
 
-> The only purpose of a reference guide is to describe, as succinctly as possible, and in an orderly way. Whereas the content of tutorials and how-to guides are led by needs of the user, reference material is led by the product it describes.
+LangChain 中的许多参考页面都是从代码自动生成的，
+但以下是一些编写优秀 docstrings 的高层提示：
 
-Many of the reference pages in LangChain are automatically generated from code,
-but here are some high-level tips on writing a good docstring:
+- 简洁明了
+- 讨论特殊情况和与用户期望的偏差
+- 详细说明必需的输入和输出
+- 关于何时使用该功能的简要说明是可以的，但深入的细节应放在其他部分。
 
-- Be concise
-- Discuss special cases and deviations from a user's expectations
-- Go into detail on required inputs and outputs
-- Light details on when one might use the feature are fine, but in-depth details belong in other sections.
+每个类别都服务于不同的目的，需要特定的方法来编写和组织内容。
 
-Each category serves a distinct purpose and requires a specific approach to writing and structuring the content.
+## 通用指南
 
-## General guidelines
+在编写和组织文档时，您还应考虑以下其他指南。
 
-Here are some other guidelines you should think about when writing and organizing documentation.
+我们通常不接受外部贡献者提出的新教程，除非有实际需求。
+我们欢迎对集成文档、操作指南和参考资料的更新以及新增内容。
 
-We generally do not merge new tutorials from outside contributors without an actual need.
-We welcome updates as well as new integration docs, how-tos, and references.
+### 避免重复
 
-### Avoid duplication
+多个页面深入涵盖相同内容会导致维护困难并造成混淆。每个概念或功能应该只有一个（极少数情况下是两个）规范的页面。相反，您应该链接到其他指南。
 
-Multiple pages that cover the same material in depth are difficult to maintain and cause confusion. There should
-be only one (very rarely two), canonical pages for a given concept or feature. Instead, you should link to other guides.
+### 链接到其他部分
 
-### Link to other sections
+由于文档的各个部分并非孤立存在，因此将链接指向其他部分至关重要，以便开发者能够在线深入了解不熟悉的主题。
 
-Because sections of the docs do not exist in a vacuum, it is important to link to other sections as often as possible
-to allow a developer to learn more about an unfamiliar topic inline.
+这包括链接到 API 参考资料以及概念部分！
 
-This includes linking to the API references as well as conceptual sections!
+### 保持简洁
 
-### Be concise
+总的来说，采用“少即是多”的方法。如果某个概念已有良好的解释页面，您应该链接到它，而不是重新解释，除非您要记录的概念提出了新的要点。
 
-In general, take a less-is-more approach. If a section with a good explanation of a concept already exists, you should link to it rather than
-re-explain it, unless the concept you are documenting presents some new wrinkle.
+保持简洁，包括在代码示例中。
 
-Be concise, including in code samples.
+### 通用风格
 
-### General style
+- 尽可能使用主动语态和现在时态。
+- 使用示例和代码片段来说明概念和用法。
+- 使用适当的标题级别（`#`, `##`, `###` 等）来分层组织内容。
+- 使用较少的单元格但更多的代码，以便更容易复制粘贴。
+- 使用项目符号和编号列表将信息分解为易于理解的块。
+- 经常使用表格（尤其是在**参考**部分）和图表来以视觉方式呈现信息。
+- 为较长的文档页面包含目录，以帮助读者导航内容，但为较短的页面隐藏目录。
 
-- Use active voice and present tense whenever possible
-- Use examples and code snippets to illustrate concepts and usage
-- Use appropriate header levels (`#`, `##`, `###`, etc.) to organize the content hierarchically
-- Use fewer cells with more code to make copy/paste easier
-- Use bullet points and numbered lists to break down information into easily digestible chunks
-- Use tables (especially for **Reference** sections) and diagrams often to present information visually
-- Include the table of contents for longer documentation pages to help readers navigate the content, but hide it for shorter pages
+## 设置
 
-## Setup
+LangChain 文档包含两个组件：
 
-LangChain documentation consists of two components:
+1. 主要文档：托管在 [https://langchain-ai.github.io](https://langchain-ai.github.io/langgraph/)，
+此综合资源是主要的面向用户的文档。
+它涵盖了广泛的主题，包括教程、用例、集成等，提供了关于使用 LangGraph 构建的广泛指导。
+此文档的内容位于 monorepo 的 `/docs` 目录中。
+2. 代码内文档：这是代码库本身的文档，也用于生成面向外部的[API 参考](https://langchain-ai.github.io/langgraph/reference/graphs/)。
+API 参考的内容是通过扫描代码库中的 docstrings 自动生成的。因此，我们要求开发人员充分记录其代码。
 
-1. Main Documentation: Hosted at [https://langchain-ai.github.io](https://langchain-ai.github.io/langgraph/),
-this comprehensive resource serves as the primary user-facing documentation.
-It covers a wide array of topics, including tutorials, use cases, integrations,
-and more, offering extensive guidance on building with LangGraph.
-The content for this documentation lives in the `/docs` directory of the monorepo.
-2. In-code Documentation: This is documentation of the codebase itself, which is also
-used to generate the externally facing [API Reference](https://langchain-ai.github.io/langgraph/reference/graphs/).
-The content for the API reference is autogenerated by scanning the docstrings in the codebase. For this reason we ask that developers document their code well.
+我们感谢所有对文档的贡献，无论是修复拼写错误、添加新教程或示例，无论是在主文档还是 API 参考中。
 
-We appreciate all contributions to the documentation, whether it be fixing a typo,
-adding a new tutorial or example and whether it be in the main documentation or the API Reference.
+### 📜 主要文档
 
-### 📜 Main Documentation
+主文档的内容位于 monorepo 的 `/docs` 目录中。
 
-The content for the main documentation is located in the `/docs` directory of the monorepo.
+文档使用 ipython notebooks (`.ipynb` 文件) 和 markdown (`.md` 文件) 的组合编写。notebooks 会被转换为 markdown，然后使用 [MkDocs](https://www.mkdocs.org/) 进行构建。
 
-The documentation is written using a combination of ipython notebooks (`.ipynb` files)
-and markdown (`.md` files). The notebooks are converted to markdown
-and then built using [MkDocs](https://www.mkdocs.org/).
+欢迎为主要文档做出贡献！🥰
 
-Feel free to make contributions to the main documentation! 🥰
+修改文档后：
 
-After modifying the documentation:
+1. 运行 linting 和格式化命令（见下文），以确保文档格式正确且没有错误。
+2. 可选地本地构建文档以验证更改是否看起来不错。
+3. 使用更改创建 pull request。
 
-1. Run the linting and formatting commands (see below) to ensure that the documentation is well-formatted and free of errors.
-2. Optionally build the documentation locally to verify that the changes look good.
-3. Make a pull request with the changes.
+### ⚒️ 本地 linting 和构建文档
 
-### ⚒️ Linting and Building Documentation Locally
+编写完文档后，您可能想在本地进行 linting 和构建，以确保其外观良好且没有错误。
 
-After writing up the documentation, you may want to lint and build the documentation
-locally to ensure that it looks good and is free of errors.
+如果您无法在本地构建，也没关系，您可以在 pull request 页面上看到文档的预览。
 
-If you're unable to build it locally that's okay as well, as you will be able to
-see a preview of the documentation on the pull request page.
-
-From the **monorepo root**, run the following command to install the dependencies:
+从 **monorepo 根目录**运行以下命令来安装依赖项：
 
 <!-- TODO -->
 ```bash
 poetry install --with docs --no-root
 ```
 
-#### Building
+#### 构建
 
-The code that builds the documentation is located in the `/docs` directory of the monorepo.
+构建文档的代码位于 monorepo 的 `/docs` 目录中。
 
-Before building the documentation, it is always a good idea to clean the build directory:
+在构建文档之前，始终清理构建目录是个好主意：
 
 ```bash
 make clean-docs
 ```
 
-You can build and preview the documentation as outlined below:
+您可以按照下面的说明构建和预览文档：
 
 ```bash
 make serve-docs
@@ -250,45 +228,43 @@ make serve-docs
 
 #### Linting
 
-The documentation is linted from the **monorepo root**. To lint it, run the following from there:
+文档的 linting 在 **monorepo 根目录**下进行。要进行 linting，请在该位置运行：
 
 ```bash
 make spellcheck
 ```
 
-### ️In-code Documentation
+### 📝 代码内文档
 
-The in-code documentation is autogenerated from docstrings.
+代码内文档是从 docstrings 自动生成的。
 
-For the API reference to be useful, the codebase must be well-documented. This means that all functions, classes, and methods should have a docstring that explains what they do, what the arguments are, and what the return value is. This is a good practice in general, but it is especially important for LangChain because the API reference is the primary resource for developers to understand how to use the codebase.
+为了使 API 参考有用，代码库必须有良好的文档记录。这意味着所有函数、类和方法都应该有一个 docstring，解释它们的作用、参数以及返回值。这通常是一个好习惯，但对于 LangChain 尤其重要，因为 API 参考是开发人员了解如何使用代码库的主要资源。
 
-We generally follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for docstrings.
+我们通常遵循 [Google Python 风格指南](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) 来编写 docstrings。
 
-Here is an example of a well-documented function:
+这是一个有良好文档记录的函数的示例：
 
 ```python
 
 def my_function(arg1: int, arg2: str) -> float:
-    """This is a short description of the function. (It should be a single sentence.)
+    """函数简要说明。（应为单句。）
 
-    This is a longer description of the function. It should explain what
-    the function does, what the arguments are, and what the return value is.
-    It should wrap at 88 characters.
+    这是函数的详细说明。它应该解释函数的作用、参数以及返回值。
+    它应该在 88 个字符处换行。
 
-    Examples:
-        This is a section for examples of how to use the function.
+    示例：
+        这是函数用法示例部分。
 
         .. code-block:: python
 
             my_function(1, "hello")
 
     Args:
-        arg1: This is a description of arg1. We do not need to specify the type since
-            it is already specified in the function signature.
-        arg2: This is a description of arg2.
+        arg1: 这是对 arg1 的说明。我们不需要指定类型，因为它已在函数签名中指定。
+        arg2: 这是对 arg2 的说明。
 
     Returns:
-        This is a description of the return value.
+        这是对返回值的说明。
     """
     return 3.14
 ```

@@ -1,57 +1,56 @@
 # MCP
 
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) is an open protocol that standardizes how applications provide tools and context to language models. LangGraph agents can use tools defined on MCP servers through the `langchain-mcp-adapters` library.
+[模型上下文协议 (MCP)](https://modelcontextprotocol.io/introduction) 是一个开放协议，用于标准化应用程序如何向语言模型提供工具和上下文。LangGraph 代理可以通过 `langchain-mcp-adapters` 库使用 MCP 服务器上定义的工具。
 
 ![MCP](../agents/assets/mcp.png)
 
-Install the `langchain-mcp-adapters` library to use MCP tools in LangGraph:
+安装 `langchain-mcp-adapters` 库即可在 LangGraph 中使用 MCP 工具：
 
 ```bash
 pip install langchain-mcp-adapters
 ```
 
-## Authenticate to an MCP server
+## 认证到 MCP 服务器
 
-You can set up [custom authentication middleware](../how-tos/auth/custom_auth.md) to authenticate a user with an MCP server to get access to user-scoped tools within your LangGraph Platform deployment. 
+您可以设置 [自定义认证中间件](../how-tos/auth/custom_auth.md)，以通过 MCP 服务器对用户进行身份验证，从而在您的 LangGraph Platform 部署中访问用户范围的工具。
 
 !!! note
-    Custom authentication is a LangGraph Platform feature.
+    自定义认证是 LangGraph Platform 的一项功能。
 
-An example architecture for this flow:
+此流程的示例架构：
 
 ```mermaid
 sequenceDiagram
   %% Actors
-  participant ClientApp as Client
-  participant AuthProv  as Auth Provider
-  participant LangGraph as LangGraph Backend
-  participant SecretStore as Secret Store
-  participant MCPServer as MCP Server
+  participant ClientApp as 客户端
+  participant AuthProv  as 认证提供程序
+  participant LangGraph as LangGraph 后端
+  participant SecretStore as 密码存储
+  participant MCPServer as MCP 服务器
 
   %% Platform login / AuthN
-  ClientApp  ->> AuthProv: 1. Login (username / password)
-  AuthProv   -->> ClientApp: 2. Return token
-  ClientApp  ->> LangGraph: 3. Request with token
+  ClientApp  ->> AuthProv: 1. 登录 (用户名/密码)
+  AuthProv   -->> ClientApp: 2. 返回 token
+  ClientApp  ->> LangGraph: 3. 使用 token 请求
 
-  Note over LangGraph: 4. Validate token (@auth.authenticate)
-  LangGraph  -->> AuthProv: 5. Fetch user info
-  AuthProv   -->> LangGraph: 6. Confirm validity
+  Note over LangGraph: 4. 验证 token (@auth.authenticate)
+  LangGraph  -->> AuthProv: 5. 获取用户信息
+  AuthProv   -->> LangGraph: 6. 确认有效性
 
   %% Fetch user tokens from secret store
-  LangGraph  ->> SecretStore: 6a. Fetch user tokens
-  SecretStore -->> LangGraph: 6b. Return tokens
+  LangGraph  ->> SecretStore: 6a. 获取用户 token
+  SecretStore -->> LangGraph: 6b. 返回 token
 
-  Note over LangGraph: 7. Apply access control (@auth.on.*)
+  Note over LangGraph: 7. 应用访问控制 (@auth.on.*)
 
   %% MCP round-trip
-  Note over LangGraph: 8. Build MCP client with user token
-  LangGraph  ->> MCPServer: 9. Call MCP tool (with header)
-  Note over MCPServer: 10. MCP validates header and runs tool
-  MCPServer  -->> LangGraph: 11. Tool response
+  Note over LangGraph: 8. 使用用户 token 构建 MCP 客户端
+  LangGraph  ->> MCPServer: 9. 调用 MCP 工具 (带 header)
+  Note over MCPServer: 10. MCP 验证 header 并运行工具
+  MCPServer  -->> LangGraph: 11. 工具响应
 
   %% Return to caller
-  LangGraph  -->> ClientApp: 12. Return resources / tool output
+  LangGraph  -->> ClientApp: 12. 返回资源 / 工具输出
 ```
 
-For more information, see [MCP endpoint in LangGraph Server](../concepts/server-mcp.md#use-user-scoped-mcp-tools-in-your-deployment).
-
+有关更多信息，请参阅 [LangGraph Server 中的 MCP 端点](../concepts/server-mcp.md#use-user-scoped-mcp-tools-in-your-deployment)。

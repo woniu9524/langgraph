@@ -3,18 +3,18 @@ search:
   boost: 2
 ---
 
-# Template Applications
+# 模板应用
 
-Templates are open source reference applications designed to help you get started quickly when building with LangGraph. They provide working examples of common agentic workflows that can be customized to your needs.
+模板是开源的参考应用，旨在帮助您在构建 LangGraph 应用时快速上手。它们提供了常见的代理工作流程的可用示例，可以根据您的需求进行定制。
 
-You can create an application from a template using the LangGraph CLI.
+您可以使用 LangGraph CLI 从模板创建应用。
 
-!!! info "Requirements"
+!!! info "要求"
 
     - Python >= 3.11
-    - [LangGraph CLI](https://langchain-ai.github.io/langgraph/cloud/reference/cli/): Requires langchain-cli[inmem] >= 0.1.58
+    - [LangGraph CLI](https://langchain-ai.github.io/langgraph/cloud/reference/cli/): 需要 langchain-cli[inmem] >= 0.1.58
 
-## Install the LangGraph CLI
+## 安装 LangGraph CLI
 
 === "Python"
 
@@ -22,7 +22,7 @@ You can create an application from a template using the LangGraph CLI.
     pip install "langgraph-cli[inmem]" --upgrade
     ```
 
-    Or via [`uv`](https://docs.astral.sh/uv/getting-started/installation/) (recommended):
+    或者通过 [`uv`](https://docs.astral.sh/uv/getting-started/installation/)（推荐）：
 
     ```bash
     uvx --from "langgraph-cli[inmem]" langgraph dev --help
@@ -34,20 +34,20 @@ You can create an application from a template using the LangGraph CLI.
     npx @langchain/langgraph-cli --help
     ```
 
-## Available Templates
+## 可用模板
 
-| Template                  | Description                                                                              | Python                                                           | JS/TS                                                               |
+| 模板                  | 描述                                                                             | Python                                                           | JS/TS                                                               |
 |---------------------------|------------------------------------------------------------------------------------------|------------------------------------------------------------------|---------------------------------------------------------------------|
-| **New LangGraph Project** | A simple, minimal chatbot with memory.                                                   | [Repo](https://github.com/langchain-ai/new-langgraph-project)    | [Repo](https://github.com/langchain-ai/new-langgraphjs-project)     |
-| **ReAct Agent**           | A simple agent that can be flexibly extended to many tools.                              | [Repo](https://github.com/langchain-ai/react-agent)              | [Repo](https://github.com/langchain-ai/react-agent-js)              |
-| **Memory Agent**          | A ReAct-style agent with an additional tool to store memories for use across threads.    | [Repo](https://github.com/langchain-ai/memory-agent)             | [Repo](https://github.com/langchain-ai/memory-agent-js)             |
-| **Retrieval Agent**       | An agent that includes a retrieval-based question-answering system.                      | [Repo](https://github.com/langchain-ai/retrieval-agent-template) | [Repo](https://github.com/langchain-ai/retrieval-agent-template-js) |
-| **Data-Enrichment Agent** | An agent that performs web searches and organizes its findings into a structured format. | [Repo](https://github.com/langchain-ai/data-enrichment)          | [Repo](https://github.com/langchain-ai/data-enrichment-js)          |
+| **新 LangGraph 项目** | 一个简单的、最小化的带记忆的聊天机器人。                                                                          | [Repo](https://github.com/langchain-ai/new-langgraph-project)    | [Repo](https://github.com/langchain-ai/new-langgraphjs-project)     |
+| **ReAct Agent**           | 一个简单的代理，可以灵活地扩展到多个工具。                                                                         | [Repo](https://github.com/langchain-ai/react-agent)              | [Repo](https://github.com/langchain-ai/react-agent-js)              |
+| **Memory Agent**          | 一个 ReAct 风格的代理，增加了一个工具用于跨线程存储记忆。                                                                      | [Repo](https://github.com/langchain-ai/memory-agent)             | [Repo](https://github.com/langchain-ai/memory-agent-js)             |
+| **Retrieval Agent**       | 一个包含基于检索的问答系统的代理。                                                                          | [Repo](https://github.com/langchain-ai/retrieval-agent-template) | [Repo](https://github.com/langchain-ai/retrieval-agent-template-js) |
+| **Data-Enrichment Agent** | 一个执行网络搜索并将搜索结果整理成结构化格式的代理。                                                                      | [Repo](https://github.com/langchain-ai/data-enrichment)          | [Repo](https://github.com/langchain-ai/data-enrichment-js)          |
 
 
-## 🌱 Create a LangGraph App
+## 🌱 创建 LangGraph 应用
 
-To create a new app from a template, use the `langgraph new` command.
+要从模板创建新应用，请使用 `langgraph new` 命令。
 
 === "Python"
 
@@ -55,7 +55,7 @@ To create a new app from a template, use the `langgraph new` command.
     langgraph new
     ```
 
-    Or via [`uv`](https://docs.astral.sh/uv/getting-started/installation/) (recommended):
+    或者通过 [`uv`](https://docs.astral.sh/uv/getting-started/installation/)（推荐）：
 
     ```bash
     uvx --from "langgraph-cli[inmem]" langgraph new
@@ -67,11 +67,11 @@ To create a new app from a template, use the `langgraph new` command.
     npm create langgraph@latest
     ```
 
-## Next Steps
+## 后续步骤
 
-Review the `README.md` file in the root of your new LangGraph app for more information about the template and how to customize it.
+请查看新 LangGraph 应用根目录下的 `README.md` 文件，了解有关模板及其自定义方法的更多信息。
 
-After configuring the app properly and adding your API keys, you can start the app using the LangGraph CLI:
+正确配置应用并添加 API 密钥后，您可以使用 LangGraph CLI 启动应用：
 
 === "Python"
 
@@ -79,14 +79,14 @@ After configuring the app properly and adding your API keys, you can start the a
     langgraph dev
     ```
 
-    Or via [`uv`](https://docs.astral.sh/uv/getting-started/installation/) (recommended):
+    或者通过 [`uv`](https://docs.astral.sh/uv/getting-started/installation/)（推荐）：
 
     ```bash
     uvx --from "langgraph-cli[inmem]" --with-editable . langgraph dev
     ```
 
-    ??? info "Missing Local Package?"
-        If you are not using `uv` and run into a "`ModuleNotFoundError`" or "`ImportError`", even after installing the local package (`pip install -e .`), it is likely the case that you need to install the CLI into your local virtual environment to make the CLI "aware" of the local package. You can do this by running `python -m pip install "langgraph-cli[inmem]"` and re-activating your virtual environment before running `langgraph dev`.
+    ??? info "缺少本地包？"
+        如果您没有使用 `uv` 并且遇到了 "`ModuleNotFoundError`" 或 "`ImportError`"，即使已经安装了本地包 (`pip install -e .`)，您很可能需要将 CLI 安装到本地虚拟环境中，以便 CLI能够“感知”到本地包。您可以通过运行 `python -m pip install "langgraph-cli[inmem]"` 并重新激活您的虚拟环境来完成此操作，然后再运行 `langgraph dev`。
 
 === "JS"
 
@@ -94,7 +94,7 @@ After configuring the app properly and adding your API keys, you can start the a
     npx @langchain/langgraph-cli dev
     ```
 
-See the following guides for more information on how to deploy your app:
+有关如何部署应用的更多信息，请参阅以下指南：
 
-- **[Launch Local LangGraph Server](../tutorials/langgraph-platform/local-server.md)**: This quick start guide shows how to start a LangGraph Server locally for the **ReAct Agent** template. The steps are similar for other templates.
-- **[Deploy to LangGraph Platform](../cloud/quick_start.md)**: Deploy your LangGraph app using LangGraph Platform.
+- **[启动本地 LangGraph 服务器](../tutorials/langgraph-platform/local-server.md)**：本快速入门指南展示了如何为 **ReAct Agent** 模板在本地启动 LangGraph 服务器。对于其他模板，步骤类似。
+- **[部署到 LangGraph 平台](../cloud/quick_start.md)**：使用 LangGraph 平台部署您的 LangGraph 应用。

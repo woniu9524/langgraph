@@ -1,7 +1,7 @@
 # GRAPH_RECURSION_LIMIT
 
-Your LangGraph [`StateGraph`](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph) reached the maximum number of steps before hitting a stop condition.
-This is often due to an infinite loop caused by code like the example below:
+您的 LangGraph [`StateGraph`](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph) 在触发停止条件之前达到了最大步数限制。
+这通常是由于类似下面示例中的代码引起的无限循环：
 
 ```python
 class State(TypedDict):
@@ -17,12 +17,12 @@ builder.add_edge("b", "a")
 graph = builder.compile()
 ```
 
-However, complex graphs may hit the default limit naturally.
+然而，复杂的图也可能自然地达到默认限制。
 
-## Troubleshooting
+## 故障排除
 
-- If you are not expecting your graph to go through many iterations, you likely have a cycle. Check your logic for infinite loops.
-- If you have a complex graph, you can pass in a higher `recursion_limit` value into your `config` object when invoking your graph like this:
+- 如果您不希望您的图经历多次迭代，那么您很可能存在一个循环。请检查您的逻辑是否存在无限循环。
+- 如果您有一个复杂的图，您可以在调用图时，通过在 `config` 对象中传递一个更高的 `recursion_limit` 值来解决，如下所示：
 
 ```python
 graph.invoke({...}, {"recursion_limit": 100})

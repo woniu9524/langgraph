@@ -1,24 +1,24 @@
-# How to add custom middleware
+# 添加自定义中间件
 
-When deploying agents to LangGraph Platform, you can add custom middleware to your server to handle concerns like logging request metrics, injecting or checking headers, and enforcing security policies without modifying core server logic. This works the same way as [adding custom routes](./custom_routes.md). You just need to provide your own [`Starlette`](https://www.starlette.io/applications/) app (including [`FastAPI`](https://fastapi.tiangolo.com/), [`FastHTML`](https://fastht.ml/) and other compatible apps).
+在将代理部署到 LangGraph 平台时，您可以为服务器添加自定义中间件，以处理诸如记录请求指标、注入或检查标头以及强制执行安全策略等问题，而无需修改核心服务器逻辑。这与[添加自定义路由](./custom_routes.md)的工作方式相同。您只需提供自己的 [`Starlette`](https://www.starlette.io/applications/) 应用程序（包括 [`FastAPI`](https://fastapi.tiangolo.com/)、[`FastHTML`](https://fastht.ml/) 和其他兼容的应用程序）。
 
-Adding middleware lets you intercept and modify requests and responses globally across your deployment, whether they're hitting your custom endpoints or the built-in LangGraph Platform APIs.
+添加中间件可让您全局拦截和修改部署中的请求和响应，无论是命中自定义端点还是内置的 LangGraph 平台 API。
 
-Below is an example using FastAPI.
+下面是一个使用 FastAPI 的示例。
 
-???+ note "Python only"
+???+ note "仅支持 Python"
 
-    We currently only support custom middleware in Python deployments with `langgraph-api>=0.0.26`.
+    我们目前仅在部署 Python 时支持自定义中间件，且需要 `langgraph-api>=0.0.26`。
 
-## Create app
+## 创建应用程序
 
-Starting from an **existing** LangGraph Platform application, add the following middleware code to your `webapp.py` file. If you are starting from scratch, you can create a new app from a template using the CLI.
+从**现有**的 LangGraph 平台应用程序开始，将以下中间件代码添加到您的 `webapp.py` 文件中。如果您是从头开始，可以使用 CLI 从模板创建新应用程序。
 
 ```bash
 langgraph new --template=new-langgraph-project-python my_new_project
 ```
 
-Once you have a LangGraph project, add the following app code:
+拥有 LangGraph 项目后，请添加以下应用程序代码：
 
 ```python
 # ./src/agent/webapp.py
@@ -34,13 +34,13 @@ class CustomHeaderMiddleware(BaseHTTPMiddleware):
         response.headers['X-Custom-Header'] = 'Hello from middleware!'
         return response
 
-# Add the middleware to the app
+# 将中间件添加到应用程序
 app.add_middleware(CustomHeaderMiddleware)
 ```
 
-## Configure `langgraph.json`
+## 配置 `langgraph.json`
 
-Add the following to your `langgraph.json` configuration file. Make sure the path points to the `webapp.py` file you created above.
+将以下内容添加到您的 `langgraph.json` 配置文件中。请确保路径指向您上面创建的 `webapp.py` 文件。
 
 ```json
 {
@@ -52,24 +52,24 @@ Add the following to your `langgraph.json` configuration file. Make sure the pat
   "http": {
     "app": "./src/agent/webapp.py:app"
   }
-  // Other configuration options like auth, store, etc.
+  // 其他配置选项，如 auth、store 等。
 }
 ```
 
-## Start server
+## 启动服务器
 
-Test the server out locally:
+在本地测试服务器：
 
 ```bash
 langgraph dev --no-browser
 ```
 
-Now any request to your server will include the custom header `X-Custom-Header` in its response.
+现在，您服务器的任何请求都将在其响应中包含自定义标头 `X-Custom-Header`。
 
-## Deploying
+## 部署
 
-You can deploy this app as-is to LangGraph Platform or to your self-hosted platform.
+您可以按原样将此应用程序部署到 LangGraph 平台或您自托管的平台。
 
-## Next steps
+## 后续步骤
 
-Now that you've added custom middleware to your deployment, you can use similar techniques to add [custom routes](./custom_routes.md) or define [custom lifespan events](./custom_lifespan.md) to further customize your server's behavior.
+现在您已为部署添加了自定义中间件，您可以使用类似的技术添加[自定义路由](./custom_routes.md)或定义[自定义生命周期事件](./custom_lifespan.md)，以进一步自定义服务器的行为。

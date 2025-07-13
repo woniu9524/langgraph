@@ -1,29 +1,29 @@
-# Iterate on prompts
+# 迭代 Prompt
 
-## Overview
+## 概述
 
-LangGraph Studio supports two methods for modifying prompts in your graph: direct node editing and the LangSmith Playground interface.
+LangGraph Studio 支持两种修改图中 Prompt 的方法：直接节点编辑和 LangSmith Playground 界面。
 
-## Direct Node Editing
+## 直接节点编辑
 
-Studio allows you to edit prompts used inside individual nodes, directly from the graph interface.
+Studio 允许您直接从图界面编辑图中单个节点内部使用的 Prompt。
 
-!!! info "Prerequisites"
+!!! info "先决条件"
 
-    - [Assistants overview](../../concepts/assistants.md)
+    - [Assistants 概述](../../concepts/assistants.md)
 
-### Graph Configuration
+### 图配置
 
-Define your [configuration](https://langchain-ai.github.io/langgraph/how-tos/configuration/) to specify prompt fields and their associated nodes using `langgraph_nodes` and `langgraph_type` keys.
+定义您的[配置](https://langchain-ai.github.io/langgraph/how-tos/configuration/)，使用 `langgraph_nodes` 和 `langgraph_type` 键来指定 Prompt 字段及其关联的节点。
 
-#### Configuration Reference
+#### 配置参考
 
 ##### `langgraph_nodes`
 
-- **Description**: Specifies which nodes of the graph a configuration field is associated with.
-- **Value Type**: Array of strings, where each string is the name of a node in your graph.
-- **Usage Context**: Include in the `json_schema_extra` dictionary for Pydantic models or the `metadata["json_schema_extra"]` dictionary for dataclasses.
-- **Example**:
+- **描述**: 指定图中哪些节点与配置字段相关联。
+- **值类型**: 字符串数组，其中每个字符串是图中节点的名称。
+- **使用上下文**: 包含在 Pydantic 模型的 `json_schema_extra` 字典或 dataclasses 的 `metadata["json_schema_extra"]` 字典中。
+- **示例**:
   ```python
   system_prompt: str = Field(
       default="You are a helpful AI assistant.",
@@ -33,12 +33,12 @@ Define your [configuration](https://langchain-ai.github.io/langgraph/how-tos/con
 
 ##### `langgraph_type`
 
-- **Description**: Specifies the type of configuration field, which determines how it's handled in the UI.
-- **Value Type**: String
-- **Supported Values**:
-  - `"prompt"`: Indicates the field contains prompt text that should be treated specially in the UI.
-- **Usage Context**: Include in the `json_schema_extra` dictionary for Pydantic models or the `metadata["json_schema_extra"]` dictionary for dataclasses.
-- **Example**:
+- **描述**: 指定配置字段的类型，这决定了它在 UI 中如何被处理。
+- **值类型**: 字符串
+- **支持的值**:
+  - `"prompt"`: 表明字段包含 Prompt 文本，应在 UI 中得到特殊处理。
+- **使用上下文**: 包含在 Pydantic 模型的 `json_schema_extra` 字典或 dataclasses 的 `metadata["json_schema_extra"]` 字典中。
+- **示例**:
   ```python
   system_prompt: str = Field(
       default="You are a helpful AI assistant.",
@@ -49,20 +49,20 @@ Define your [configuration](https://langchain-ai.github.io/langgraph/how-tos/con
   )
   ```
 
-#### Example Configuration
+#### 配置示例
 
 ```python
-## Using Pydantic
+## 使用 Pydantic
 from pydantic import BaseModel, Field
 from typing import Annotated, Literal
 
 class Configuration(BaseModel):
-    """The configuration for the agent."""
+    """代理的配置。"""
 
     system_prompt: str = Field(
         default="You are a helpful AI assistant.",
-        description="The system prompt to use for the agent's interactions. "
-        "This prompt sets the context and behavior for the agent.",
+        description="用于代理交互的系统 Prompt。 "
+        "此 Prompt 设置代理的上下文和行为。",
         json_schema_extra={
             "langgraph_nodes": ["call_model"],
             "langgraph_type": "prompt",
@@ -81,23 +81,23 @@ class Configuration(BaseModel):
         {"__template_metadata__": {"kind": "llm"}},
     ] = Field(
         default="openai/gpt-4o-mini",
-        description="The name of the language model to use for the agent's main interactions. "
-        "Should be in the form: provider/model-name.",
+        description="用于代理主要交互的语言模型名称。 "
+        "应采用以下形式：provider/model-name。",
         json_schema_extra={"langgraph_nodes": ["call_model"]},
     )
 
-## Using Dataclasses
+## 使用 Dataclasses
 from dataclasses import dataclass, field
 
 @dataclass(kw_only=True)
 class Configuration:
-    """The configuration for the agent."""
+    """代理的配置。"""
 
     system_prompt: str = field(
         default="You are a helpful AI assistant.",
         metadata={
-            "description": "The system prompt to use for the agent's interactions. "
-            "This prompt sets the context and behavior for the agent.",
+            "description": "用于代理交互的系统 Prompt。 "
+            "此 Prompt 设置代理的上下文和行为。",
             "json_schema_extra": {"langgraph_nodes": ["call_model"]},
         },
     )
@@ -105,30 +105,30 @@ class Configuration:
     model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
         default="anthropic/claude-3-5-sonnet-20240620",
         metadata={
-            "description": "The name of the language model to use for the agent's main interactions. "
-            "Should be in the form: provider/model-name.",
+            "description": "用于代理主要交互的语言模型名称。 "
+            "应采用以下形式：provider/model-name。",
             "json_schema_extra": {"langgraph_nodes": ["call_model"]},
         },
     )
 
 ```
 
-### Editing prompts in UI
+### 在 UI 中编辑 Prompt
 
-1. Locate the gear icon on nodes with associated configuration fields
-2. Click to open the configuration modal
-3. Edit the values
-4. Save to update the current assistant version or create a new one
+1. 找到带有关联配置字段的节点上的齿轮图标。
+2. 单击以打开配置模态框。
+3. 编辑值。
+4. 保存以更新当前 Assistant 版本或创建新版本。
 
 ## LangSmith Playground
 
-The [LangSmith Playground](https://
-docs.smith.langchain.com/prompt_engineering/how_to_guides#playground) interface allows testing individual LLM calls without running the full graph:
+[LangSmith Playground](https://
+docs.smith.langchain.com/prompt_engineering/how_to_guides#playground) 界面允许在不运行完整图的情况下测试单个 LLM 调用：
 
-1. Select a thread
-2. Click "View LLM Runs" on a node. This lists all the LLM calls (if any) made inside the node.
-3. Select an LLM run to open in Playground
-4. Modify prompts and test different model and tool settings
-5. Copy updated prompts back to your graph
+1. 选择一个线程。
+2. 点击节点上的“View LLM Runs”。这将列出在节点内（如果有）进行的所有 LLM 调用。
+3. 选择一个 LLM 运行以在 Playground 中打开。
+4. 修改 Prompt 并测试不同的模型和工具设置。
+5. 将更新后的 Prompt 复制回您的图。
 
-For advanced Playground features, click the expand button in the top right corner.
+有关更高级的 Playground 功能，请点击右上角的展开按钮。

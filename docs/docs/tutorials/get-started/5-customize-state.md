@@ -1,14 +1,14 @@
-# Customize state
+# 自定义状态
 
-In this tutorial, you will add additional fields to the state to define complex behavior without relying on the message list. The chatbot will use its search tool to find specific information and forward them to a human for review.
+在本教程中，您将向状态添加其他字段，以定义复杂的行为，而不依赖消息列表。聊天机器人将使用其搜索工具查找特定信息，并将它们转发给人工审核。
 
 !!! note
 
-    This tutorial builds on [Add human-in-the-loop controls](./4-human-in-the-loop.md).
+    本教程以 [添加人工干预控件](./4-human-in-the-loop.md) 为基础。
 
-## 1. Add keys to the state
+## 1. 向状态添加键
 
-Update the chatbot to research the birthday of an entity by adding `name` and `birthday` keys to the state:
+通过向状态添加 `name` 和 `birthday` 键，更新聊天机器人，使其能够研究实体的生日：
 
 ```python
 from typing import Annotated
@@ -26,27 +26,27 @@ class State(TypedDict):
     birthday: str
 ```
 
-Adding this information to the state makes it easily accessible by other graph nodes (like a downstream node that stores or processes the information), as well as the graph's persistence layer.
+将此信息添加到状态可以使其易于被其他图节点（如存储或处理信息的下游节点）以及图的持久化层访问。
 
-## 2. Update the state inside the tool
+## 2. 在工具内更新状态
 
-Now, populate the state keys inside of the `human_assistance` tool. This allows a human to review the information before it is stored in the state. Use [`Command`](../../concepts/low_level.md#using-inside-tools) to issue a state update from inside the tool.
+现在，在 `human_assistance` 工具内填充状态键。这允许人工在信息存储到状态之前对其进行审核。使用 [`Command`](../../concepts/low_level.md#using-inside-tools) 从工具内部发出状态更新。
 
-``` python
+```python
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId, tool
 
 from langgraph.types import Command, interrupt
 
 @tool
-# Note that because we are generating a ToolMessage for a state update, we
-# generally require the ID of the corresponding tool call. We can use
-# LangChain's InjectedToolCallId to signal that this argument should not
-# be revealed to the model in the tool's schema.
+# 请注意，由于我们正在为状态更新生成 ToolMessage，
+# 因此我们通常需要相应地工具调用的 ID。我们可以使用
+# LangChain 的 InjectedToolCallId 来指示此参数不应在工具的
+# schema 中向模型显示。
 def human_assistance(
     name: str, birthday: str, tool_call_id: Annotated[str, InjectedToolCallId]
 ) -> str:
-    """Request assistance from a human."""
+    """请求人工协助。"""
     human_response = interrupt(
         {
             "question": "Is this correct?",
@@ -54,33 +54,32 @@ def human_assistance(
             "birthday": birthday,
         },
     )
-    # If the information is correct, update the state as-is.
+    # 如果信息正确，则按原样更新状态。
     if human_response.get("correct", "").lower().startswith("y"):
         verified_name = name
         verified_birthday = birthday
         response = "Correct"
-    # Otherwise, receive information from the human reviewer.
+    # 否则，接收来自人工审阅者的信息。
     else:
         verified_name = human_response.get("name", name)
         verified_birthday = human_response.get("birthday", birthday)
         response = f"Made a correction: {human_response}"
 
-    # This time we explicitly update the state with a ToolMessage inside
-    # the tool.
+    # 这次我们显式地使用工具内部的 ToolMessage 来更新状态。
     state_update = {
         "name": verified_name,
         "birthday": verified_birthday,
         "messages": [ToolMessage(response, tool_call_id=tool_call_id)],
     }
-    # We return a Command object in the tool to update our state.
+    # 我们在工具中返回一个 Command 对象来更新我们的状态。
     return Command(update=state_update)
 ```
 
-The rest of the graph stays the same.
+图的其余部分保持不变。
 
-## 3. Prompt the chatbot
+## 3. 提示聊天机器人
 
-Prompt the chatbot to look up the "birthday" of the LangGraph library and direct the chatbot to reach out to the `human_assistance` tool once it has the required information. By setting `name` and `birthday` in the arguments for the tool, you force the chatbot to generate proposals for these fields.
+提示聊天机器人查找 LangGraph 库的“生日”，并指示聊天机器人在获取所需信息后联系 `human_assistance` 工具。通过为工具的参数设置 `name` 和 `birthday`，您可以强制聊天机器人为这些字段生成提案。
 
 ```python
 user_input = (
@@ -114,7 +113,7 @@ Tool Calls:
 ================================= Tool Message =================================
 Name: tavily_search_results_json
 
-[{"url": "https://blog.langchain.dev/langgraph-cloud/", "content": "We also have a new stable release of LangGraph. By LangChain 6 min read Jun 27, 2024 (Oct '24) Edit: Since the launch of LangGraph Platform, we now have multiple deployment options alongside LangGraph Studio - which now fall under LangGraph Platform. LangGraph Platform is synonymous with our Cloud SaaS deployment option."}, {"url": "https://changelog.langchain.com/announcements/langgraph-cloud-deploy-at-scale-monitor-carefully-iterate-boldly", "content": "LangChain - Changelog | ☁ 🚀 LangGraph Platform: Deploy at scale, monitor LangChain LangSmith LangGraph LangChain LangSmith LangGraph LangChain LangSmith LangGraph LangChain Changelog Sign up for our newsletter to stay up to date DATE: The LangChain Team LangGraph LangGraph Platform ☁ 🚀 LangGraph Platform: Deploy at scale, monitor carefully, iterate boldly DATE: June 27, 2024 AUTHOR: The LangChain Team LangGraph Platform is now in closed beta, offering scalable, fault-tolerant deployment for LangGraph agents. LangGraph Platform also includes a new playground-like studio for debugging agent failure modes and quick iteration: Join the waitlist today for LangGraph Platform. And to learn more, read our blog post announcement or check out our docs. Subscribe By clicking subscribe, you accept our privacy policy and terms and conditions."}]
+[{"url": "https://blog.langchain.dev/langgraph-cloud/", "content": "We also have a new stable release of LangGraph. By LangChain 6 min read Jun 27, 2024 (Oct '24) Edit: Since the launch of LangGraph Platform, we now have multiple deployment options alongside LangGraph Studio - which now fall under Langgraph Platform. LangGraph Platform is synonymous with our Cloud SaaS deployment option."}, {"url": "https://changelog.langchain.com/announcements/langgraph-cloud-deploy-at-scale-monitor-carefully-iterate-boldly", "content": "LangChain - Changelog | ☁ 🚀 LangGraph Platform: Deploy at scale, monitor LangChain LangSmith LangGraph LangChain LangSmith LangGraph LangChain LangSmith LangGraph LangChain Changelog Sign up for our newsletter to stay up to date DATE: The LangChain Team LangGraph LangGraph Platform ☁ 🚀 LangGraph Platform: Deploy at scale, monitor carefully, iterate boldly DATE: June 27, 2024 AUTHOR: The LangChain Team LangGraph Platform is now in closed beta, offering scalable, fault-tolerant deployment for LangGraph agents. LangGraph Platform also includes a new playground-like studio for debugging agent failure modes and quick iteration: Join the waitlist today for LangGraph Platform. And to learn more, read our blog post announcement or check out our docs. Subscribe By clicking subscribe, you accept our privacy policy and terms and conditions."}]
 ================================== Ai Message ==================================
 
 [{'text': "Based on the search results, it appears that LangGraph was already in existence before June 27, 2024, when LangGraph Platform was announced. However, the search results don't provide a specific release date for the original LangGraph. \n\nGiven this information, I'll use the human_assistance tool to review and potentially provide more accurate information about LangGraph's initial release date.", 'type': 'text'}, {'id': 'toolu_01JDQAV7nPqMkHHhNs3j3XoN', 'input': {'name': 'Assistant', 'birthday': '2023-01-01'}, 'name': 'human_assistance', 'type': 'tool_use'}]
@@ -126,11 +125,11 @@ Tool Calls:
     birthday: 2023-01-01
 ```
 
-We've hit the `interrupt` in the `human_assistance` tool again.
+我们再次触发了 `human_assistance` 工具中的 `interrupt`。
 
-## 4. Add human assistance
+## 4. 添加人工协助
 
-The chatbot failed to identify the correct date, so supply it with information:
+聊天机器人未能识别正确的日期，因此请为其提供信息：
 
 ```python
 human_command = Command(
@@ -173,7 +172,7 @@ To summarize:
 It's worth noting that LangGraph had been in development and use for some time before the LangGraph Platform announcement, but the official initial release of LangGraph itself was on January 17, 2024.
 ```
 
-Note that these fields are now reflected in the state:
+请注意，这些字段现在已反映在状态中：
 
 ```python
 snapshot = graph.get_state(config)
@@ -185,13 +184,13 @@ snapshot = graph.get_state(config)
 {'name': 'LangGraph', 'birthday': 'Jan 17, 2024'}
 ```
 
-This makes them easily accessible to downstream nodes (e.g., a node that further processes or stores the information).
+这使得它们可以轻松地被下游节点访问（例如，进一步处理或存储信息的节点）。
 
-## 5. Manually update the state
+## 5. 手动更新状态
 
-LangGraph gives a high degree of control over the application state. For instance, at any point (including when interrupted), you can manually override a key using `graph.update_state`:
+LangGraph 对应用程序状态提供了高度的控制。例如，在任何时候（包括中断时），您都可以使用 `graph.update_state` 手动覆盖一个键：
 
-``` python
+```python
 graph.update_state(config, {"name": "LangGraph (library)"})
 ```
 
@@ -201,11 +200,11 @@ graph.update_state(config, {"name": "LangGraph (library)"})
   'checkpoint_id': '1efd4ec5-cf69-6352-8006-9278f1730162'}}
 ```
 
-## 6. View the new value
+## 6. 查看新值
 
-If you call `graph.get_state`, you can see the new value is reflected:
+如果调用 `graph.get_state`，您可以看到新值已反映出来：
 
-``` python
+```python
 snapshot = graph.get_state(config)
 
 {k: v for k, v in snapshot.values.items() if k in ("name", "birthday")}
@@ -215,11 +214,11 @@ snapshot = graph.get_state(config)
 {'name': 'LangGraph (library)', 'birthday': 'Jan 17, 2024'}
 ```
 
-Manual state updates will [generate a trace](https://smith.langchain.com/public/7ebb7827-378d-49fe-9f6c-5df0e90086c8/r) in LangSmith. If desired, they can also be used to [control human-in-the-loop workflows](../../how-tos/human_in_the_loop/add-human-in-the-loop.md). Use of the `interrupt` function is generally recommended instead, as it allows data to be transmitted in a human-in-the-loop interaction independently of state updates.
+手动状态更新将[生成一个跟踪](https://smith.langchain.com/public/7ebb7827-378d-49fe-9f6c-5df0e90086c8/r)在 LangSmith 中。如果需要，它们也可以用于[控制人工干预工作流](../../how-tos/human_in_the_loop/add-human-in-the-loop.md)。通常建议使用 `interrupt` 函数，因为它允许数据在人工干预交互中独立于状态更新进行传输。
 
-**Congratulations!** You've added custom keys to the state to facilitate a more complex workflow, and learned how to generate state updates from inside tools.
+**恭喜！** 您已向状态添加了自定义键以促进更复杂的工作流，并学习了如何从工具内部生成状态更新。
 
-Check out the code snippet below to review the graph from this tutorial:
+查看下面的代码片段以回顾本教程中的图：
 
 {% include-markdown "../../../snippets/chat_model_tabs.md" %}
 
@@ -305,7 +304,6 @@ memory = MemorySaver()
 graph = graph_builder.compile(checkpointer=memory)
 ```
 
-## Next steps
+## 后续步骤
 
-There's one more concept to review before finishing the LangGraph basics tutorials: connecting `checkpointing` and `state updates` to [time travel](./6-time-travel.md). 
-
+在完成 LangGraph 基础教程之前，还有一个概念需要回顾：将 `checkpointing` 和 `state updates` 连接到[时间旅行](./6-time-travel.md)。

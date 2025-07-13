@@ -1,34 +1,34 @@
-# Self-Hosted Control Plane
+# 自托管控制平面
 
-There are two versions of the self-hosted deployment: [Self-Hosted Data Plane](./deployment_options.md#self-hosted-data-plane) and [Self-Hosted Control Plane](./deployment_options.md#self-hosted-control-plane).
+自托管部署有两种版本：[自托管数据平面](./deployment_options.md#self-hosted-data-plane) 和 [自托管控制平面](./deployment_options.md#self-hosted-control-plane)。
 
-!!! info "Important"
-    The Self-Hosted Control Plane deployment option requires an [Enterprise](plans.md) plan.
+!!! info "重要"
+    自托管控制平面部署选项需要 [企业版](plans.md) 计划。
 
-## Requirements
+## 要求
 
-- You use `langgraph-cli` and/or [LangGraph Studio](./langgraph_studio.md) app to test graph locally.
-- You use `langgraph build` command to build image.
-- You have a Self-Hosted LangSmith instance deployed.
-- You are using Ingress for your LangSmith instance. All agents will be deployed as Kubernetes services behind this ingress.
+- 您使用 `langgraph-cli` 和/或 [LangGraph Studio](./langgraph_studio.md) 应用在本地测试图。
+- 您使用 `langgraph build` 命令构建镜像。
+- 您已部署自托管 LangSmith 实例。
+- 您正在为您的 LangSmith 实例使用 Ingress。所有代理将作为此 Ingress 后面的 Kubernetes 服务进行部署。
 
-## Self-Hosted Control Plane
+## 自托管控制平面
 
-The [Self-Hosted Control Plane](./langgraph_self_hosted_control_plane.md) deployment option is a fully self-hosted model for deployment where you manage the [control plane](./langgraph_control_plane.md) and [data plane](./langgraph_data_plane.md) in your cloud. This option gives you full control and responsibility of the control plane and data plane infrastructure.
+[自托管控制平面](./langgraph_self_hosted_control_plane.md) 部署选项是一种完全自托管的部署模式，您可以在云中管理 [控制平面](./langgraph_control_plane.md) 和 [数据平面](./langgraph_data_plane.md)。此选项赋予您对控制平面和数据平面基础设施的完全控制和责任。
 
-|                   | [Control plane](../concepts/langgraph_control_plane.md) | [Data plane](../concepts/langgraph_data_plane.md) |
+|                   | [控制平面](../concepts/langgraph_control_plane.md) | [数据平面](../concepts/langgraph_data_plane.md) |
 |-------------------|-------------------|------------|
-| **What is it?** | <ul><li>Control plane UI for creating deployments and revisions</li><li>Control plane APIs for creating deployments and revisions</li></ul> | <ul><li>Data plane "listener" for reconciling deployments with control plane state</li><li>LangGraph Servers</li><li>Postgres, Redis, etc</li></ul> |
-| **Where is it hosted?** | Your cloud | Your cloud |
-| **Who provisions and manages it?** | You | You |
+| **它是什么？** | <ul><li>用于创建部署和修订的控制平面 UI</li><li>用于创建部署和修订的控制平面 API</li></ul> | <ul><li>用于协调部署与控制平面状态的数据平面“监听器”</li><li>LangGraph 服务器</li><li>Postgres、Redis 等</li></ul> |
+| **它托管在哪里？** | 您的云 | 您的云 |
+| **谁负责配置和管理？** | 您 | 您 |
 
-### Architecture
+### 架构
 
-![Self-Hosted Control Plane Architecture](./img/self_hosted_control_plane_architecture.png)
+![自托管控制平面架构](./img/self_hosted_control_plane_architecture.png)
 
-### Compute Platforms
+### 计算平台
 
- - **Kubernetes**: The Self-Hosted Control Plane deployment option supports deploying control plane and data plane infrastructure to any Kubernetes cluster.
+ - **Kubernetes**：自托管控制平面部署选项支持将控制平面和数据平面基础设施部署到任何 Kubernetes 集群。
 
 !!! tip
-    If you would like to enable this on your LangSmith instance, please follow the [Self-Hosted Control Plane deployment guide](../cloud/deployment/self_hosted_control_plane.md).
+    如果您想在您的 LangSmith 实例上启用此功能，请遵循 [自托管控制平面部署指南](../cloud/deployment/self_hosted_control_plane.md)。

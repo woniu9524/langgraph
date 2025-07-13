@@ -1,37 +1,37 @@
-# Manage threads
+# 管理线程
 
-Studio allows you to view [threads](../../concepts/persistence.md#threads) from the server and edit their state.
+Studio 允许您从服务器查看 [线程](../../concepts/persistence.md#threads) 并编辑它们的状态。
 
-## View threads
+## 查看线程
 
-### Graph mode
+### 图模式
 
-1. In the top of the right-hand pane, select the dropdown menu to view existing threads.
-1. Select the desired thread, and the thread history will populate in the right-hand side of the page.
-1. To create a new thread, click `+ New Thread` and [submit a run](../how-tos/invoke_studio.md#graph-mode).
+1. 在右侧窗格顶部，选择下拉菜单以查看现有线程。
+2. 选择所需的线程，线程历史记录将填充在页面右侧。
+3. 要创建新线程，请点击 `+ New Thread` 并 [提交运行](../how-tos/invoke_studio.md#graph-mode)。
 
-To view more granular information in the thread, drag the slider at the top of the page to the right. To view less information, drag the slider to the left. Additionally, collapse or expand individual turns, nodes, and keys of the state.
+要查看线程中的更详细信息，请将页面顶部的滑块向右拖动。要查看的信息更少，请将滑块向左拖动。此外，还可以折叠或展开单独的轮次、节点和状态键。
 
-Switch between `Pretty` and `JSON` mode for different rendering formats.
+在 `Pretty` 和 `JSON` 模式之间切换以获得不同的渲染格式。
 
-### Chat mode
+### 对话模式
 
-1. View all threads in the right-hand pane of the page.
-2. Select the desired thread and the thread history will populate in the center panel.
-3. To create a new thread, click the plus button and [submit a run](../how-tos/invoke_studio.md#chat-mode).
+1. 在页面右侧窗格中查看所有线程。
+2. 选择所需的线程，线程历史记录将填充在中间面板中。
+3. 要创建新线程，请点击加号按钮并 [提交运行](../how-tos/invoke_studio.md#chat-mode)。
 
-## Edit thread history
+## 编辑线程历史
 
-### Graph mode
+### 图模式
 
-To edit the state of the thread, select "edit node state" next to the desired node. Edit the node's output as desired and click "fork" to confirm. This will create a new forked run from the checkpoint of the selected node.
+要编辑线程的状态，请选择所需节点旁边的“edit node state”。按需编辑节点的输出并点击“fork”进行确认。这将从所选节点的检查点创建一个新的分叉运行。
 
-If you instead want to re-run the thread from a given checkpoint without editing the state, click the "Re-run from here". This will again create a new forked run from the selected checkpoint. This is useful for re-running with changes that are not specific to the state, such as the selected assistant.
+如果您想在不编辑状态的情况下从给定检查点重新运行线程，请点击“Re-run from here”。这将再次从所选检查点创建一个新的分叉运行。这对于使用非特定于状态的更改（例如选定的助手）重新运行非常有用。
 
-### Chat mode
+### 对话模式
 
-To edit a human message in the thread, click the edit button below the human message. Edit the message as desired and submit. This will create a new fork of the conversation history. To re-generate an AI message, click the retry icon below the AI message.
+要编辑线程中的人类消息，请点击人类消息下方的编辑按钮。按需编辑消息并提交。这将创建对话历史记录的新分叉。要重新生成 AI 消息，请点击 AI 消息下方的重试图标。
 
-## Learn more
+## 了解更多
 
-For more information about time travel, [see here](../../concepts/time-travel.md).
+有关时间旅行的更多信息，[请参见此处](../../concepts/time-travel.md)。

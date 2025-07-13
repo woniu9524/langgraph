@@ -1,31 +1,31 @@
-# How to Set Up a LangGraph.js Application
+# 设置 LangGraph.js 应用程序
 
-A [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) application must be configured with a [LangGraph configuration file](../reference/cli.md#configuration-file) in order to be deployed to LangGraph Platform (or to be self-hosted). This how-to guide discusses the basic steps to setup a LangGraph.js application for deployment using `package.json` to specify project dependencies.
+必须使用 [LangGraph 配置文件](../reference/cli.md#configuration-file) 来配置 [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) 应用程序，以便将其部署到 LangGraph 平台（或进行自托管）。本指南将讨论使用 `package.json` 指定项目依赖项来设置 LangGraph.js 应用程序进行部署的基本步骤。
 
-This walkthrough is based on [this repository](https://github.com/langchain-ai/langgraphjs-studio-starter), which you can play around with to learn more about how to setup your LangGraph application for deployment.
+本教程基于 [此存储库](https://github.com/langchain-ai/langgraphjs-studio-starter)，您可以尝试使用它来详细了解如何设置 LangGraph 应用程序以进行部署。
 
-The final repository structure will look something like this:
+最终的存储库结构将如下所示：
 
 ```bash
 my-app/
-├── src # all project code lies within here
-│   ├── utils # optional utilities for your graph
-│   │   ├── tools.ts # tools for your graph
-│   │   ├── nodes.ts # node functions for you graph
-│   │   └── state.ts # state definition of your graph
-│   └── agent.ts # code for constructing your graph
-├── package.json # package dependencies
-├── .env # environment variables
-└── langgraph.json # configuration file for LangGraph
+├── src # 所有项目代码都在这里
+│   ├── utils # 图的可选工具
+│   │   ├── tools.ts # 图的工具
+│   │   ├── nodes.ts # 图的节点函数
+│   │   └── state.ts # 图的状态定义
+│   └── agent.ts # 构建图的代码
+├── package.json # 包依赖项
+├── .env # 环境变量
+└── langgraph.json # LangGraph 的配置文件
 ```
 
-After each step, an example file directory is provided to demonstrate how code can be organized.
+在每一步之后，都会提供一个示例文件目录，以演示代码的组织方式。
 
-## Specify Dependencies
+## 指定依赖项
 
-Dependencies can be specified in a `package.json`. If none of these files is created, then dependencies can be specified later in the [LangGraph configuration file](#create-langgraph-api-config).
+可以在 `package.json` 中指定依赖项。如果不存在这些文件中的任何一个，则可以在后面的 [LangGraph 配置文件](#create-langgraph-api-config) 中指定依赖项。
 
-Example `package.json` file:
+示例 `package.json` 文件：
 
 ```json
 {
@@ -40,7 +40,7 @@ Example `package.json` file:
 }
 ```
 
-When deploying your app, the dependencies will be installed using the package manager of your choice, provided they adhere to the compatible version ranges listed below:
+部署应用程序时，将使用您选择的包管理器安装依赖项，前提是它们符合下面列出的兼容版本范围：
 
 ```
 "@langchain/core": "^0.3.42",
@@ -48,18 +48,18 @@ When deploying your app, the dependencies will be installed using the package ma
 "@langchain/langgraph-checkpoint": "~0.0.16",
 ```
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
-└── package.json # package dependencies
+└── package.json # 包依赖项
 ```
 
-## Specify Environment Variables
+## 指定环境变量
 
-Environment variables can optionally be specified in a file (e.g. `.env`). See the [Environment Variables reference](../reference/env_var.md) to configure additional variables for a deployment.
+可以在一个文件中（例如 `.env`）指定环境变量。请参阅 [环境变量参考](../reference/env_var.md) 以为部署配置其他变量。
 
-Example `.env` file:
+示例 `.env` 文件：
 
 ```
 MY_ENV_VAR_1=foo
@@ -68,19 +68,19 @@ OPENAI_API_KEY=key
 TAVILY_API_KEY=key_2
 ```
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
 ├── package.json
-└── .env # environment variables
+└── .env # 环境变量
 ```
 
-## Define Graphs
+## 定义图
 
-Implement your graphs! Graphs can be defined in a single file or multiple files. Make note of the variable names of each compiled graph to be included in the LangGraph application. The variable names will be used later when creating the [LangGraph configuration file](../reference/cli.md#configuration-file).
+实现您的图！图可以定义在单个文件中，也可以定义在多个文件中。请记下每个已编译图的变量名，以便在创建 [LangGraph 配置文件](../reference/cli.md#configuration-file) 时包含它们。
 
-Here is an example `agent.ts`:
+下面是一个 `agent.ts` 的示例：
 
 ```ts
 import type { AIMessage } from "@langchain/core/messages";
@@ -92,11 +92,11 @@ import { ToolNode } from "@langchain/langgraph/prebuilt";
 
 const tools = [new TavilySearchResults({ maxResults: 3 })];
 
-// Define the function that calls the model
+// 定义调用模型的函数
 async function callModel(state: typeof MessagesAnnotation.State) {
   /**
-   * Call the LLM powering our agent.
-   * Feel free to customize the prompt, model, and other logic!
+   * 调用支持我们代理的 LLM。
+   * 请随时自定义提示、模型和其他逻辑！
    */
   const model = new ChatOpenAI({
     model: "gpt-4o",
@@ -105,76 +105,74 @@ async function callModel(state: typeof MessagesAnnotation.State) {
   const response = await model.invoke([
     {
       role: "system",
-      content: `You are a helpful assistant. The current date is ${new Date().getTime()}.`,
+      content: `您是一个有用的助手。当前日期是 ${new Date().getTime()}。`,
     },
     ...state.messages,
   ]);
 
-  // MessagesAnnotation supports returning a single message or array of messages
+  // MessagesAnnotation 支持返回单个消息或消息数组
   return { messages: response };
 }
 
-// Define the function that determines whether to continue or not
+// 定义确定是否继续的函数
 function routeModelOutput(state: typeof MessagesAnnotation.State) {
   const messages = state.messages;
   const lastMessage: AIMessage = messages[messages.length - 1];
-  // If the LLM is invoking tools, route there.
+  // 如果 LLM 正在调用工具，则路由到那里。
   if ((lastMessage?.tool_calls?.length ?? 0) > 0) {
     return "tools";
   }
-  // Otherwise end the graph.
+  // 否则结束图。
   return "__end__";
 }
 
-// Define a new graph.
-// See https://langchain-ai.github.io/langgraphjs/how-tos/define-state/#getting-started for
-// more on defining custom graph states.
+// 定义一个新图。
+// 有关定义自定义图状态的更多信息，请参阅 https://langchain-ai.github.io/langgraphjs/how-tos/define-state/#getting-started
 const workflow = new StateGraph(MessagesAnnotation)
-  // Define the two nodes we will cycle between
+  // 定义我们将循环的两个节点
   .addNode("callModel", callModel)
   .addNode("tools", new ToolNode(tools))
-  // Set the entrypoint as `callModel`
-  // This means that this node is the first one called
+  // 将入口点设置为 `callModel`
+  // 这意味着该节点是第一个被调用的节点
   .addEdge("__start__", "callModel")
   .addConditionalEdges(
-    // First, we define the edges' source node. We use `callModel`.
-    // This means these are the edges taken after the `callModel` node is called.
+    // 首先，我们定义边的源节点。我们使用 `callModel`。
+    // 这意味着这些是调用 `callModel` 节点后采用的边。
     "callModel",
-    // Next, we pass in the function that will determine the sink node(s), which
-    // will be called after the source node is called.
+    // 接下来，我们传入将确定目标节点（将在调用源节点后调用）的函数。
     routeModelOutput,
-    // List of the possible destinations the conditional edge can route to.
-    // Required for conditional edges to properly render the graph in Studio
+    // 条件边可以路由到的可能目标列表。
+    // 对于条件边正确呈现图到 Studio 是必需的
     ["tools", "__end__"]
   )
-  // This means that after `tools` is called, `callModel` node is called next.
+  // 这意味着在调用 `tools` 后，下一个调用的是 `callModel` 节点。
   .addEdge("tools", "callModel");
 
-// Finally, we compile it!
-// This compiles it into a graph you can invoke and deploy.
+// 最后，我们将其编译！
+// 这将其编译成一个可以调用和部署的图。
 export const graph = workflow.compile();
 ```
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
-├── src # all project code lies within here
-│   ├── utils # optional utilities for your graph
-│   │   ├── tools.ts # tools for your graph
-│   │   ├── nodes.ts # node functions for you graph
-│   │   └── state.ts # state definition of your graph
-│   └── agent.ts # code for constructing your graph
-├── package.json # package dependencies
-├── .env # environment variables
-└── langgraph.json # configuration file for LangGraph
+├── src # 所有项目代码都在这里
+│   ├── utils # 图的可选工具
+│   │   ├── tools.ts # 图的工具
+│   │   ├── nodes.ts # 图的节点函数
+│   │   └── state.ts # 图的状态定义
+│   └── agent.ts # 构建图的代码
+├── package.json # 包依赖项
+├── .env # 环境变量
+└── langgraph.json # LangGraph 的配置文件
 ```
 
-## Create LangGraph API Config
+## 创建 LangGraph API 配置
 
-Create a [LangGraph configuration file](../reference/cli.md#configuration-file) called `langgraph.json`. See the [LangGraph configuration file reference](../reference/cli.md#configuration-file) for detailed explanations of each key in the JSON object of the configuration file.
+创建一个名为 `langgraph.json` 的 [LangGraph 配置文件](../reference/cli.md#configuration-file)。有关配置文件中每个键的详细说明，请参阅 [LangGraph 配置文件参考](../reference/cli.md#configuration-file)。
 
-Example `langgraph.json` file:
+示例 `langgraph.json` 文件：
 
 ```json
 {
@@ -188,12 +186,12 @@ Example `langgraph.json` file:
 }
 ```
 
-Note that the variable name of the `CompiledGraph` appears at the end of the value of each subkey in the top-level `graphs` key (i.e. `:<variable_name>`).
+请注意，`CompiledGraph` 的变量名出现在顶级 `graphs` 键的每个子键的值的末尾（即 `:<variable_name>`）。
 
-!!! info "Configuration Location"
+!!! info "配置位置"
 
-    The LangGraph configuration file must be placed in a directory that is at the same level or higher than the TypeScript files that contain compiled graphs and associated dependencies.
+    LangGraph 配置文件必须放置在与包含已编译图以及相关依赖项的 TypeScript 文件相同级别或更高目录中。
 
-## Next
+## 下一步
 
-After you setup your project and place it in a GitHub repository, it's time to [deploy your app](./cloud.md).
+设置好项目并将其放入 GitHub 存储库后，就可以[部署您的应用程序](./cloud.md)了。

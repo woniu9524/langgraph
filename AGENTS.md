@@ -1,39 +1,38 @@
-# AGENTS Instructions
+# AGENTS 指令
 
-This repository is a monorepo. Each library lives in a subdirectory under `libs/`.
+此仓库是一个单体仓库。每个库都位于 `libs/` 下的子目录中。
 
-When you modify code in any library, run the following commands in that library's directory before creating a pull request:
+当您修改任何库中的代码时，请在创建拉取请求之前在该库的目录中运行以下命令：
 
-- `make format` – run code formatters
-- `make lint` – run the linter
-- `make test` – execute the test suite
+- `make format` – 运行代码格式化工具
+- `make lint` – 运行 linter
+- `make test` – 执行测试套件
 
-To run a particular test file or to pass additional pytest options you can specify the `TEST` variable:
+要运行特定的测试文件或传递其他 pytest 选项，您可以指定 `TEST` 变量：
 
 ```
 TEST=path/to/test.py make test
 ```
 
-Other pytest arguments can also be supplied inside the `TEST` variable.
+其他 pytest 参数也可以在 `TEST` 变量中提供。
 
-## Libraries
+## 库
 
-The repository contains several Python and JavaScript/TypeScript libraries.
-Below is a high-level overview:
+该仓库包含多个 Python 和 JavaScript/TypeScript 库。
+以下是高层概述：
 
-- **checkpoint** – base interfaces for LangGraph checkpointers.
-- **checkpoint-postgres** – Postgres implementation of the checkpoint saver.
-- **checkpoint-sqlite** – SQLite implementation of the checkpoint saver.
-- **cli** – official command-line interface for LangGraph.
-- **langgraph** – core framework for building stateful, multi-actor agents.
-- **prebuilt** – high-level APIs for creating and running agents and tools.
-- **sdk-js** – JS/TS SDK for interacting with the LangGraph REST API.
-- **sdk-py** – Python SDK for the LangGraph Platform API.
+- **checkpoint** – LangGraph checkpointer 的基础接口。
+- **checkpoint-postgres** – checkpoint 保存器的 Postgres 实现。
+- **checkpoint-sqlite** – checkpoint 保存器的 SQLite 实现。
+- **cli** – LangGraph 的官方命令行界面。
+- **langgraph** – 用于构建有状态、多参与者代理的核心框架。
+- **prebuilt** – 用于创建和运行代理及工具的高级 API。
+- **sdk-js** – 用于与 LangGraph REST API 交互的 JS/TS SDK。
+- **sdk-py** – LangGraph 平台 API 的 Python SDK。
 
-### Dependency map
+### 依赖关系图
 
-The diagram below lists downstream libraries for each production dependency as
-declared in that library's `pyproject.toml` (or `package.json`).
+下图列出了每个生产依赖项的下游库，这些依赖项在其 `pyproject.toml`（或 `package.json`）中声明。
 
 ```text
 checkpoint
@@ -52,4 +51,4 @@ sdk-py
 sdk-js (standalone)
 ```
 
-Changes to a library may impact all of its dependents shown above.
+对某个库的更改可能会影响上面显示的其所有依赖项。

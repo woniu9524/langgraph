@@ -1,24 +1,24 @@
-# Build a SQL agent
+# 构建一个 SQL 代理
 
-In this tutorial, we will walk through how to build an agent that can answer questions about a SQL database.
+在本教程中，我们将介绍如何构建一个能够回答有关 SQL 数据库问题的代理。
 
-At a high level, the agent will:
+总体而言，该代理将执行以下操作：
 
-1. Fetch the available tables from the database
-2. Decide which tables are relevant to the question
-3. Fetch the schemas for the relevant tables
-4. Generate a query based on the question and information from the schemas
-5. Double-check the query for common mistakes using an LLM
-6. Execute the query and return the results
-7. Correct mistakes surfaced by the database engine until the query is successful
-8. Formulate a response based on the results
+1. 从数据库中获取可用表
+2. 决定哪些表与问题相关
+3. 获取相关表的架构
+4. 基于问题和架构信息生成查询
+5. 使用 LLM 双重检查查询是否存在常见错误
+6. 执行查询并返回结果
+7. 直到查询成功，修正数据库引擎报告的错误
+8. 根据结果制定响应
 
-!!! warning "Security note"
-    Building Q&A systems of SQL databases requires executing model-generated SQL queries. There are inherent risks in doing this. Make sure that your database connection permissions are always scoped as narrowly as possible for your agent's needs. This will mitigate though not eliminate the risks of building a model-driven system.
+!!! warning "安全提示"
+    构建 SQL 数据库的问答系统需要执行模型生成的 SQL 查询。这存在固有风险。请确保您的数据库连接权限始终尽可能地限制在代理的最低需求范围内。这将减轻（但不能完全消除）构建模型驱动系统的风险。
 
-## 1. Setup
+## 1. 设置
 
-Let's first install some dependencies. This tutorial uses SQL database and tool abstractions from [langchain-community](https://python.langchain.com/docs/concepts/architecture/#langchain-community). We will also require a LangChain [chat model](https://python.langchain.com/docs/concepts/chat_models/).
+我们先安装一些依赖项。本教程使用了来自 [langchain-community](https://python.langchain.com/docs/concepts/architecture/#langchain-community) 的 SQL 数据库和工具抽象。我们还需要一个 LangChain 的 [chat model](https://python.langchain.com/docs/concepts/chat_models/)。
 
 ```python
 %%capture --no-stderr
@@ -26,11 +26,11 @@ Let's first install some dependencies. This tutorial uses SQL database and tool 
 ```
 
 !!! tip
-    Sign up for LangSmith to quickly spot issues and improve the performance of your LangGraph projects. [LangSmith](https://docs.smith.langchain.com) lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph.
+    注册 LangSmith，以便快速发现问题并提高 LangGraph 项目的性能。[LangSmith](https://docs.smith.langchain.com) 允许您使用跟踪数据来调试、测试和监控您使用 LangGraph 构建的 LLM 应用。
 
-### Select a LLM
+### 选择一个 LLM
 
-First we [initialize our LLM](https://python.langchain.com/docs/how_to/chat_models_universal_init/). Any model supporting [tool-calling](https://python.langchain.com/docs/integrations/chat/#featured-providers) should work. We use OpenAI below.
+首先，我们[初始化我们的 LLM](https://python.langchain.com/docs/how_to/chat_models_universal_init/)。任何支持[工具调用](https://python.langchain.com/docs/integrations/chat/#featured-providers)的模型都应该可以工作。我们在下面使用 OpenAI。
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -38,12 +38,12 @@ from langchain.chat_models import init_chat_model
 llm = init_chat_model("openai:gpt-4.1")
 ```
 
-### Configure the database
+### 配置数据库
 
-We will be creating a SQLite database for this tutorial. SQLite is a lightweight database that is easy to set up and use. We will be loading the `chinook` database, which is a sample database that represents a digital media store.
-Find more information about the database [here](https://www.sqlitetutorial.net/sqlite-sample-database/).
+我们将为本教程创建一个 SQLite 数据库。SQLite 是一个轻量级数据库，易于设置和使用。我们将加载 `chinook` 数据库，这是一个代表数字媒体商店的示例数据库。
+在此[处](https://www.sqlitetutorial.net/sqlite-sample-database/)查找有关该数据库的更多信息。
 
-For convenience, we have hosted the database (`Chinook.db`) on a public GCS bucket.
+为了方便起见，我们已将数据库 (`Chinook.db`) 托管在公共 GCS 存储桶中。
 
 ```python
 import requests
@@ -62,7 +62,7 @@ else:
     print(f"Failed to download the file. Status code: {response.status_code}")
 ```
 
-We will use a handy SQL database wrapper available in the `langchain_community` package to interact with the database. The wrapper provides a simple interface to execute SQL queries and fetch results:
+我们将使用 `langchain_community` 包中提供的便捷 SQL 数据库包装器与数据库进行交互。该包装器提供了执行 SQL 查询和获取结果的简单接口：
 
 ```python
 from langchain_community.utilities import SQLDatabase
@@ -74,16 +74,16 @@ print(f"Available tables: {db.get_usable_table_names()}")
 print(f'Sample output: {db.run("SELECT * FROM Artist LIMIT 5;")}')
 ```
 
-**Output:**
+**输出:**
 ```
 Dialect: sqlite
 Available tables: ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice', 'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
 Sample output: [(1, 'AC/DC'), (2, 'Accept'), (3, 'Aerosmith'), (4, 'Alanis Morissette'), (5, 'Alice In Chains')]
 ```
 
-### Tools for database interactions
+### 用于数据库交互的工具
 
-`langchain-community` implements some built-in tools for interacting with our `SQLDatabase`, including tools for listing tables, reading table schemas, and checking and running queries:
+`langchain-community` 实现了与我们的 `SQLDatabase` 交互的一些内置工具，包括列出表、读取表架构以及检查和运行查询的工具：
 
 ```python
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
@@ -96,21 +96,21 @@ for tool in tools:
     print(f"{tool.name}: {tool.description}\n")
 ```
 
-**Output:**
+**输出:**
 ```
-sql_db_query: Input to this tool is a detailed and correct SQL query, output is a result from the database. If the query is not correct, an error message will be returned. If an error is returned, rewrite the query, check the query, and try again. If you encounter an issue with Unknown column 'xxxx' in 'field list', use sql_db_schema to query the correct table fields.
+sql_db_query: This tool's input is a detailed and correct SQL query, and the output is a result from the database. If the query is incorrect, an error message will be returned. If an error is returned, rewrite the query, check the query, and try again. If you encounter an issue with "Unknown column 'xxxx' in 'field list'", use sql_db_schema to query the correct table fields.
 
-sql_db_schema: Input to this tool is a comma-separated list of tables, output is the schema and sample rows for those tables. Be sure that the tables actually exist by calling sql_db_list_tables first! Example Input: table1, table2, table3
+sql_db_schema: This tool's input is a comma-separated list of tables, and the output is the schema and sample rows for those tables. Be sure that the tables actually exist by calling sql_db_list_tables first! Example Input: table1, table2, table3
 
-sql_db_list_tables: Input is an empty string, output is a comma-separated list of tables in the database.
+sql_db_list_tables: Input is an empty string, and the output is a comma-separated list of tables in the database.
 
 sql_db_query_checker: Use this tool to double check if your query is correct before executing it. Always use this tool before executing a query with sql_db_query!
 
 ```
 
-## 2. Using a prebuilt agent
+## 2. 使用预构建的代理
 
-Given these tools, we can initialize a pre-built agent in a single line. To customize our agents behavior, we write a descriptive system prompt.
+有了这些工具，我们就可以在单行代码中初始化一个预构建的代理。要自定义我们的代理行为，我们编写一个描述性的系统指令。
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -149,9 +149,9 @@ agent = create_react_agent(
 ```
 
 !!! note
-    This system prompt includes a number of instructions, such as always running specific tools before or after others. In the [next section](#3-customizing-the-agent), we will enforce these behaviors through the graph's structure, providing us a greater degree of control and allowing us to simplify the prompt.
+    此系统指令包含许多指令，例如始终在其他工具之前或之后运行特定工具。在[下一节](#3-customizing-the-agent)中，我们将通过图的结构来强制执行这些行为，从而为我们提供更大的控制力并允许我们简化指令。
 
-Let's run this agent on a sample query and observe its behavior:
+让我们在示例查询上运行此代理并观察其行为：
 
 ```python
 question = "Which genre on average has the longest tracks?"
@@ -163,7 +163,7 @@ for step in agent.stream(
     step["messages"][-1].pretty_print()
 ```
 
-**Output:**
+**输出:**
 ```
 ================================ Human Message =================================
 
@@ -214,7 +214,7 @@ CREATE TABLE "Track" (
     "UnitPrice" NUMERIC(10, 2) NOT NULL, 
     PRIMARY KEY ("TrackId"), 
     FOREIGN KEY("MediaTypeId") REFERENCES "MediaType" ("MediaTypeId"), 
-    FOREIGN KEY("GenreId") REFERENCES "Genre" ("GenreId"), 
+    FOREIGNKEY("GenreId") REFERENCES "Genre" ("GenreId"), 
     FOREIGN KEY("AlbumId") REFERENCES "Album" ("AlbumId")
 )
 
@@ -267,25 +267,25 @@ Name: sql_db_query
 The genre with the longest average track length is "Sci Fi & Fantasy," with an average duration of about 2,911,783 milliseconds (approximately 48.5 minutes) per track.
 ```
 
-This worked well enough: the agent correctly listed the tables, obtained the schemas, wrote a query, checked the query, and ran it to inform its final response.
+这效果很好：代理正确地列出了表，获取了架构，编写了查询，检查了查询，并运行它来形成最终响应。
 
 !!! tip
-    You can inspect all aspects of the above run, including steps taken, tools invoked, what prompts were seen by the LLM, and more in the [LangSmith trace](https://smith.langchain.com/public/bd594960-73e3-474b-b6f2-db039d7c713a/r).
+    您可以在[LangSmith 跟踪](https://smith.langchain.com/public/bd594960-73e3-474b-b6f2-db039d7c713a/r)中检查上述运行的所有方面，包括执行的步骤、调用的工具、LLM 看到的提示等等。
 
-## 3. Customizing the agent
+## 3. 自定义代理
 
-The prebuilt agent lets us get started quickly, but at each step the agent has access to the full set of tools. Above, we relied on the system prompt to constrain its behavior— for example, we instructed the agent to always start with the "list tables" tool, and to always run a query-checker tool before executing the query.
+预构建的代理让我们能够快速入门，但在每个步骤中，代理都可以访问所有工具。上面，我们依赖系统指令来约束其行为——例如，我们指示代理始终首先使用“list tables”工具，并在执行查询之前始终运行查询检查器工具。
 
-We can enforce a higher degree of control in LangGraph by customizing the agent. Below, we implement a simple ReAct-agent setup, with dedicated nodes for specific tool-calls. We will use the same [state](../../concepts/low_level.md#state) as the pre-built agent.
+我们可以通过自定义代理在 LangGraph 中强制执行更高程度的控制。下面，我们实现一个简单的 ReAct 代理设置，为特定的工具调用提供了专用节点。我们将使用与预构建代理相同的[状态](../../concepts/low_level.md#state)。
 
-We construct dedicated nodes for the following steps:
+我们为以下步骤构建了专用节点：
 
-- Listing DB tables
-- Calling the "get schema" tool
-- Generating a query
-- Checking the query
+- 列出数据库表
+- 调用“get schema”工具
+- 生成查询
+- 检查查询
 
-Putting these steps in dedicated nodes lets us (1) force tool-calls when needed, and (2) customize the prompts associated with each step.
+将这些步骤放入专用节点使我们能够 (1) 在需要时强制执行工具调用，以及 (2) 自定义与每个步骤相关的提示。
 
 ```python
 from typing import Literal
@@ -395,7 +395,7 @@ def check_query(state: MessagesState):
     return {"messages": [response]}
 ```
 
-Finally, we assemble these steps into a workflow using the Graph API. We define a [conditional edge](../../concepts/low_level.md#conditional-edges) at the query generation step that will route to the query checker if a query is generated, or end if there are no tool calls present, such that the LLM has delivered a response to the query.
+最后，我们使用 Graph API 将这些步骤组装成一个工作流。我们定义了一个[条件边](../../concepts/low_level.md#conditional-edges)在查询生成步骤，如果生成了查询则路由到查询检查器，如果 LLM 已经响应了查询则不存在工具调用，则结束。
 
 ```python
 def should_continue(state: MessagesState) -> Literal[END, "check_query"]:
@@ -429,7 +429,7 @@ builder.add_edge("run_query", "generate_query")
 agent = builder.compile()
 ```
 
-We visualize the application below:
+我们在下面可视化应用程序：
 
 ```python
 from IPython.display import Image, display
@@ -440,9 +440,9 @@ display(Image(agent.get_graph().draw_mermaid_png()))
 
 ![Graph](./output.png)
 
-**Note:** When you run this code, it will generate and display a visual representation of the SQL agent graph showing the flow between the different nodes (list_tables → call_get_schema → get_schema → generate_query → check_query → run_query).
+**注意:** 当您运行此代码时，它将生成并显示 SQL 代理图的视觉表示，显示不同节点之间的流程（list_tables → call_get_schema → get_schema → generate_query → check_query → run_query）。
 
-We can now invoke the graph exactly as before:
+我们现在可以像以前一样调用该图：
 
 ```python
 question = "Which genre on average has the longest tracks?"
@@ -454,7 +454,7 @@ for step in agent.stream(
     step["messages"][-1].pretty_print()
 ```
 
-**Output:**
+**输出:**
 ```
 ================================ Human Message =================================
 
@@ -499,7 +499,7 @@ CREATE TABLE "Track" (
     "UnitPrice" NUMERIC(10, 2) NOT NULL, 
     PRIMARY KEY ("TrackId"), 
     FOREIGN KEY("MediaTypeId") REFERENCES "MediaType" ("MediaTypeId"), 
-    FOREIGN KEY("GenreId") REFERENCES "Genre" ("GenreId"), 
+    FOREIGNKEY("GenreId") REFERENCES "Genre" ("GenreId"), 
     FOREIGN KEY("AlbumId") REFERENCES "Album" ("AlbumId")
 )
 
@@ -542,8 +542,8 @@ The genre with the longest tracks on average is "Sci Fi & Fantasy," with an aver
 ```
 
 !!! tip
-    See [LangSmith trace](https://smith.langchain.com/public/94b8c9ac-12f7-4692-8706-836a1f30f1ea/r) for the above run.
+    请参阅[LangSmith 跟踪](https://smith.langchain.com/public/94b8c9ac-12f7-4692-8706-836a1f30f1ea/r)以了解上述运行情况。
 
-## Next steps
+## 后续步骤
 
-Check out [this guide](https://docs.smith.langchain.com/evaluation/how_to_guides/langgraph) for evaluating LangGraph applications, including SQL agents like this one, using LangSmith. 
+请查看[此指南](https://docs.smith.langchain.com/evaluation/how_to_guides/langgraph)，了解如何使用 LangSmith 评估 LangGraph 应用程序，包括此类 SQL 代理。

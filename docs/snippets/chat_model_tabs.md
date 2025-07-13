@@ -12,7 +12,7 @@
     llm = init_chat_model("openai:gpt-4.1")
     ```
 
-    👉 Read the [OpenAI integration docs](https://python.langchain.com/docs/integrations/chat/openai/)
+    👉 阅读 [OpenAI 集成文档](https://python.langchain.com/docs/integrations/chat/openai/)
 
 === "Anthropic"
 
@@ -28,7 +28,7 @@
     llm = init_chat_model("anthropic:claude-3-5-sonnet-latest")
     ```
 
-    👉 Read the [Anthropic integration docs](https://python.langchain.com/docs/integrations/chat/anthropic/)
+    👉 阅读 [Anthropic 集成文档](https://python.langchain.com/docs/integrations/chat/anthropic/)
 
 === "Azure"
 
@@ -49,7 +49,7 @@
     )
     ```
  
-    👉 Read the [Azure integration docs](https://python.langchain.com/docs/integrations/chat/azure_chat_openai/)
+    👉 阅读 [Azure 集成文档](https://python.langchain.com/docs/integrations/chat/azure_chat_openai/)
 
 === "Google Gemini"
 
@@ -65,7 +65,7 @@
     llm = init_chat_model("google_genai:gemini-2.0-flash")
     ```
 
-    👉 Read the [Google GenAI integration docs](https://python.langchain.com/docs/integrations/chat/google_generative_ai/)
+    👉 阅读 [Google GenAI 集成文档](https://python.langchain.com/docs/integrations/chat/google_generative_ai/)
 
 === "AWS Bedrock"
 
@@ -84,4 +84,4 @@
     )
     ```
 
-    👉 Read the [AWS Bedrock integration docs](https://python.langchain.com/docs/integrations/chat/bedrock/)
+    👉 阅读 [AWS Bedrock 集成文档](https://python.langchain.com/docs/integrations/chat/bedrock/)

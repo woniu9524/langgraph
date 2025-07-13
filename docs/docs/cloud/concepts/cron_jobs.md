@@ -1,15 +1,14 @@
-## Cron jobs
+## Cron 作业
 
-There are many situations in which it is useful to run an assistant on a schedule. 
+在许多情况下，按计划运行助手非常有用。
 
-For example, say that you're building an assistant that runs daily and sends an email summary
-of the day's news. You could use a cron job to run the assistant every day at 8:00 PM.
+例如，假设您正在构建一个助手，该助手每天运行并发送当天的报纸摘要电子邮件。您可以使用 cron 作业每天晚上 8:00 运行该助手。
 
-LangGraph Platform supports cron jobs, which run on a user-defined schedule. The user specifies a schedule, an assistant, and some input. After that, on the specified schedule, the server will:
+LangGraph 平台支持 cron 作业，它们会按用户定义的计划运行。用户指定计划、助手和一些输入。之后，在指定的时间，服务器将：
 
-- Create a new thread with the specified assistant
-- Send the specified input to that thread
+- 使用指定的助手创建一个新线程
+- 将指定的输入发送到该线程
 
-Note that this sends the same input to the thread every time. See the [how-to guide](../../cloud/how-tos/cron_jobs.md) for creating cron jobs.
+请注意，每次发送到线程的输入都是相同的。请参阅 [操作指南](../../cloud/how-tos/cron_jobs.md) 以了解如何创建 cron 作业。
 
-The LangGraph Platform API provides several endpoints for creating and managing cron jobs. See the [API reference](../../cloud/reference/api/api_ref.html#tag/runscreate/POST/threads/{thread_id}/runs/crons) for more details.
+LangGraph 平台 API 提供了几个用于创建和管理 cron 作业的端点。请参阅 [API 参考](../../cloud/reference/api/api_ref.html#tag/runscreate/POST/threads/{thread_id}/runs/crons) 以获取更多详细信息。

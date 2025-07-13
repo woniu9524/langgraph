@@ -1,26 +1,26 @@
-# Build multi-agent systems
+# 构建多代理系统
 
-A single agent might struggle if it needs to specialize in multiple domains or manage many tools. To tackle this, you can break your agent into smaller, independent agents and composing them into a [multi-agent system](../concepts/multi_agent.md).
+单个代理在需要专精于多个领域或管理许多工具时可能会遇到困难。为解决此问题，您可以将代理分解为更小、独立的代理，并将它们组合成一个[多代理系统](../concepts/multi_agent.md)。
 
-In multi-agent systems, agents need to communicate between each other. They do so via [handoffs](#handoffs) — a primitive that describes which agent to hand control to and the payload to send to that agent.
+在多代理系统中，代理之间需要相互通信。它们通过[交接（handoffs）](#handoffs)进行通信——这是一种描述将控制权移交给哪个代理以及要发送到该代理的负载（payload）的原语。
 
-This guide covers the following:
+本指南涵盖以下内容：
 
-* implementing [handoffs](#handoffs) between agents
-* using handoffs and the prebuilt [agent](../agents/agents.md) to [build a custom multi-agent system](#build-a-multi-agent-system)
+* 实现代理间的[交接（handoffs）](#handoffs)
+* 使用交接（handoffs）和预构建的[代理](../agents/agents.md)来[构建自定义多代理系统](#build-a-multi-agent-system)
 
-To get started with building multi-agent systems, check out LangGraph [prebuilt implementations](#prebuilt-implementations) of two of the most popular multi-agent architectures — [supervisor](../agents/multi-agent.md#supervisor) and [swarm](../agents/multi-agent.md#swarm).
+要开始构建多代理系统，请查看 LangGraph 提供的两个最流行的多代理架构的[预构建实现](#prebuilt-implementations)——[监督者（supervisor）](../agents/multi-agent.md#supervisor)和[蜂群（swarm）](../agents/multi-agent.md#swarm)。
 
-## Handoffs
+## 交接（Handoffs）
 
-To set up communication between the agents in a multi-agent system you can use [**handoffs**](../concepts/multi_agent.md#handoffs) — a pattern where one agent *hands off* control to another. Handoffs allow you to specify:
+要设置多代理系统中的代理之间的通信，您可以使用[**交接（handoffs）**](../concepts/multi_agent.md#handoffs)——一种代理*交接*控制权给另一个代理的模式。交接允许您指定：
 
-- **destination**: target agent to navigate to (e.g., name of the LangGraph node to go to)
-- **payload**: information to pass to that agent (e.g., state update)
+- **目标（destination）**：要导航到的目标代理（例如，LangGraph 中要去的节点名称）
+- **负载（payload）**：要传递给该代理的信息（例如，状态更新）
 
-### Create handoffs
+### 创建交接（Handoffs）
 
-To implement handoffs, you can return `Command` objects from your agent nodes or tools:
+要实现交接，您可以从代理节点或工具返回`Command`对象：
 
 ```python
 from typing import Annotated
@@ -46,27 +46,27 @@ def create_handoff_tool(*, agent_name: str, description: str | None = None):
             "name": name,
             "tool_call_id": tool_call_id,
         }
-        return Command(  # (2)!
+        return Command( # (2)!
             # highlight-next-line
-            goto=agent_name,  # (3)!
+            goto=agent_name, # (3)!
             # highlight-next-line
-            update={"messages": state["messages"] + [tool_message]},  # (4)!
+            update={"messages": state["messages"] + [tool_message]}, # (4)!
             # highlight-next-line
-            graph=Command.PARENT,  # (5)!
+            graph=Command.PARENT, # (5)!
         )
     return handoff_tool
 ```
 
-1. Access the [state](../concepts/low_level.md#state) of the agent that is calling the handoff tool using the [InjectedState][langgraph.prebuilt.InjectedState] annotation. 
-2. The `Command` primitive allows specifying a state update and a node transition as a single operation, making it useful for implementing handoffs.
-3. Name of the agent or node to hand off to.
-4. Take the agent's messages and **add** them to the parent's **state** as part of the handoff. The next agent will see the parent state.
-5. Indicate to LangGraph that we need to navigate to agent node in a **parent** multi-agent graph.
+1. 使用 [InjectedState][langgraph.prebuilt.InjectedState] 注释访问调用交接工具的代理的[状态（state）](../concepts/low_level.md#state)。
+2. `Command` 原语允许将状态更新和节点转换作为单个操作进行指定，这对于实现交接非常有用。
+3. 要交接到的代理或节点的名称。
+4. 获取代理的消息并将其作为交接的一部分**添加到**父级的**状态（state）**中。下一个代理将看到父级状态。
+5. 指示 LangGraph 我们需要导航到**父级**多代理图中的代理节点。
 
 !!! tip
 
-    If you want to use tools that return `Command`, you can either use prebuilt [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent] / [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] components, or implement your own tool-executing node that collects `Command` objects returned by the tools and returns a list of them, e.g.:
-    
+    如果您想使用返回 `Command` 的工具，您可以要么使用预构建的 [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent] / [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] 组件，要么实现自己的工具执行节点，该节点收集工具返回的 `Command` 对象并返回一个列表，例如：
+
     ```python
     def call_tools(state):
         ...
@@ -76,23 +76,23 @@ def create_handoff_tool(*, agent_name: str, description: str | None = None):
 
 !!! Important
 
-    This handoff implementation assumes that:
-    
-      - each agent receives overall message history (across all agents) in the multi-agent system as its input. If you want more control over agent inputs, see [this section](#control-agent-inputs)
-      - each agent outputs its internal messages history to the overall message history of the multi-agent system. If you want more control over **how agent outputs are added**, wrap the agent in a separate node function:
+    此交接实现假定：
+
+      - 每个代理在多代理系统中都接收整体消息历史（跨所有代理）作为其输入。如果您想更精确地控制代理输入，请参阅[此部分](#control-agent-inputs)
+      - 每个代理将其内部消息历史输出到多代理系统的整体消息历史中。如果您想更精确地控制**如何添加代理输出**，请将代理包装在一个单独的节点函数中：
 
         ```python
         def call_hotel_assistant(state):
-            # return agent's final response,
-            # excluding inner monologue
+            # 返回代理的最终响应，
+            # 排除内部思考过程
             response = hotel_assistant.invoke(state)
             # highlight-next-line
             return {"messages": response["messages"][-1]}
         ```
 
-### Control agent inputs
+### 控制代理输入
 
-You can use the [`Send()`][langgraph.types.Send] primitive to directly send data to the worker agents during the handoff. For example, you can request that the calling agent populate a task description for the next agent:
+您可以使用 [`Send()`][langgraph.types.Send] 原语在交接过程中将数据直接发送到工作代理。例如，您可以要求调用代理为下一个代理填充任务描述：
 
 ```python
 
@@ -130,11 +130,11 @@ def create_task_description_handoff_tool(
     return handoff_tool
 ```
 
-See the multi-agent [supervisor](../tutorials/multi_agent/agent_supervisor.md#4-create-delegation-tasks) example for a full example of using [`Send()`][langgraph.types.Send] in handoffs.
+请参阅多代理[监督者（supervisor）](../tutorials/multi_agent/agent_supervisor.md#4-create-delegation-tasks)示例，了解使用交接中的 [`Send()`][langgraph.types.Send] 的完整示例。
 
-## Build a multi-agent system
+## 构建多代理系统
 
-You can use handoffs in any agents built with LangGraph. We recommend using the prebuilt [agent](../agents/overview.md) or [`ToolNode`](./tool-calling.md#toolnode), as they natively support handoffs tools returning `Command`. Below is an example of how you can implement a multi-agent system for booking travel using handoffs:
+您可以在使用 LangGraph 构建的任何代理中使用交接。我们建议使用预构建的[代理](../agents/overview.md)或[`ToolNode`](./tool-calling.md#toolnode)，因为它们原生支持返回 `Command` 的交接工具。以下是一个如何使用交接实现预订旅行的多代理系统的示例：
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -177,7 +177,7 @@ multi_agent_graph = (
 )
 ```
 
-??? example "Full example: Multi-agent system for booking travel"
+??? example "完整示例：预订旅行的多代理系统"
 
     ```python
     from typing import Annotated
@@ -246,13 +246,13 @@ multi_agent_graph = (
                 "name": name,
                 "tool_call_id": tool_call_id,
             }
-            return Command(  # (2)!
+            return Command( # (2)!
                 # highlight-next-line
-                goto=agent_name,  # (3)!
+                goto=agent_name, # (3)!
                 # highlight-next-line
-                update={"messages": state["messages"] + [tool_message]},  # (4)!
+                update={"messages": state["messages"] + [tool_message]}, # (4)!
                 # highlight-next-line
-                graph=Command.PARENT,  # (5)!
+                graph=Command.PARENT, # (5)!
             )
         return handoff_tool
     
@@ -320,18 +320,18 @@ multi_agent_graph = (
 
     1. Access agent's state
     2. The `Command` primitive allows specifying a state update and a node transition as a single operation, making it useful for implementing handoffs.
-    3. Name of the agent or node to hand off to.
-    4. Take the agent's messages and **add** them to the parent's **state** as part of the handoff. The next agent will see the parent state.
-    5. Indicate to LangGraph that we need to navigate to agent node in a **parent** multi-agent graph.
+    3. الاسم للوكيل أو العقدة التي سيتم تسليمها إليها.
+    4. 获取代理的消息并将其**添加**到父级的**状态（state）**中作为交接的一部分。下一个代理将看到父级状态。
+    5. 指示 LangGraph 我们需要导航到**父级**多代理图中的代理节点。
 
-## Multi-turn conversation
+## 多轮对话
 
-Users might want to engage in a *multi-turn conversation* with one or more agents. To build a system that can handle this, you can create a node that uses an [`interrupt`][langgraph.types.interrupt] to collect user input and routes back to the **active** agent.
+用户可能希望与一个或多个代理进行*多轮对话*。要构建能够处理此问题的系统，您可以创建一个使用[`interrupt`][langgraph.types.interrupt] 来收集用户输入并路由回*活动*代理的节点。
 
-The agents can then be implemented as nodes in a graph that executes agent steps and determines the next action:
+然后，可以将代理实现为图中执行代理步骤并确定下一步操作的节点：
 
-1. **Wait for user input** to continue the conversation, or  
-2. **Route to another agent** (or back to itself, such as in a loop) via a [handoff](#handoffs)
+1. **等待用户输入**以继续对话，或者
+2. **通过交接（handoff）路由到另一个代理**（或返回到自身，例如在循环中）
 
 ```python
 def human(state) -> Command[Literal["agent", "another_agent"]]:
@@ -361,14 +361,14 @@ def agent(state) -> Command[Literal["agent", "another_agent", "human"]]:
         return Command(goto="human") # Go to human node
 ```
 
-??? example "Full example: multi-agent system for travel recommendations"
+??? example "完整示例：旅行推荐多代理系统"
 
-    In this example, we will build a team of travel assistant agents that can communicate with each other via handoffs.
-    
-    We will create 2 agents:
-    
-    * travel_advisor: can help with travel destination recommendations. Can ask hotel_advisor for help.
-    * hotel_advisor: can help with hotel recommendations. Can ask travel_advisor for help.
+    在此示例中，我们将构建一个可以经由交接相互通信的旅行助手代理团队。
+
+    我们将创建 2 个代理：
+
+    * travel_advisor：可以帮助进行旅行目的地推荐。可以向 hotel_advisor 求助。
+    * hotel_advisor：可以帮助进行酒店推荐。可以向 travel_advisor 求助。
 
     ```python
     from langchain_anthropic import ChatAnthropic
@@ -572,9 +572,9 @@ def agent(state) -> Command[Literal["agent", "another_agent", "human"]]:
     Would you like more specific information about any of these activities or would you like to know about other options in the area?
     ```
 
-## Prebuilt implementations
+## 预构建实现
 
-LangGraph comes with prebuilt implementations of two of the most popular multi-agent architectures:
+LangGraph 提供了两个最受欢迎的多代理架构的预构建实现：
 
-- [supervisor](../agents/multi-agent.md#supervisor) — individual agents are coordinated by a central supervisor agent. The supervisor controls all communication flow and task delegation, making decisions about which agent to invoke based on the current context and task requirements. You can use [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) library to create a supervisor multi-agent systems.
-- [swarm](../agents/multi-agent.md#supervisor) — agents dynamically hand off control to one another based on their specializations. The system remembers which agent was last active, ensuring that on subsequent interactions, the conversation resumes with that agent. You can use [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) library to create a swarm multi-agent systems. 
+- [监督者（supervisor）](../agents/multi-agent.md#supervisor) — 单个代理由一个中央监督者代理协调。监督者控制所有通信流和任务委派，根据当前上下文和任务要求决定调用哪个代理。您可以使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) 库来创建监督者多代理系统。
+- [蜂群（swarm）](../agents/multi-agent.md#supervisor) — 代理根据其专业领域动态地将控制权交接给彼此。系统会记住最后活动的代理，确保在后续交互中，对话能继续与该代理进行。您可以使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) 库来创建蜂群多代理系统。

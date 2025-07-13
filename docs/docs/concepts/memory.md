@@ -5,108 +5,108 @@ search:
 
 # Memory
 
-[Memory](../how-tos/memory/add-memory.md) is a system that remembers information about previous interactions. For AI agents, memory is crucial because it lets them remember previous interactions, learn from feedback, and adapt to user preferences. As agents tackle more complex tasks with numerous user interactions, this capability becomes essential for both efficiency and user satisfaction.
+[Memory](../how-tos/memory/add-memory.md) 是一个用于记住先前交互信息的系统。对 AI 代理而言，记忆至关重要，因为它能让代理记住先前的交互、从反馈中学习并适应用户偏好。随着代理承担越来越复杂的任务以及交互次数的增加，这种能力对于效率和用户满意度都至关重要。
 
-This conceptual guide covers two types of memory, based on their recall scope:
+本概念指南涵盖了两种类型的内存，基于它们的召回范围：
 
-- [Short-term memory](#short-term-memory), or [thread](persistence.md#threads)-scoped memory, tracks the ongoing conversation by maintaining message history within a session. LangGraph manages short-term memory as a part of your agent's [state](low_level.md#state). State is persisted to a database using a [checkpointer](persistence.md#checkpoints) so the thread can be resumed at any time. Short-term memory updates when the graph is invoked or a step is completed, and the State is read at the start of each step.
+- [短期记忆](#short-term-memory)，或称 [线程](persistence.md#threads) 范围的内存，通过在会话中维护消息历史来跟踪当前对话。LangGraph 将短期记忆作为代理 [状态](low_level.md#state) 的一部分来管理。状态使用 [checkpointer](persistence.md#checkpoints) 持久化到数据库中，以便随时恢复线程。短期记忆在图被调用或步骤完成时更新，并且状态在每个步骤开始时读取。
 
-- [Long-term memory](#long-term-memory) stores user-specific or application-level data across sessions and is shared _across_ conversational threads. It can be recalled _at any time_ and _in any thread_. Memories are scoped to any custom namespace, not just within a single thread ID. LangGraph provides [stores](persistence.md#memory-store) ([reference doc](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore)) to let you save and recall long-term memories.
+- [长期记忆](#long-term-memory) 在会话之间存储用户特定或应用程序级别的数据，并在不同的对话线程之间共享。它可以 _随时_ 和 _在任何线程中_ 被召回。内存的范围限于任何自定义命名空间，而不仅仅是单个线程 ID 内。LangGraph 提供 [存储](persistence.md#memory-store)（[参考文档](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore)）以允许您保存和召回长期记忆。
 
 ![](img/memory/short-vs-long.png)
 
 
-## Short-term memory
+## 短期记忆
 
-[Short-term memory](../how-tos/memory/add-memory.md#add-short-term-memory) lets your application remember previous interactions within a single [thread](persistence.md#threads) or conversation. A [thread](persistence.md#threads) organizes multiple interactions in a session, similar to the way email groups messages in a single conversation.
+[短期记忆](../how-tos/memory/add-memory.md#add-short-term-memory) 让您的应用程序能够记住单个 [线程](persistence.md#threads) 或对话中的先前交互。一个 [线程](persistence.md#threads) 会将一个会话中的多次交互组织起来，类似于电子邮件将消息分组到单个对话中的方式。
 
-LangGraph manages short-term memory as part of the agent's state, persisted via thread-scoped checkpoints. This state can normally include the conversation history along with other stateful data, such as uploaded files, retrieved documents, or generated artifacts. By storing these in the graph's state, the bot can access the full context for a given conversation while maintaining separation between different threads.
+LangGraph 将短期记忆作为代理状态的一部分进行管理，该状态通过线程范围的检查点进行持久化。此状态通常可以包含对话历史以及其他有状态数据，例如上传的文件、检索到的文档或生成的工件。通过将这些数据存储在图的状态中，机器人可以访问给定对话的完整上下文，同时维护不同线程之间的隔离。
 
-### Manage short-term memory
+### 管理短期记忆
 
-Conversation history is the most common form of short-term memory, and long conversations pose a challenge to today's LLMs. A full history may not fit inside an LLM's context window, resulting in an irrecoverable error. Even if your LLM supports the full context length, most LLMs still perform poorly over long contexts. They get "distracted" by stale or off-topic content, all while suffering from slower response times and higher costs.
+对话历史是最常见的短期记忆形式，而长对话给当今的 LLM 带来了挑战。完整的历史可能无法放入 LLM 的上下文窗口中，从而导致无法恢复的错误。即使您的 LLM 支持完整的上下文长度，大多数 LLM 在长上下文中的表现仍然很差。它们会被陈旧或离题的内容“分心”，同时响应时间变慢且成本更高。
 
-Chat models accept context using messages, which include developer provided instructions (a system message) and user inputs (human messages). In chat applications, messages alternate between human inputs and model responses, resulting in a list of messages that grows longer over time. Because context windows are limited and token-rich message lists can be costly, many applications can benefit from using techniques to manually remove or forget stale information.
+聊天模型使用消息来接受上下文，这些消息包括开发人员提供的指令（系统消息）和用户输入（人类消息）。在聊天应用程序中，消息在人类输入和模型响应之间交替，从而产生一个随时间增长的消息列表。由于上下文窗口有限且包含大量标记的消息列表可能成本高昂，因此许多应用程序可以受益于使用手动删除或遗忘过时信息的技术。
 
 ![](img/memory/filter.png)
 
-For more information on common techniques for managing messages, see the [Add and manage memory](../how-tos/memory/add-memory.md#manage-short-term-memory) guide.
+有关管理消息的常见技术的更多信息，请参阅 [添加和管理内存](../how-tos/memory/add-memory.md#manage-short-term-memory) 指南。
 
-## Long-term memory
+## 长期记忆
 
-[Long-term memory](../how-tos/memory/add-memory.md#add-long-term-memory) in LangGraph allows systems to retain information across different conversations or sessions. Unlike short-term memory, which is **thread-scoped**, long-term memory is saved within custom "namespaces."
+LangGraph 中的 [长期记忆](../how-tos/memory/add-memory.md#add-long-term-memory) 允许系统在不同的对话或会话中保留信息。与仅限于线程范围的短期记忆不同，长期记忆保存在自定义“命名空间”中。
 
-Long-term memory is a complex challenge without a one-size-fits-all solution. However, the following questions provide a framework to help you navigate the different techniques:
+长期记忆是一个复杂的挑战，没有一刀切的解决方案。但是，以下问题提供了一个框架，可帮助您了解不同的技术：
 
-- [What is the type of memory?](#memory-types) Humans use memories to remember facts ([semantic memory](#semantic-memory)), experiences ([episodic memory](#episodic-memory)), and rules ([procedural memory](#procedural-memory)). AI agents can use memory in the same ways. For example, AI agents can use memory to remember specific facts about a user to accomplish a task.
+- [内存的类型是什么？](#memory-types) 人类使用记忆来记住事实（[语义记忆](#semantic-memory)）、经历（[情景记忆](#episodic-memory)）和规则（[程序记忆](#procedural-memory)）。AI 代理也可以以同样的方式使用记忆。例如，AI 代理可以使用记忆来记住有关用户的特定事实以完成任务。
 
-- [When do you want to update memories?](#writing-memories) Memory can be updated as part of an agent's application logic (e.g., "on the hot path"). In this case, the agent typically decides to remember facts before responding to a user. Alternatively, memory can be updated as a background task (logic that runs in the background / asynchronously and generates memories). We explain the tradeoffs between these approaches in the [section below](#writing-memories).
+- [您想何时更新记忆？](#writing-memories) 记忆可以在代理的应用程序逻辑中（例如，“在热路径中”）进行更新。在这种情况下，代理通常会在回复用户之前决定要记住的事实。或者，记忆可以作为后台任务进行更新（在后台/异步运行并生成记忆的逻辑）。我们在 [下面的部分](#writing-memories) 中解释了这些方法的权衡。
 
-### Memory types
+### 内存类型
 
-Different applications require various types of memory. Although the analogy isn't perfect, examining [human memory types](https://www.psychologytoday.com/us/basics/memory/types-of-memory?ref=blog.langchain.dev) can be insightful. Some research (e.g., the [CoALA paper](https://arxiv.org/pdf/2309.02427)) have even mapped these human memory types to those used in AI agents.
+不同的应用程序需要各种类型的内存。尽管类比并不完美，但研究 [人类记忆类型](https://www.psychologytoday.com/us/basics/memory/types-of-memory?ref=blog.langchain.dev) 可能会有所启发。一些研究（例如 [CoALA 论文](https://arxiv.org/pdf/2309.02427)）甚至将这些人类记忆类型映射到 AI 代理使用的记忆类型中。
 
-| Memory Type | What is Stored | Human Example | Agent Example |
-|-------------|----------------|---------------|---------------|
-| [Semantic](#semantic-memory) | Facts | Things I learned in school | Facts about a user |
-| [Episodic](#episodic-memory) | Experiences | Things I did | Past agent actions |
-| [Procedural](#procedural-memory) | Instructions | Instincts or motor skills | Agent system prompt |
+| 内存类型 | 存储内容 | 人类示例 | 代理示例 |
+|---|---|---|---|
+| [语义](#semantic-memory) | 事实 | 我在学校学到的东西 | 关于用户的知识 |
+| [情景](#episodic-memory) | 经历 | 我做过的事情 | 先前代理的操作 |
+| [程序](#procedural-memory) | 指令 | 直觉或运动技能 | 代理系统提示 |
 
-#### Semantic memory
+#### 语义记忆
 
-[Semantic memory](https://en.wikipedia.org/wiki/Semantic_memory), both in humans and AI agents, involves the retention of specific facts and concepts. In humans, it can include information learned in school and the understanding of concepts and their relationships. For AI agents, semantic memory is often used to personalize applications by remembering facts or concepts from past interactions. 
+[语义记忆](https://en.wikipedia.org/wiki/Semantic_memory) 在人类和 AI 代理中都涉及对特定事实和概念的保留。在人类中，它包括从学校学到的信息以及对概念及其关系的理解。对于 AI 代理，语义记忆通常通过记住过去的交互中的事实或概念来个性化应用程序。
 
 !!! note
 
-    Semantic memory is different from "semantic search," which is a technique for finding similar content using "meaning" (usually as embeddings). Semantic memory is a term from psychology, referring to storing facts and knowledge, while semantic search is a method for retrieving information based on meaning rather than exact matches.
+    语义记忆不同于“语义搜索”，语义搜索是一种使用“含义”（通常是嵌入）来查找相似内容的技术。语义记忆是心理学中的一个术语，指存储事实和知识，而语义搜索是一种根据含义而非精确匹配来检索信息的方法。
 
 
-##### Profile
+##### 个人资料
 
-Semantic memories can be managed in different ways. For example, memories can be a single, continuously updated "profile" of well-scoped and specific information about a user, organization, or other entity (including the agent itself). A profile is generally just a JSON document with various key-value pairs you've selected to represent your domain. 
+语义记忆可以通过不同的方式进行管理。例如，记忆可以是一个单一的、持续更新的特定领域（包括代理本身）的用户、组织或其他实体的信息“个人资料”。个人资料通常只是一个 JSON 文档，其中包含您为表示您的域而选择的各种键值对。
 
-When remembering a profile, you will want to make sure that you are **updating** the profile each time. As a result, you will want to pass in the previous profile and [ask the model to generate a new profile](https://github.com/langchain-ai/memory-template) (or some [JSON patch](https://github.com/hinthornw/trustcall) to apply to the old profile). This can be become error-prone as the profile gets larger, and may benefit from splitting a profile into multiple documents or **strict** decoding when generating documents to ensure the memory schemas remains valid.
+在记忆个人资料时，您需要确保每次都在 [更新](https://github.com/langchain-ai/memory-template) 它。因此，您将需要传入之前的个人资料并 [要求模型生成新的个人资料](https://github.com/langchain-ai/memory-template)（或应用到旧个人资料的 [JSON patch](https://github.com/hinthornw/trustcall)）。随着个人资料的增大，这可能会导致错误，并且可能需要将个人资料拆分成多个文档或在生成文档时使用 [严格](https://github.com/hinthornw/trustcall) 解码，以确保内存模式保持有效。
 
 ![](img/memory/update-profile.png)
 
-##### Collection
+##### 集合
 
-Alternatively, memories can be a collection of documents that are continuously updated and extended over time. Each individual memory can be more narrowly scoped and easier to generate, which means that you're less likely to **lose** information over time. It's easier for an LLM to generate _new_ objects for new information than reconcile new information with an existing profile. As a result, a document collection tends to lead to [higher recall downstream](https://en.wikipedia.org/wiki/Precision_and_recall).
+或者，记忆可以是在一段时间内不断更新和扩展的文档集合。每个单独的记忆可以具有更狭窄的范围，并且更容易生成，这意味着您不太可能随着时间的推移而 [丢失信息](https://en.wikipedia.org/wiki/Precision_and_recall)。LLM 更容易为新信息生成 _新_ 对象，而不是将新信息与现有个人资料进行协调。因此，文档集合倾向于 [提高下游召回率](https://en.wikipedia.org/wiki/Precision_and_recall)。
 
-However, this shifts some complexity memory updating. The model must now _delete_ or _update_ existing items in the list, which can be tricky. In addition, some models may default to over-inserting and others may default to over-updating. See the [Trustcall](https://github.com/hinthornw/trustcall) package for one way to manage this and consider evaluation (e.g., with a tool like [LangSmith](https://docs.smith.langchain.com/tutorials/Developers/evaluation)) to help you tune the behavior.
+但是，这会将一些复杂性转移到内存更新中。现在模型必须 _删除_ 或 _更新_ 列表中的现有项，这可能会很棘手。此外，一些模型可能默认为过度插入，而另一些则可能默认为过度更新。请参阅 [Trustcall](https://github.com/hinthornw/trustcall) 包来管理此问题的一种方法，并考虑使用 [LangSmith](https://docs.smith.langchain.com/tutorials/Developers/evaluation) 等工具进行评估，以帮助您调整行为。
 
-Working with document collections also shifts complexity to memory **search** over the list. The `Store` currently supports both [semantic search](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.SearchOp.query) and [filtering by content](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.SearchOp.filter).
+使用文档集合也使内存搜索 [列表](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.SearchOp.filter) 的复杂性转移到内存搜索上。`Store` 目前支持 [语义搜索](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.SearchOp.query) 和 [按内容过滤](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.SearchOp.filter)。
 
-Finally, using a collection of memories can make it challenging to provide comprehensive context to the model. While individual memories may follow a specific schema, this structure might not capture the full context or relationships between memories. As a result, when using these memories to generate responses, the model may lack important contextual information that would be more readily available in a unified profile approach.
+最后，使用内存集合可能会使为模型提供全面上下文变得困难。虽然单个记忆可能遵循特定模式，但这种结构可能无法捕获记忆之间的完整上下文或关系。因此，在使用这些记忆生成响应时，模型可能会缺少一些重要上下文信息，而这些信息在统一的个人资料方法中会更加容易获得。
 
 ![](img/memory/update-list.png)
 
-Regardless of memory management approach, the central point is that the agent will use the semantic memories to [ground its responses](https://python.langchain.com/docs/concepts/rag/), which often leads to more personalized and relevant interactions.
+无论采用何种内存管理方法，核心在于代理将使用语义记忆来 [固定其响应](https://python.langchain.com/docs/concepts/rag/)，这通常会导致更具个性化和更相关的交互。
 
-#### Episodic memory
+#### 情景记忆
 
-[Episodic memory](https://en.wikipedia.org/wiki/Episodic_memory), in both humans and AI agents, involves recalling past events or actions. The [CoALA paper](https://arxiv.org/pdf/2309.02427) frames this well: facts can be written to semantic memory, whereas *experiences* can be written to episodic memory. For AI agents, episodic memory is often used to help an agent remember how to accomplish a task. 
+[情景记忆](https://en.wikipedia.org/wiki/Episodic_memory) 在人类和 AI 代理中都涉及回忆过去的事件或操作。[CoALA 论文](https://arxiv.org/pdf/2309.02427) 对此进行了很好的阐述：事实可以写入语义记忆，而 *经历* 可以写入情景记忆。对于 AI 代理，情景记忆通常用于帮助代理记住如何完成任务。
 
-In practice, episodic memories are often implemented through [few-shot example prompting](https://python.langchain.com/docs/concepts/few_shot_prompting/), where agents learn from past sequences to perform tasks correctly. Sometimes it's easier to "show" than "tell" and LLMs learn well from examples. Few-shot learning lets you ["program"](https://x.com/karpathy/status/1627366413840322562) your LLM by updating the prompt with input-output examples to illustrate the intended behavior. While various [best-practices](https://python.langchain.com/docs/concepts/#1-generating-examples) can be used to generate few-shot examples, often the challenge lies in selecting the most relevant examples based on user input.
+在实践中，情景记忆通常通过 [少样本示例提示](https://python.langchain.com/docs/concepts/few_shot_prompting/) 来实现，代理从中学习过去的序列以正确执行任务。有时“展示”比“告知”更容易，LLM 可以从示例中很好地学习。少样本学习允许您通过使用输入-输出示例更新提示来“编程”您的 LLM，以说明预期的行为。虽然可以使用各种 [最佳实践](https://python.langchain.com/docs/concepts/#1-generating-examples) 来生成少样本示例，但挑战通常在于根据用户输入选择最相关的示例。
 
-Note that the memory [store](persistence.md#memory-store) is just one way to store data as few-shot examples. If you want to have more developer involvement, or tie few-shots more closely to your evaluation harness, you can also use a [LangSmith Dataset](https://docs.smith.langchain.com/evaluation/how_to_guides/datasets/index_datasets_for_dynamic_few_shot_example_selection) to store your data. Then dynamic few-shot example selectors can be used out-of-the box to achieve this same goal. LangSmith will index the dataset for you and enable retrieval of few shot examples that are most relevant to the user input based upon keyword similarity ([using a BM25-like algorithm](https://docs.smith.langchain.com/how_to_guides/datasets/index_datasets_for_dynamic_few_shot_example_selection) for keyword based similarity). 
+请注意，内存 [存储](persistence.md#memory-store) 只是存储数据作为少样本示例的一种方式。如果您希望有更多的开发者参与，或者将少样本示例与您的评估套件更紧密地结合，您还可以使用 [LangSmith 数据集](https://docs.smith.langchain.com/evaluation/how_to_guides/datasets/index_datasets_for_dynamic_few_shot_example_selection) 来存储您的数据。然后，可以使用开箱即用的动态少样本示例选择器来实现相同的目标。LangSmith 将为您索引数据集，并允许您根据关键字相似性检索与用户输入最相关的少样本示例（[使用类似 BM25 的算法](https://docs.smith.langchain.com/how_to_guides/datasets/index_datasets_for_dynamic_few_shot_example_selection) 来实现基于关键字的相似性）。
 
-See this how-to [video](https://www.youtube.com/watch?v=37VaU7e7t5o) for example usage of dynamic few-shot example selection in LangSmith. Also, see this [blog post](https://blog.langchain.dev/few-shot-prompting-to-improve-tool-calling-performance/) showcasing few-shot prompting to improve tool calling performance and this [blog post](https://blog.langchain.dev/aligning-llm-as-a-judge-with-human-preferences/) using few-shot example to align an LLMs to human preferences.
+有关在 LangSmith 中使用动态少样本示例选择的示例用法，请参阅此如何操作 [视频](https://www.youtube.com/watch?v=37VaU7e7t5o)。另请参阅此 [博客文章](https://blog.langchain.dev/few-shot-prompting-to-improve-tool-calling-performance/)，展示如何使用少样本提示来提高工具调用性能，以及此 [博客文章](https://blog.langchain.dev/aligning-llm-as-a-judge-with-human-preferences/)，展示如何使用少样本示例来使 LLM 与人类偏好保持一致。
 
-#### Procedural memory
+#### 程序记忆
 
-[Procedural memory](https://en.wikipedia.org/wiki/Procedural_memory), in both humans and AI agents, involves remembering the rules used to perform tasks. In humans, procedural memory is like the internalized knowledge of how to perform tasks, such as riding a bike via basic motor skills and balance. Episodic memory, on the other hand, involves recalling specific experiences, such as the first time you successfully rode a bike without training wheels or a memorable bike ride through a scenic route. For AI agents, procedural memory is a combination of model weights, agent code, and agent's prompt that collectively determine the agent's functionality. 
+[程序记忆](https://en.wikipedia.org/wiki/Procedural_memory) 在人类和 AI 代理中都涉及对执行任务的规则的记忆。在人类中，程序记忆就像对如何执行任务的内在知识，例如通过基本的运动技能和平衡来骑自行车。另一方面，情景记忆涉及回忆具体的经历，例如第一次成功地在没有辅助轮的情况下骑自行车，或者一次穿越风景优美的路线的难忘骑行。对于 AI 代理，程序记忆是模型权重、代理代码和代理提示的组合，它们共同决定了代理的功能。
 
-In practice, it is fairly uncommon for agents to modify their model weights or rewrite their code. However, it is more common for agents to modify their own prompts. 
+在实践中，代理修改其模型权重或重写其代码是相当不常见的。然而，代理修改其本身的提示更为常见。
 
-One effective approach to refining an agent's instructions is through ["Reflection"](https://blog.langchain.dev/reflection-agents/) or meta-prompting. This involves prompting the agent with its current instructions (e.g., the system prompt) along with recent conversations or explicit user feedback. The agent then refines its own instructions based on this input. This method is particularly useful for tasks where instructions are challenging to specify upfront, as it allows the agent to learn and adapt from its interactions.
+改进代理指令的一种有效方法是通过“ [反思](https://blog.langchain.com/reflection-agents/)”或元提示。这包括使用代理当前的指令（例如，系统提示）、最近的对话或明确的用户反馈来提示代理。然后，代理根据此输入来优化其自身的指令。此方法对于指令难以预先指定的任务特别有用，因为它允许代理从交互中学习和适应。
 
-For example, we built a [Tweet generator](https://www.youtube.com/watch?v=Vn8A3BxfplE) using external feedback and prompt re-writing to produce high-quality paper summaries for Twitter. In this case, the specific summarization prompt was difficult to specify *a priori*, but it was fairly easy for a user to critique the generated Tweets and provide feedback on how to improve the summarization process. 
+例如，我们使用外部反馈和提示重写构建了一个 [Tweet 生成器](https://www.youtube.com/watch?v=Vn8A3BxfplE)，以生成高质量的推特论文摘要。在这种情况下，具体的摘要提示很难事先指定*，但用户很容易批评生成的推文并提供有关如何改进摘要过程的反馈。
 
-The below pseudo-code shows how you might implement this with the LangGraph memory [store](persistence.md#memory-store), using the store to save a prompt, the `update_instructions` node to get the current prompt (as well as feedback from the conversation with the user captured in `state["messages"]`), update the prompt, and save the new prompt back to the store. Then, the `call_model` get the updated prompt from the store and uses it to generate a response.
+下面的伪代码展示了如何使用 LangGraph 内存 [存储](persistence.md#memory-store) 来实现此功能，使用存储来保存提示，使用 `update_instructions` 节点来获取当前提示（以及用户在 `state["messages"]` 中捕获的对话反馈），更新提示，并将新提示保存回存储。然后，`call_model` 从存储中获取更新的提示并使用它来生成响应。
 
 ```python
-# Node that *uses* the instructions
+# 使用指令的节点
 def call_model(state: State, store: BaseStore):
     namespace = ("agent_instructions", )
     instructions = store.get(namespace, key="agent_a")[0]
@@ -114,7 +114,7 @@ def call_model(state: State, store: BaseStore):
     prompt = prompt_template.format(instructions=instructions.value["instructions"])
     ...
 
-# Node that updates instructions
+# 更新指令的节点
 def update_instructions(state: State, store: BaseStore):
     namespace = ("instructions",)
     current_instructions = store.search(namespace)[0]
@@ -128,31 +128,31 @@ def update_instructions(state: State, store: BaseStore):
 
 ![](img/memory/update-instructions.png)
 
-### Writing memories
+### 写入记忆
 
-There are two primary methods for agents to write memories: ["in the hot path"](#in-the-hot-path) and ["in the background"](#in-the-background).
+代理写入记忆主要有两种方法：“ [在热路径中](#in-the-hot-path)”和“ [在后台](#in-the-background)”。
 
 ![](img/memory/hot_path_vs_background.png)
 
-#### In the hot path
+#### 在热路径中
 
-Creating memories during runtime offers both advantages and challenges. On the positive side, this approach allows for real-time updates, making new memories immediately available for use in subsequent interactions. It also enables transparency, as users can be notified when memories are created and stored.
+在运行时创建记忆既有优点也有挑战。从积极的方面来看，这种方法允许实时更新，使新记忆可供后续交互立即使用。它还提供了透明性，因为用户可以在创建和存储记忆时收到通知。
 
-However, this method also presents challenges. It may increase complexity if the agent requires a new tool to decide what to commit to memory. In addition, the process of reasoning about what to save to memory can impact agent latency. Finally, the agent must multitask between memory creation and its other responsibilities, potentially affecting the quantity and quality of memories created.
+但是，此方法也带来了挑战。如果代理需要新工具来决定要将什么提交到内存，这可能会增加复杂性。此外，关于要保存在内存中的内容的推理过程可能会影响代理的延迟。最后，代理必须在记忆创建和其他职责之间进行多任务处理，这可能会影响创建的记忆的数量和质量。
 
-As an example, ChatGPT uses a [save_memories](https://openai.com/index/memory-and-new-controls-for-chatgpt/) tool to upsert memories as content strings, deciding whether and how to use this tool with each user message. See our [memory-agent](https://github.com/langchain-ai/memory-agent) template as an reference implementation.
+例如，ChatGPT 使用 [save_memories](https://openai.com/index/memory-and-new-controls-for-chatgpt/) 工具将内容字符串保存到内存中，并决定每次用户消息是否以及如何使用此工具。请参阅我们的 [memory-agent](https://github.com/langchain-ai/memory-agent) 模板作为参考实现。
 
-#### In the background
+#### 在后台
 
-Creating memories as a separate background task offers several advantages. It eliminates latency in the primary application, separates application logic from memory management, and allows for more focused task completion by the agent. This approach also provides flexibility in timing memory creation to avoid redundant work.
+将记忆作为单独的后台任务创建具有多种优势。它消除了主要应用程序的延迟，将应用程序逻辑与内存管理分开，并允许代理更专注地完成任务。这种方法还提供了在内存创建时间选择上的灵活性，以避免重复工作。
 
-However, this method has its own challenges. Determining the frequency of memory writing becomes crucial, as infrequent updates may leave other threads without new context. Deciding when to trigger memory formation is also important. Common strategies include scheduling after a set time period (with rescheduling if new events occur), using a cron schedule, or allowing manual triggers by users or the application logic.
+但是，此方法本身也存在挑战。确定内存写入的频率变得至关重要，因为不频繁的更新可能会使其他线程缺少新上下文。决定何时触发内存形成也很重要。常见策略包括在设定的时间段后安排（如有新事件发生则重新安排）、使用 cron 计划或允许用户或应用程序逻辑进行手动触发。
 
-See our [memory-service](https://github.com/langchain-ai/memory-template) template as an reference implementation.
+请参阅我们的 [memory-service](https://github.com/langchain-ai/memory-template) 模板作为参考实现。
 
-### Memory storage
+### 内存存储
 
-LangGraph stores long-term memories as JSON documents in a [store](persistence.md#memory-store). Each memory is organized under a custom `namespace` (similar to a folder) and a distinct `key` (like a file name). Namespaces often include user or org IDs or other labels that makes it easier to organize information. This structure enables hierarchical organization of memories. Cross-namespace searching is then supported through content filters.
+LangGraph 将长期记忆存储为 [存储](persistence.md#memory-store) 中的 JSON 文档。每个内存都组织在一个自定义的 `namespace`（类似于文件夹）和一个独特的 `key`（类似于文件名）下。命名空间通常包含用户或组织 ID 或其他使信息更易于组织的标签。这种结构使得内存的层级化组织成为可能。然后，通过内容过滤器支持跨命名空间的搜索。
 
 ```python
 from langgraph.store.memory import InMemoryStore
@@ -163,7 +163,7 @@ def embed(texts: list[str]) -> list[list[float]]:
     return [[1.0, 2.0] * len(texts)]
 
 
-# InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production use.
+# InMemoryStore 将数据保存到内存中的字典中。在生产环境中使用基于数据库的存储。
 store = InMemoryStore(index={"embed": embed, "dims": 2})
 user_id = "my-user"
 application_context = "chitchat"
@@ -179,12 +179,12 @@ store.put(
         "my-key": "my-value",
     },
 )
-# get the "memory" by ID
+# 通过 ID 获取 "memory"
 item = store.get(namespace, "a-memory")
-# search for "memories" within this namespace, filtering on content equivalence, sorted by vector similarity
+# 在此命名空间内搜索 "memories"，按内容等价性过滤，按向量相似性排序
 items = store.search(
     namespace, filter={"my-key": "my-value"}, query="language preferences"
 )
 ```
 
-For more information about the memory store, see the [Persistence](persistence.md#memory-store) guide.
+有关内存存储的更多信息，请参阅 [持久化](persistence.md#memory-store) 指南。

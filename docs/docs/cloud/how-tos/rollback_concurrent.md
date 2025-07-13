@@ -1,13 +1,12 @@
-# How to use the Rollback option
+# 如何使用 Rollback 选项
 
+本指南假定您了解什么是双重文本（double-texting），您可以在 [双重文本概念指南](../../concepts/double_texting.md) 中了解。
 
-This guide assumes knowledge of what double-texting is, which you can learn about in the [double-texting conceptual guide](../../concepts/double_texting.md).
+本指南介绍了双重文本的 `rollback` 选项，该选项会中断之前的图运行，并使用双重文本启动一个新的图运行。此选项与 `interrupt` 选项非常相似，但在此情况下，第一次运行将从数据库中完全删除，无法重新启动。下面是一个使用 `rollback` 选项的简短示例。
 
-The guide covers the `rollback` option for double texting, which interrupts the prior run of the graph and starts a new one with the double-text. This option is very similar to the `interrupt` option, but in this case the first run is completely deleted from the database and cannot be restarted. Below is a quick example of using the `rollback` option.
+## 设置
 
-## Setup
-
-First, we will define a quick helper function for printing out JS and CURL model outputs (you can skip this if using Python):
+首先，我们将定义一个快速的辅助函数来打印 JS 和 CURL 的模型输出（如果使用 Python，可以跳过此步骤）：
 
 === "Javascript"
 
@@ -24,7 +23,7 @@ First, we will define a quick helper function for printing out JS and CURL model
     }
     ```
 
-=== "CURL"
+ অবস্থ "CURL"
 
     ```bash
     # PLACE THIS IN A FILE CALLED pretty_print.sh
@@ -46,7 +45,7 @@ First, we will define a quick helper function for printing out JS and CURL model
     }
     ```
 
-Now, let's import our required packages and instantiate our client, assistant, and thread.
+现在，让我们导入所需的包并实例化我们的 client、assistant 和 thread。
 
 === "Python"
 
@@ -83,9 +82,9 @@ Now, let's import our required packages and instantiate our client, assistant, a
       --data '{}'
     ```
 
-## Create runs
+## 创建运行
 
-Now let's run a thread with the multitask parameter set to "rollback":
+现在让我们使用 `multitask` 参数设置为“rollback”来运行一个 thread：
 
 === "Python"
 
@@ -149,9 +148,9 @@ Now let's run a thread with the multitask parameter set to "rollback":
     --url <DEPLOYMENT_URL>/threads/<THREAD_ID>/runs/<RUN_ID>/join
     ```
 
-## View run results
+## 查看运行结果
 
-We can see that the thread has data only from the second run
+我们可以看到 thread 中只有第二次运行的数据
 
 === "Python"
 
@@ -187,10 +186,10 @@ We can see that the thread has data only from the second run
 Output:
 
     ================================ Human Message =================================
-    
+
     what's the weather in nyc?
     ================================== Ai Message ==================================
-    
+
     [{'id': 'toolu_01JzPqefao1gxwajHQ3Yh3JD', 'input': {'query': 'weather in nyc'}, 'name': 'tavily_search_results_json', 'type': 'tool_use'}]
     Tool Calls:
       tavily_search_results_json (toolu_01JzPqefao1gxwajHQ3Yh3JD)
@@ -199,10 +198,10 @@ Output:
         query: weather in nyc
     ================================= Tool Message =================================
     Name: tavily_search_results_json
-    
+
     [{"url": "https://www.weatherapi.com/", "content": "{'location': {'name': 'New York', 'region': 'New York', 'country': 'United States of America', 'lat': 40.71, 'lon': -74.01, 'tz_id': 'America/New_York', 'localtime_epoch': 1718734479, 'localtime': '2024-06-18 14:14'}, 'current': {'last_updated_epoch': 1718733600, 'last_updated': '2024-06-18 14:00', 'temp_c': 29.4, 'temp_f': 84.9, 'is_day': 1, 'condition': {'text': 'Sunny', 'icon': '//cdn.weatherapi.com/weather/64x64/day/113.png', 'code': 1000}, 'wind_mph': 2.2, 'wind_kph': 3.6, 'wind_degree': 158, 'wind_dir': 'SSE', 'pressure_mb': 1025.0, 'pressure_in': 30.26, 'precip_mm': 0.0, 'precip_in': 0.0, 'humidity': 63, 'cloud': 0, 'feelslike_c': 31.3, 'feelslike_f': 88.3, 'windchill_c': 28.3, 'windchill_f': 82.9, 'heatindex_c': 29.6, 'heatindex_f': 85.3, 'dewpoint_c': 18.4, 'dewpoint_f': 65.2, 'vis_km': 16.0, 'vis_miles': 9.0, 'uv': 7.0, 'gust_mph': 16.5, 'gust_kph': 26.5}}"}]
     ================================== Ai Message ==================================
-    
+
     The weather API results show that the current weather in New York City is sunny with a temperature of around 85°F (29°C). The wind is light at around 2-3 mph from the south-southeast. Overall it looks like a nice sunny summer day in NYC.
 
 
@@ -230,4 +229,3 @@ Verify that the original, rolled back run was deleted
 Output:
 
     Original run was correctly deleted
-

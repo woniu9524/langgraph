@@ -1,29 +1,32 @@
-# Add tools
+# 集成工具
 
-To handle queries that your chatbot can't answer "from memory", integrate a web search tool. The chatbot can use this tool to find relevant information and provide better responses.
+为了处理您的聊天机器人无法“凭空”回答的查询，您可以集成一个网络搜索工具。聊天机器人可以使用此工具查找相关信息并提供更佳的响应。
 
 !!! note
 
-    This tutorial builds on [Build a basic chatbot](./1-build-basic-chatbot.md).
+    本教程建立在 [构建一个基础聊天机器人](./1-build-basic-chatbot.md) 的基础上。
 
-## Prerequisites
+## 先决条件
 
-Before you start this tutorial, ensure you have the following:
+在开始本教程之前，请确保您已具备以下条件：
 
-- An API key for the [Tavily Search Engine](https://python.langchain.com/docs/integrations/tools/tavily_search/).
+- [Tavily Search Engine](https://python.langchain.com/docs/integrations/tools/tavily_search/) 的 API 密钥。
 
-## 1. Install the search engine
+## 1. 安装搜索引擎
 
-Install the requirements to use the [Tavily Search Engine](https://python.langchain.com/docs/integrations/tools/tavily_search/):
+安装使用 [Tavily Search Engine](https://python.langchain.com/docs/integrations/tools/tavily_search/) 所需的依赖项：
 
 ```bash
 pip install -U langchain-tavily
 ```
-## 2. Configure your environment
+## 2. 配置您的环境
 
-Configure your environment with your search engine API key:
+使用您的搜索引擎 API 密钥配置您的环境：
 
 ```python
+import os
+import getpass
+
 def _set_env(var: str):
     if not os.environ.get(var):
         os.environ[var] = getpass.getpass(f"{var}: ")
@@ -35,9 +38,9 @@ _set_env("TAVILY_API_KEY")
 os.environ["TAVILY_API_KEY"]:  "········"
 ```
 
-## 3. Define the tool
+## 3. 定义工具
 
-Define the web search tool:
+定义网络搜索工具：
 
 ```python
 from langchain_tavily import TavilySearch
@@ -47,7 +50,7 @@ tools = [tool]
 tool.invoke("What's a 'node' in LangGraph?")
 ```
 
-The results are page summaries our chat bot can use to answer questions:
+结果是页面摘要，聊天机器人可以使用这些摘要来回答问题：
 
 ```
 {'query': "What's a 'node' in LangGraph?",
@@ -67,11 +70,11 @@ The results are page summaries our chat bot can use to answer questions:
 'response_time': 1.38}
 ```
 
-## 4. Define the graph
+## 4. 定义图
 
-For the `StateGraph` you created in the [first tutorial](./1-build-basic-chatbot.md), add `bind_tools` on the LLM. This lets the LLM know the correct JSON format to use if it wants to use the search engine.
+对于您在[第一个教程](./1-build-basic-chatbot.md)中创建的 `StateGraph`，在 LLM 上添加 `bind_tools`。这能让 LLM 知道如果它想使用搜索引擎，应使用何种正确的 JSON 格式。
 
-Let's first select our LLM:
+我们先选择 LLM：
 
 {% include-markdown "../../../snippets/chat_model_tabs.md" %}
 
@@ -83,7 +86,7 @@ llm = init_chat_model("anthropic:claude-3-5-sonnet-latest")
 ```
 -->
 
-We can now incorporate it into a `StateGraph`:
+我们现在可以将其集成到 `StateGraph` 中：
 
 ```python hl_lines="15"
 from typing import Annotated
@@ -98,7 +101,7 @@ class State(TypedDict):
 
 graph_builder = StateGraph(State)
 
-# Modification: tell the LLM which tools it can call
+# 修改：告知 LLM 可以调用哪些工具
 # highlight-next-line
 llm_with_tools = llm.bind_tools(tools)
 
@@ -108,9 +111,9 @@ def chatbot(state: State):
 graph_builder.add_node("chatbot", chatbot)
 ```
 
-## 5. Create a function to run the tools
+## 5. 创建一个函数来运行工具
 
-Now, create a function to run the tools if they are called. Do this by adding the tools to a new node called`BasicToolNode` that checks the most recent message in the state and calls tools if the message contains `tool_calls`. It relies on the LLM's `tool_calling` support, which is available in Anthropic, OpenAI, Google Gemini, and a number of other LLM providers.
+现在，创建一个函数来运行工具（如果它们被调用）。为此，将工具添加到一个名为 `BasicToolNode` 的新节点中，该节点会检查状态中的最新消息，并在消息包含 `tool_calls` 时调用工具。它依赖于 LLM 的 `tool_calling` 支持，该支持在 Anthropic、OpenAI、Google Gemini 以及许多其他 LLM 提供商中可用。
 
 ```python
 import json
@@ -119,7 +122,7 @@ from langchain_core.messages import ToolMessage
 
 
 class BasicToolNode:
-    """A node that runs the tools requested in the last AIMessage."""
+    """一个运行最后一个 AIMessage 中请求的工具的节点。"""
 
     def __init__(self, tools: list) -> None:
         self.tools_by_name = {tool.name: tool for tool in tools}
@@ -150,25 +153,25 @@ graph_builder.add_node("tools", tool_node)
 
 !!! note
 
-    If you do not want to build this yourself in the future, you can use LangGraph's prebuilt [ToolNode](https://langchain-ai.github.io/langgraph/reference/agents/#langgraph.prebuilt.tool_node.ToolNode).
+    如果您将来不想自己构建此功能，可以使用 LangGraph 的预构建 [ToolNode](https://langchain-ai.github.io/langgraph/reference/agents/#langgraph.prebuilt.tool_node.ToolNode)。
 
-## 6. Define the `conditional_edges`
+## 6. 定义 `conditional_edges`
 
-With the tool node added, now you can define the `conditional_edges`. 
+添加了工具节点后，现在可以定义 `conditional_edges` 了。
 
-**Edges** route the control flow from one node to the next. **Conditional edges** start from a single node and usually contain "if" statements to route to different nodes depending on the current graph state. These functions receive the current graph `state` and return a string or list of strings indicating which node(s) to call next.
+**边（Edges）** 将控制流从一个节点路由到下一个节点。**条件边（Conditional edges）** 从单个节点开始，通常包含“if”语句，根据当前图状态将流程路由到不同的节点。这些函数接收当前图的 `state` 并返回一个或多个字符串，指示接下来要调用哪个节点。
 
-Next, define a router function called `route_tools` that checks for `tool_calls` in the chatbot's output. Provide this function to the graph by calling `add_conditional_edges`, which tells the graph that whenever the `chatbot` node completes to check this function to see where to go next. 
+接下来，定义一个名为 `route_tools` 的路由函数，该函数会检查聊天机器人的输出中的 `tool_calls`。通过调用 `add_conditional_edges` 将此函数提供给图，图就知道了每当 `chatbot` 节点完成时，就检查此函数以确定接下来去哪里。
 
-The condition will route to `tools` if tool calls are present and `END` if not. Because the condition can return `END`, you do not need to explicitly set a `finish_point` this time.
+条件将路由到 `tools`（如果存在工具调用），否则路由到 `END`。由于条件可以返回 `END`，因此这次无需显式设置 `finish_point`。
 
 ```python
 def route_tools(
     state: State,
 ):
     """
-    Use in the conditional_edge to route to the ToolNode if the last message
-    has tool calls. Otherwise, route to the end.
+    在条件边中使用，如果最后一条消息有工具调用，则路由到 ToolNode。
+    否则，路由到结束。
     """
     if isinstance(state, list):
         ai_message = state[-1]
@@ -181,19 +184,19 @@ def route_tools(
     return END
 
 
-# The `tools_condition` function returns "tools" if the chatbot asks to use a tool, and "END" if
-# it is fine directly responding. This conditional routing defines the main agent loop.
+# `tools_condition` 函数在聊天机器人请求使用工具时返回 "tools"，在可以直接响应时返回 "END"。
+# 这个条件路由定义了主代理循环。
 graph_builder.add_conditional_edges(
     "chatbot",
     route_tools,
-    # The following dictionary lets you tell the graph to interpret the condition's outputs as a specific node
-    # It defaults to the identity function, but if you
-    # want to use a node named something else apart from "tools",
-    # You can update the value of the dictionary to something else
-    # e.g., "tools": "my_tools"
+    # 下面的字典允许您告诉图将条件的输出解释为特定节点
+    # 它默认为身份函数，但如果您
+    # 想使用一个不同于 "tools" 的节点名称，
+    # 您可以将字典的值更新为其他内容
+    # 例如，"tools": "my_tools"
     {"tools": "tools", END: END},
 )
-# Any time a tool is called, we return to the chatbot to decide the next step
+# 任何时候调用工具，我们都會返回到聊天机器人以决定下一步
 graph_builder.add_edge("tools", "chatbot")
 graph_builder.add_edge(START, "chatbot")
 graph = graph_builder.compile()
@@ -201,11 +204,11 @@ graph = graph_builder.compile()
 
 !!! note
 
-    You can replace this with the prebuilt [tools_condition](https://langchain-ai.github.io/langgraph/reference/prebuilt/#tools_condition) to be more concise. 
+    您可以将其替换为预构建的 [tools_condition](https://langchain-ai.github.io/langgraph/reference/prebuilt/#tools_condition) 以使代码更简洁。
 
-## 7. Visualize the graph (optional)
+## 7. 可视化图（可选）
 
-You can visualize the graph using the `get_graph` method and one of the "draw" methods, like `draw_ascii` or `draw_png`. The `draw` methods each require additional dependencies.
+您可以使用 `get_graph` 方法和其中一个“draw”方法（如 `draw_ascii` 或 `draw_png`）来可视化图。`draw` 方法每个都需要额外的依赖项。
 
 ```python
 from IPython.display import Image, display
@@ -219,9 +222,9 @@ except Exception:
 
 ![chatbot-with-tools-diagram](chatbot-with-tools.png)
 
-## 8. Ask the bot questions
+## 8. 提问
 
-Now you can ask the chatbot questions outside its training data:
+现在您可以向聊天机器人询问其训练数据之外的问题了：
 
 ```python
 def stream_graph_updates(user_input: str):
@@ -279,12 +282,12 @@ Goodbye!
 Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
 ```
 
-## 9. Use prebuilts
+## 9. 使用预构建组件
 
-For ease of use, adjust your code to replace the following with LangGraph prebuilt components. These have built in functionality like parallel API execution.
+为了方便使用，请调整代码以使用 LangGraph 的预构建组件替换以下内容。这些组件内置了并行 API 执行等功能。
 
-- `BasicToolNode` is replaced with the prebuilt [ToolNode](https://langchain-ai.github.io/langgraph/reference/prebuilt/#toolnode)
-- `route_tools` is replaced with the prebuilt [tools_condition](https://langchain-ai.github.io/langgraph/reference/prebuilt/#tools_condition)
+- `BasicToolNode` 被预构建的 [ToolNode](https://langchain-ai.github.io/langgraph/reference/prebuilt/#toolnode) 替换
+- `route_tools` 被预构建的 [tools_condition](https://langchain-ai.github.io/langgraph/reference/prebuilt/#tools_condition) 替换
 
 {% include-markdown "../../../snippets/chat_model_tabs.md" %}
 
@@ -321,14 +324,14 @@ graph_builder.add_conditional_edges(
     "chatbot",
     tools_condition,
 )
-# Any time a tool is called, we return to the chatbot to decide the next step
+# 任何时候调用工具，我们都會返回到聊天机器人以决定下一步
 graph_builder.add_edge("tools", "chatbot")
 graph_builder.add_edge(START, "chatbot")
 graph = graph_builder.compile()
 ```
 
-**Congratulations!** You've created a conversational agent in LangGraph that can use a search engine to retrieve updated information when needed. Now it can handle a wider range of user queries. To inspect all the steps your agent just took, check out this [LangSmith trace](https://smith.langchain.com/public/4fbd7636-25af-4638-9587-5a02fdbb0172/r).
+**恭喜！** 您在 LangGraph 中创建了一个会话式代理，该代理可以使用搜索引擎在需要时检索最新信息。现在它可以处理更广泛的用户查询了。要检查代理刚刚采取的所有步骤，请查看此 [LangSmith 追踪](https://smith.langchain.com/public/4fbd7636-25af-4638-9587-5a02fdbb0172/r)。
 
-## Next steps
+## 下一步
 
-The chatbot cannot remember past interactions on its own, which limits its ability to have coherent, multi-turn conversations. In the next part, you will [add **memory**](./3-add-memory.md) to address this.
+聊天机器人无法自行记住过去的交互，这限制了它进行连贯、多轮对话的能力。在下一部分，您将[添加**内存**](./3-add-memory.md)来解决此问题。

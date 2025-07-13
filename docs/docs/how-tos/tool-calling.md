@@ -1,12 +1,12 @@
-# Call tools
+# 调用工具
 
-[Tools](../concepts/tools.md) encapsulate a callable function and its input schema. These can be passed to compatible [chat models](https://python.langchain.com/docs/concepts/chat_models), allowing the model to decide whether to invoke a tool and determine the appropriate arguments.
+[工具](../concepts/tools.md)封装了可调用的函数及其输入模式。这些工具可以传递给兼容的 [聊天模型](https://python.langchain.com/docs/concepts/chat_models)，使模型能够决定是否调用某个工具并确定适当的参数。
 
-You can [define your own tools](#define-a-tool) or use [prebuilt tools](#prebuilt-tools)
+您可以 [定义自己的工具](#define-a-tool) 或使用 [预建工具](#prebuilt-tools)。
 
-## Define a tool
+## 定义工具
 
-Define a basic tool with the [@tool](https://python.langchain.com/api_reference/core/tools/langchain_core.tools.convert.tool.html) decorator:
+使用 [@tool](https://python.langchain.com/api_reference/core/tools/langchain_core.tools.convert.tool.html) 装饰器定义一个基本工具：
 
 ```python
 from langchain_core.tools import tool
@@ -18,15 +18,15 @@ def multiply(a: int, b: int) -> int:
     return a * b
 ```
 
-## Run a tool
+## 运行工具
 
-Tools conform to the [Runnable interface](https://python.langchain.com/docs/concepts/runnables/), which means you can run a tool using the `invoke` method:
+工具符合 [Runnable 接口](https://python.langchain.com/docs/concepts/runnables/)，这意味着您可以使用 `invoke` 方法运行工具：
 
 ```python
-multiply.invoke({"a": 6, "b": 7})  # returns 42
+multiply.invoke({"a": 6, "b": 7})  # 返回 42
 ```
 
-If the tool is invoked with `type="tool_call"`, it will return a [ToolMessage](https://python.langchain.com/docs/concepts/messages/#toolmessage):
+如果使用 `type="tool_call"` 调用工具，它将返回一个 [ToolMessage](https://python.langchain.com/docs/concepts/messages/#toolmessage)：
 
 ```python
 tool_call = {
@@ -34,19 +34,18 @@ tool_call = {
     "id": "1",
     "args": {"a": 42, "b": 7}
 }
-multiply.invoke(tool_call) # returns a ToolMessage object
+multiply.invoke(tool_call) # 返回一个 ToolMessage 对象
 ```
 
-Output:
+输出：
 
 ```pycon
 ToolMessage(content='294', name='multiply', tool_call_id='1')
 ```
 
+## 在代理中使用
 
-## Use in an agent
-
-To create a tool-calling agent, you can use the prebuilt [create_react_agent][langgraph.prebuilt.chat_agent_executor.create_react_agent]:
+要创建调用工具的代理，您可以使用预建的 [create_react_agent][langgraph.prebuilt.chat_agent_executor.create_react_agent]：
 
 ```python
 from langchain_core.tools import tool
@@ -66,14 +65,14 @@ agent = create_react_agent(
 agent.invoke({"messages": [{"role": "user", "content": "what's 42 x 7?"}]})
 ```
 
-## Use in a workflow
+## 在工作流中使用
 
-If you are writing a custom workflow, you will need to:
+如果您正在编写自定义工作流，则需要：
 
-1. register the tools with the chat model
-2. call the tool if the model decides to use it
+1. 将工具注册到聊天模型
+2. 如果模型决定使用该工具，则调用它
 
-Use `model.bind_tools()` to register the tools with the model. 
+使用 `model.bind_tools()` 将工具注册到模型。
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -84,9 +83,9 @@ model = init_chat_model(model="claude-3-5-haiku-latest")
 model_with_tools = model.bind_tools([multiply])
 ```
 
-LLMs automatically determine if a tool invocation is necessary and handle calling the tool with the appropriate arguments.
+LLM 会自动确定是否需要调用工具，并处理使用适当参数调用该工具。
 
-??? example "Extended example: attach tools to a chat model"
+??? example "扩展示例：将工具附加到聊天模型"
 
     ```python
     from langchain_core.tools import tool
@@ -116,33 +115,32 @@ LLMs automatically determine if a tool invocation is necessary and handle callin
     ```
 #### ToolNode
 
-To execute tools in custom workflows, use the prebuilt [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] or implement your own custom node.
+要在自定义工作流中执行工具，请使用预建的 [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] 或实现自己的自定义节点。
 
-`ToolNode` is a specialized node for executing tools in a workflow. It provides the following features:
+`ToolNode` 是一个用于在工作流中执行工具的专用节点。它提供以下功能：
 
-* Supports both synchronous and asynchronous tools.
-* Executes multiple tools concurrently.
-* Handles errors during tool execution (`handle_tool_errors=True`, enabled by default). See [handling tool errors](#handle-errors) for more details.
+* 支持同步和异步工具。
+* 并行执行多个工具。
+* 处理工具执行期间的错误 (`handle_tool_errors=True`，默认启用)。有关更多详细信息，请参阅 [处理工具错误](#handle-errors)。
 
-`ToolNode` operates on [`MessagesState`](../concepts/low_level.md#messagesstate):
+`ToolNode` 操作于 [`MessagesState`](../concepts/low_level.md#messagesstate)：
 
-* **Input**: `MessagesState`, where the last message is an `AIMessage` containing the `tool_calls` parameter.
-* **Output**: `MessagesState` updated with the resulting [`ToolMessage`](https://python.langchain.com/docs/concepts/messages/#toolmessage) from executed tools.
-
+* **输入**：`MessagesState`，其中最后一个消息是包含 `tool_calls` 参数的 `AIMessage`。
+* **输出**：`MessagesState`，并使用从已执行工具返回的 [`ToolMessage`](https://python.langchain.com/docs/concepts/messages/#toolmessage) 进行更新。
 
 ```python
 # highlight-next-line
 from langgraph.prebuilt import ToolNode
 
 def get_weather(location: str):
-    """Call to get the current weather."""
+    """调用以获取当前天气。"""
     if location.lower() in ["sf", "san francisco"]:
         return "It's 60 degrees and foggy."
     else:
         return "It's 90 degrees and sunny."
 
 def get_coolest_cities():
-    """Get a list of coolest cities"""
+    """获取最酷城市的列表"""
     return "nyc, sf"
 
 # highlight-next-line
@@ -150,16 +148,16 @@ tool_node = ToolNode([get_weather, get_coolest_cities])
 tool_node.invoke({"messages": [...]})
 ```
 
-??? example "Single tool call"
+??? example "单个工具调用"
 
     ```python
     from langchain_core.messages import AIMessage
     from langgraph.prebuilt import ToolNode
     
-    # Define tools
+    # 定义工具
     @tool
     def get_weather(location: str):
-        """Call to get the current weather."""
+        """调用以获取当前天气。"""
         if location.lower() in ["sf", "san francisco"]:
             return "It's 60 degrees and foggy."
         else:
@@ -187,23 +185,23 @@ tool_node.invoke({"messages": [...]})
     {'messages': [ToolMessage(content="It's 60 degrees and foggy.", name='get_weather', tool_call_id='tool_call_id')]}
     ```
 
-??? example "Multiple tool calls"
+??? example "多个工具调用"
 
     ```python
     from langchain_core.messages import AIMessage
     from langgraph.prebuilt import ToolNode
     
-    # Define tools
+    # 定义工具
     
     def get_weather(location: str):
-        """Call to get the current weather."""
+        """调用以获取当前天气。"""
         if location.lower() in ["sf", "san francisco"]:
             return "It's 60 degrees and foggy."
         else:
             return "It's 90 degrees and sunny."
     
     def get_coolest_cities():
-        """Get a list of coolest cities"""
+        """获取最酷城市的列表"""
         return "nyc, sf"
     
     # highlight-next-line
@@ -231,7 +229,7 @@ tool_node.invoke({"messages": [...]})
     tool_node.invoke({"messages": [message_with_multiple_tool_calls]})  # (1)!
     ```
 
-    1. `ToolNode` will execute both tools in parallel
+    1. `ToolNode` 将并行执行这两个工具。
 
     ```
     {
@@ -242,16 +240,14 @@ tool_node.invoke({"messages": [...]})
     }
     ```
 
-
-
-??? example "Use with a chat model"
+??? example "与聊天模型一起使用"
 
     ```python
     from langchain.chat_models import init_chat_model
     from langgraph.prebuilt import ToolNode
     
     def get_weather(location: str):
-        """Call to get the current weather."""
+        """调用以获取当前天气。"""
         if location.lower() in ["sf", "san francisco"]:
             return "It's 60 degrees and foggy."
         else:
@@ -270,15 +266,15 @@ tool_node.invoke({"messages": [...]})
     tool_node.invoke({"messages": [response_message]})
     ```
 
-    1. Use `.bind_tools()` to attach the tool schema to the chat model
+    1. 使用 `.bind_tools()` 将工具模式附加到聊天模型。
 
     ```
     {'messages': [ToolMessage(content="It's 60 degrees and foggy.", name='get_weather', tool_call_id='toolu_01Pnkgw5JeTRxXAU7tyHT4UW')]}
     ```
 
-??? example "Use in a tool-calling agent"
+??? example "在调用工具的代理中使用"
 
-    This is an example of creating a tool-calling agent from scratch using `ToolNode`. You can also use LangGraph's prebuilt [agent](../agents/agents.md).
+    这是一个使用 `ToolNode` 从头开始创建调用工具的代理的示例。您还可以使用 LangGraph 的预建 [代理](../agents/agents.md)。
 
     ```python
     from langchain.chat_models import init_chat_model
@@ -286,7 +282,7 @@ tool_node.invoke({"messages": [...]})
     from langgraph.graph import StateGraph, MessagesState, START, END
     
     def get_weather(location: str):
-        """Call to get the current weather."""
+        """调用以获取当前天气。"""
         if location.lower() in ["sf", "san francisco"]:
             return "It's 60 degrees and foggy."
         else:
@@ -313,7 +309,7 @@ tool_node.invoke({"messages": [...]})
     
     builder = StateGraph(MessagesState)
     
-    # Define the two nodes we will cycle between
+    # 定义我们将循环访问的两个节点
     builder.add_node("call_model", call_model)
     # highlight-next-line
     builder.add_node("tools", tool_node)
@@ -341,14 +337,13 @@ tool_node.invoke({"messages": [...]})
     }
     ```
 
+## 工具自定义
 
-## Tool customization
+为了更精细地控制工具行为，请使用 `@tool` 装饰器。
 
-For more control over tool behavior, use the `@tool` decorator.
+### 参数描述
 
-### Parameter descriptions
-
-Auto-generate descriptions from docstrings:
+从文档字符串自动生成描述：
 
 ```python
 # highlight-next-line
@@ -366,9 +361,9 @@ def multiply(a: int, b: int) -> int:
     return a * b
 ```
 
-### Explicit input schema
+### 显式输入模式
 
-Define schemas using `args_schema`:
+使用 `args_schema` 定义模式：
 
 ```python
 from pydantic import BaseModel, Field
@@ -385,9 +380,9 @@ def multiply(a: int, b: int) -> int:
     return a * b
 ```
 
-### Tool name
+### 工具名称
 
-Override the default tool name (function name) using the first argument:
+使用第一个参数覆盖默认工具名称（函数名称）：
 
 ```python
 from langchain_core.tools import tool
@@ -399,19 +394,19 @@ def multiply(a: int, b: int) -> int:
     return a * b
 ```
 
-## Context management
+## 上下文管理
 
-Tools within LangGraph sometimes require context data, such as runtime-only arguments (e.g., user IDs or session details), that should not be controlled by the model. LangGraph provides three methods for managing such context:
+LangGraph 中的工具有时需要上下文数据，例如不应由模型控制的运行时参数（例如，用户 ID 或会话详细信息）。LangGraph 提供三种管理此类上下文的方法：
 
-| Type                                    | Usage Scenario                           | Mutable | Lifetime                 |
+| 类型                                    | 使用场景                           | 可变 | 生命周期                 |
 |-----------------------------------------|------------------------------------------|---------|--------------------------|
-| [Configuration](#configuration)         | Static, immutable runtime data           | ❌       | Single invocation        |
-| [Short-term memory](#short-term-memory) | Dynamic, changing data during invocation | ✅       | Single invocation        |
-| [Long-term memory](#long-term-memory)   | Persistent, cross-session data           | ✅       | Across multiple sessions | 
+| [配置](#configuration)         | 静态、不可变运行时数据           | ❌       | 单次调用        |
+| [短期记忆](#short-term-memory) | 调用期间动态变化的数据           | ✅       | 单次调用        |
+| [长期记忆](#long-term-memory)   | 持久化的跨会话数据           | ✅       | 跨多个会话 | 
 
-### Configuration
+### 配置
 
-Use configuration when you have **immutable** runtime data that tools require, such as user identifiers. You pass these arguments via [`RunnableConfig`](https://python.langchain.com/docs/concepts/runnables/#runnableconfig) at invocation and access them in the tool:
+当您有工具所需的**不可变**运行时数据（例如用户标识符）时，请使用配置。您可以通过 [`RunnableConfig`](https://python.langchain.com/docs/concepts/runnables/#runnableconfig) 在调用时传递这些参数，并在工具中访问它们：
 
 ```python
 from langchain_core.tools import tool
@@ -420,11 +415,11 @@ from langchain_core.runnables import RunnableConfig
 @tool
 # highlight-next-line
 def get_user_info(config: RunnableConfig) -> str:
-    """Retrieve user information based on user ID."""
+    """检索基于用户 ID 的用户信息。"""
     user_id = config["configurable"].get("user_id")
     return "User is John Smith" if user_id == "user_123" else "Unknown user"
 
-# Invocation example with an agent
+# 具有代理的调用示例
 agent.invoke(
     {"messages": [{"role": "user", "content": "look up user info"}]},
     # highlight-next-line
@@ -432,7 +427,7 @@ agent.invoke(
 )
 ```
 
-??? example "Extended example: Access config in tools"
+??? example "扩展示例：在工具中访问配置"
 
     ```python
     from langchain_core.runnables import RunnableConfig
@@ -443,7 +438,7 @@ agent.invoke(
         # highlight-next-line
         config: RunnableConfig,
     ) -> str:
-        """Look up user info."""
+        """检索状态中的用户名称。"""
         # highlight-next-line
         user_id = config["configurable"].get("user_id")
         return "User is John Smith" if user_id == "user_123" else "Unknown user"
@@ -451,20 +446,18 @@ agent.invoke(
     agent = create_react_agent(
         model="anthropic:claude-3-7-sonnet-latest",
         tools=[get_user_info],
+        state_schema=CustomState,
     )
     
-    agent.invoke(
-        {"messages": [{"role": "user", "content": "look up user information"}]},
-        # highlight-next-line
-        config={"configurable": {"user_id": "user_123"}}
-    )
+    # 调用：从状态读取名称（初始为空）
+    agent.invoke({"messages": "what's my name?"})
     ```
 
-### Short-term memory
+### 短期记忆
 
-Short-term memory maintains **dynamic** state that changes during a single execution. 
+短期记忆维护在单次执行期间会**动态变化**的状态。
 
-To **access** (read) the graph state inside the tools, you can use a special parameter **annotation** — [`InjectedState`][langgraph.prebuilt.InjectedState]: 
+要**访问**（读取）图状态，您可以在工具中使用特殊的参数**注释** — [`InjectedState`][langgraph.prebuilt.InjectedState]：
 
 ```python
 from typing import Annotated, NotRequired
@@ -473,7 +466,7 @@ from langgraph.prebuilt import InjectedState, create_react_agent
 from langgraph.prebuilt.chat_agent_executor import AgentState
 
 class CustomState(AgentState):
-    # The user_name field in short-term state
+    # 在短期状态中的 user_name 字段
     user_name: NotRequired[str]
 
 @tool
@@ -481,22 +474,22 @@ def get_user_name(
     # highlight-next-line
     state: Annotated[CustomState, InjectedState]
 ) -> str:
-    """Retrieve the current user-name from state."""
-    # Return stored name or a default if not set
+    """从状态中检索当前用户名称。"""
+    # 返回存储的名称，如果未设置，则返回默认值
     return state.get("user_name", "Unknown user")
 
-# Example agent setup
+# 示例代理设置
 agent = create_react_agent(
     model="anthropic:claude-3-7-sonnet-latest",
     tools=[get_user_name],
     state_schema=CustomState,
 )
 
-# Invocation: reads the name from state (initially empty)
+# 调用：从状态读取名称（初始为空）
 agent.invoke({"messages": "what's my name?"})
 ```
 
-Use a tool that returns a `Command` to **update** `user_name` and append a confirmation message:
+使用返回 `Command` 的工具来**更新** `user_name` 并附加确认消息：
 
 ```python
 from typing import Annotated
@@ -509,7 +502,7 @@ def update_user_name(
     new_name: str,
     tool_call_id: Annotated[str, InjectedToolCallId]
 ) -> Command:
-    """Update user-name in short-term memory."""
+    """在短期记忆中更新用户名称。"""
     # highlight-next-line
     return Command(update={
         # highlight-next-line
@@ -526,7 +519,7 @@ def update_user_name(
 
 !!! important
 
-    If you want to use tools that return `Command` and update graph state, you can either use prebuilt [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent] / [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] components, or implement your own tool-executing node that collects `Command` objects returned by the tools and returns a list of them, e.g.:
+    如果您想使用返回 `Command` 并更新图状态的工具，您可以选择使用预建的 [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent] / [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] 组件，或者实现自己的工具执行节点，该节点收集工具返回的 `Command` 对象并返回一个列表，例如：
     
     ```python
     def call_tools(state):
@@ -535,17 +528,16 @@ def update_user_name(
         return commands
     ```
 
+### 长期记忆
 
-### Long-term memory
+使用 [长期记忆](../concepts/memory.md#long-term-memory) 来跨会话存储用户特定或应用程序特定的数据。这对于聊天机器人等应用程序很有用，您希望在其中记住用户偏好或其他信息。
 
-Use [long-term memory](../concepts/memory.md#long-term-memory) to store user-specific or application-specific data across conversations. This is useful for applications like chatbots, where you want to remember user preferences or other information.
+要使用长期记忆，您需要：
 
-To use long-term memory, you need to:
+1. 为持久化数据跨调用[配置一个存储](memory/add-memory.md#add-long-term-memory)。
+2. 使用 [`get_store`][langgraph.config.get_store] 函数从工具或提示中访问存储。
 
-1. [Configure a store](memory/add-memory.md#add-long-term-memory) to persist data across invocations.
-2. Use the [`get_store`][langgraph.config.get_store] function to access the store from within tools or prompts.
-
-To **access** information in the store:
+要**访问**存储中的信息：
 
 ```python
 from langchain_core.runnables import RunnableConfig
@@ -556,9 +548,9 @@ from langgraph.config import get_store
 
 @tool
 def get_user_info(config: RunnableConfig) -> str:
-    """Look up user info."""
-    # Same as that provided to `builder.compile(store=store)` 
-    # or `create_react_agent`
+    """查找用户信息。"""
+    # 与 `builder.compile(store=store)` 
+    # 或 `create_react_agent` 提供的相同
     # highlight-next-line
     store = get_store()
     user_id = config["configurable"].get("user_id")
@@ -571,7 +563,7 @@ builder = StateGraph(...)
 graph = builder.compile(store=store)
 ```
 
-??? example "Access long-term memory"
+??? example "访问长期记忆"
 
     ```python
     from langchain_core.runnables import RunnableConfig
@@ -595,8 +587,8 @@ graph = builder.compile(store=store)
 
     @tool
     def get_user_info(config: RunnableConfig) -> str:
-        """Look up user info."""
-        # Same as that provided to `create_react_agent`
+        """查找用户信息。"""
+        # 与 `create_react_agent` 提供的相同
         # highlight-next-line
         store = get_store() # (6)!
         user_id = config["configurable"].get("user_id")
@@ -611,7 +603,7 @@ graph = builder.compile(store=store)
         store=store # (8)!
     )
     
-    # Run the agent
+    # 运行代理
     agent.invoke(
         {"messages": [{"role": "user", "content": "look up user information"}]},
         # highlight-next-line
@@ -619,16 +611,16 @@ graph = builder.compile(store=store)
     )
     ```
     
-    1. The `InMemoryStore` is a store that stores data in memory. In a production setting, you would typically use a database or other persistent storage. Please review the [store documentation][../reference/store.md) for more options. If you're deploying with **LangGraph Platform**, the platform will provide a production-ready store for you.
-    2. For this example, we write some sample data to the store using the `put` method. Please see the [BaseStore.put][langgraph.store.base.BaseStore.put] API reference for more details.
-    3. The first argument is the namespace. This is used to group related data together. In this case, we are using the `users` namespace to group user data.
-    4. A key within the namespace. This example uses a user ID for the key.
-    5. The data that we want to store for the given user.
-    6. The `get_store` function is used to access the store. You can call it from anywhere in your code, including tools and prompts. This function returns the store that was passed to the agent when it was created.
-    7. The `get` method is used to retrieve data from the store. The first argument is the namespace, and the second argument is the key. This will return a `StoreValue` object, which contains the value and metadata about the value.
-    8. The `store` is passed to the agent. This enables the agent to access the store when running tools. You can also use the `get_store` function to access the store from anywhere in your code.
+    1. `InMemoryStore` 是一个在内存中存储数据的存储。在生产环境中，您通常会使用数据库或其他持久化存储。请参阅 [存储文档][../reference/store.md) 以获取更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产就绪的存储。
+    2. 在此示例中，我们使用 `put` 方法将一些示例数据写入存储。有关更多详细信息，请参阅 [BaseStore.put][langgraph.store.base.BaseStore.put] API 参考。
+    3. 第一个参数是命名空间。它用于将相关数据分组在一起。在此示例中，我们使用 `users` 命名空间来对用户数据进行分组。
+    4. 命名空间内的键。此示例使用用户 ID 作为键。
+    5. 我们要为给定用户存储的数据。
+    6. `get_store` 函数用于访问存储。您可以从代码中的任何位置调用它，包括工具和提示。此函数返回创建代理时传递给代理的存储。
+    7. `get` 方法用于从存储中检索数据。第一个参数是命名空间，第二个参数是键。这将返回一个 `StoreValue` 对象，其中包含值以及关于该值元数据。
+    8. `store` 被传递给代理。这使得代理在运行工具时可以访问存储。您还可以使用 `get_store` 函数从代码中的任何位置访问存储。
 
-To **update** information in the store:
+要**更新**存储中的信息：
 
 ```python
 from langchain_core.runnables import RunnableConfig
@@ -639,9 +631,9 @@ from langgraph.config import get_store
 
 @tool
 def save_user_info(user_info: str, config: RunnableConfig) -> str:
-    """Save user info."""
-    # Same as that provided to `builder.compile(store=store)` 
-    # or `create_react_agent`
+    """保存用户信息。"""
+    # 与 `builder.compile(store=store)` 
+    # 或 `create_react_agent` 提供的相同
     # highlight-next-line
     store = get_store()
     user_id = config["configurable"].get("user_id")
@@ -654,7 +646,7 @@ builder = StateGraph(...)
 graph = builder.compile(store=store)
 ```
 
-??? example "Update long-term memory"
+??? example "更新长期记忆"
 
     ```python
     from typing_extensions import TypedDict
@@ -671,8 +663,8 @@ graph = builder.compile(store=store)
 
     @tool
     def save_user_info(user_info: UserInfo, config: RunnableConfig) -> str: # (3)!
-        """Save user info."""
-        # Same as that provided to `create_react_agent`
+        """保存用户信息。"""
+        # 与 `create_react_agent` 提供的相同
         # highlight-next-line
         store = get_store() # (4)!
         user_id = config["configurable"].get("user_id")
@@ -687,31 +679,31 @@ graph = builder.compile(store=store)
         store=store
     )
     
-    # Run the agent
+    # 运行代理
     agent.invoke(
         {"messages": [{"role": "user", "content": "My name is John Smith"}]},
         # highlight-next-line
         config={"configurable": {"user_id": "user_123"}} # (6)!
     )
     
-    # You can access the store directly to get the value
+    # 您可以直接访问存储以获取值
     store.get(("users",), "user_123").value
     ```
     
-    1. The `InMemoryStore` is a store that stores data in memory. In a production setting, you would typically use a database or other persistent storage. Please review the [store documentation](../reference/store.md) for more options. If you're deploying with **LangGraph Platform**, the platform will provide a production-ready store for you.
-    2. The `UserInfo` class is a `TypedDict` that defines the structure of the user information. The LLM will use this to format the response according to the schema.
-    3. The `save_user_info` function is a tool that allows an agent to update user information. This could be useful for a chat application where the user wants to update their profile information.
-    4. The `get_store` function is used to access the store. You can call it from anywhere in your code, including tools and prompts. This function returns the store that was passed to the agent when it was created.
-    5. The `put` method is used to store data in the store. The first argument is the namespace, and the second argument is the key. This will store the user information in the store.
-    6. The `user_id` is passed in the config. This is used to identify the user whose information is being updated.
+    1. `InMemoryStore` 是一个在内存中存储数据的存储。在生产环境中，您通常会使用数据库或其他持久化存储。请参阅 [存储文档](../reference/store.md) 以获取更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产就绪的存储。
+    2. `UserInfo` 类是一个 `TypedDict`，它定义了用户信息结构。LLM 将使用它根据模式格式化响应。
+    3. `save_user_info` 函数是一个允许代理更新用户信息而不会干扰其内部状态的工具。这对于用户想要更新其个人资料信息的聊天应用程序很有用。
+    4. `get_store` 函数用于访问存储。您可以从代码中的任何位置调用它，包括工具和提示。此函数返回创建代理时传递给代理的存储。
+    5. `put` 方法用于将数据存储到存储中。第一个参数是命名空间，第二个参数是键。这将把用户信息存储在存储中。
+    6. `user_id` 在配置中传递。这用于标识正在更新其信息的用户。
 
-## Advanced tool features
+## 高级工具功能
 
-### Immediate return
+### 即时返回
 
-Use `return_direct=True` to immediately return a tool's result without executing additional logic.
+使用 `return_direct=True` 可在不执行额外逻辑的情况下直接返回工具的结果。
 
-This is useful for tools that should not trigger further processing or tool calls, allowing you to return results directly to the user.
+这对于不应触发进一步处理或工具调用的工具很有用，允许您直接将结果返回给用户。
 
 ```python
 # highlight-next-line
@@ -721,7 +713,7 @@ def add(a: int, b: int) -> int:
     return a + b
 ```
 
-??? example "Extended example: Using return_direct in a prebuilt agent"
+??? example "扩展示例：在预建代理中使用 return_direct"
 
     ```python
     from langchain_core.tools import tool
@@ -743,18 +735,15 @@ def add(a: int, b: int) -> int:
     )
     ```
 
+!!! important "不带预建组件使用"
 
-!!! important "Using without prebuilt components"
+    如果您正在构建自定义工作流，并且不依赖于 `create_react_agent` 或 `ToolNode`，您还需要实现控制流来处理 `return_direct=True`。
 
-    If you are building a custom workflow and are not relying on `create_react_agent` or `ToolNode`, you will also
-    need to implement the control flow to handle `return_direct=True`.
+### 强制使用工具
 
-### Force tool use
+如果您需要强制使用特定工具，则需要在**模型**级别通过 `bind_tools` 方法中的 `tool_choice` 参数进行配置。
 
-If you need to force a specific tool to be used, you will need to configure this
-at the **model** level using the `tool_choice` parameter in the `bind_tools` method.
-
-Force specific tool usage via tool_choice:
+通过 tool_choice 强制使用特定工具：
 
 ```python
 @tool(return_direct=True)
@@ -773,9 +762,9 @@ configured_model = model.bind_tools(
 
 ```
 
-??? example "Extended example: Force tool usage in an agent"
+??? example "扩展示例：在代理中强制使用工具"
 
-    To force the agent to use specific tools, you can set the `tool_choice` option in `model.bind_tools()`:
+    要强制代理使用特定工具，您可以在 `model.bind_tools()` 中设置 `tool_choice` 选项：
 
     ```python
     from langchain_core.tools import tool
@@ -799,23 +788,22 @@ configured_model = model.bind_tools(
     )
     ```
 
-!!! Warning "Avoid infinite loops"
+!!! Warning "避免无限循环"
 
-    Forcing tool usage without stopping conditions can create infinite loops. Use one of the following safeguards:
+    强制使用工具而不设置停止条件可能会导致无限循环。使用以下任一保护措施：
 
-    - Mark the tool with [`return_direct=True`](#immediate-return to end the loop after execution.
-    - Set [`recursion_limit`](../concepts/low_level.md#recursion-limit) to restrict the number of execution steps.
+    - 使用 [`return_direct=True`](#immediate-return) 标记工具，在执行后结束循环。
+    - 设置 [`recursion_limit`](../concepts/low_level.md#recursion-limit) 来限制执行步骤的数量。
 
+!!! tip "工具选择配置"
 
-!!! tip "Tool choice configuration"
+    `tool_choice` 参数用于配置模型在决定调用工具时应使用的工具。当您想确保始终为特定任务调用某个工具，或者想覆盖模型选择工具的默认行为时，这很有用。
 
-    The `tool_choice` parameter is used to configure which tool should be used by the model when it decides to call a tool. This is useful when you want to ensure that a specific tool is always called for a particular task or when you want to override the model's default behavior of choosing a tool based on its internal logic.
+    请注意，并非所有模型都支持此功能，并且确切的配置可能因您使用的模型而异。
 
-    Note that not all models support this feature, and the exact configuration may vary depending on the model you are using.
+### 禁用并行调用
 
-### Disable parallel calls
-
-For supported providers, you can disable parallel tool calling by setting `parallel_tool_calls=False` via the `model.bind_tools()` method:
+对于受支持的提供商，您可以通过 `model.bind_tools()` 方法设置 `parallel_tool_calls=False` 来禁用并行工具调用：
 
 ```python
 model.bind_tools(
@@ -825,7 +813,7 @@ model.bind_tools(
 )
 ```
 
-??? example "Extended example: disable parallel tool calls in a prebuilt agent"
+??? example "扩展示例：在预建代理中禁用并行工具调用"
 
     ```python
     from langchain.chat_models import init_chat_model
@@ -852,11 +840,11 @@ model.bind_tools(
     )
     ```
 
-### Handle errors
+### 处理错误
 
-LangGraph provides built-in error handling for tool execution through the prebuilt [ToolNode][langgraph.prebuilt.tool_node.ToolNode] component, used both independently and in prebuilt agents.
+LangGraph 通过预建的 [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] 组件提供对工具执行的内置错误处理，该组件既可以独立使用，也可以用在预建代理中。
 
-By **default**, `ToolNode` catches exceptions raised during tool execution and returns them as `ToolMessage` objects with a status indicating an error.
+**默认情况下**，`ToolNode` 会捕获工具执行期间引发的异常，并将其作为 `ToolMessage` 对象返回，其中包含指示错误的 [status]。
 
 ```python
 from langchain_core.messages import AIMessage
@@ -867,7 +855,7 @@ def multiply(a: int, b: int) -> int:
         raise ValueError("The ultimate error")
     return a * b
 
-# Default error handling (enabled by default)
+# 默认错误处理（默认启用）
 tool_node = ToolNode([multiply])
 
 message = AIMessage(
@@ -883,7 +871,7 @@ message = AIMessage(
 result = tool_node.invoke({"messages": [message]})
 ```
 
-Output:
+输出：
 
 ```pycon
 {'messages': [
@@ -896,33 +884,33 @@ Output:
 ]}
 ```
 
-#### Disable error handling
+#### 禁用错误处理
 
-To propagate exceptions directly, disable error handling:
+要直接传播异常，请禁用错误处理：
 
 ```python
 tool_node = ToolNode([multiply], handle_tool_errors=False)
 ```
 
-With error handling disabled, exceptions raised by tools will propagate up, requiring explicit management.
+禁用错误处理后，工具引发的异常将向上传播，需要显式管理。
 
-#### Custom error messages
+#### 自定义错误消息
 
-Provide a custom error message by setting `handle_tool_errors` to a string:
+通过将 `handle_tool_errors` 设置为字符串来提供自定义错误消息：
 
 ```python
 tool_node = ToolNode(
     [multiply],
-    handle_tool_errors="Can't use 42 as the first operand, please switch operands!"
+    handle_tool_errors="Cannot use 42 as a first operand, please switch operands!"
 )
 ```
 
-Example output:
+示例输出：
 
 ```python
 {'messages': [
     ToolMessage(
-        content="Can't use 42 as the first operand, please switch operands!",
+        content="Cannot use 42 as a first operand, please switch operands!",
         name='multiply',
         tool_call_id='tool_call_id',
         status='error'
@@ -930,9 +918,9 @@ Example output:
 ]}
 ```
 
-#### Error handling in agents
+#### 代理中的错误处理
 
-Error handling in prebuilt agents (`create_react_agent`) leverages `ToolNode`:
+预建代理中的错误处理（`create_react_agent`）利用了 `ToolNode`：
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -942,11 +930,11 @@ agent = create_react_agent(
     tools=[multiply]
 )
 
-# Default error handling
+# 默认错误处理
 agent.invoke({"messages": [{"role": "user", "content": "what's 42 x 7?"}]})
 ```
 
-To disable or customize error handling in prebuilt agents, explicitly pass a configured `ToolNode`:
+要在预建代理中禁用或自定义错误处理，请显式传递已配置的 `ToolNode`：
 
 ```python
 custom_tool_node = ToolNode(
@@ -962,19 +950,19 @@ agent_custom = create_react_agent(
 agent_custom.invoke({"messages": [{"role": "user", "content": "what's 42 x 7?"}]})
 ```
 
-### Handle large numbers of tools
+### 处理大量工具
 
-As the number of available tools grows, you may want to limit the scope of the LLM's selection, to decrease token consumption and to help manage sources of error in LLM reasoning.
+随着可用工具数量的增长，您可能希望限制 LLM 的选择范围，以减少 token 消耗并帮助管理 LLM 推理中的错误来源。
 
-To address this, you can dynamically adjust the tools available to a model by retrieving relevant tools at runtime using semantic search.
+为解决此问题，您可以通过在运行时使用语义搜索来动态调整可用于模型的工具。
 
-See [`langgraph-bigtool`](https://github.com/langchain-ai/langgraph-bigtool) prebuilt library for a ready-to-use implementation.
+有关现成实现的说明，请参阅 [`langgraph-bigtool`](https://github.com/langchain-ai/langgraph-bigtool) 预建库。
 
-## Prebuilt tools
+## 预建工具
 
-### LLM provider tools
+### LLM 提供商工具
 
-You can use prebuilt tools from model providers by passing a dictionary with tool specs to the `tools` parameter of `create_react_agent`. For example, to use the `web_search_preview` tool from OpenAI:
+您可以通过将包含工具规范的字典传递给 `create_react_agent` 的 `tools` 参数来使用模型提供商的预建工具。例如，要使用 OpenAI 的 `web_search_preview` 工具：
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -988,21 +976,20 @@ response = agent.invoke(
 )
 ```
 
-Please consult the documentation for the specific model you are using to see which tools are available and how to use them.
+请参阅您使用的特定模型的文档，了解可用的工具以及如何使用它们。
 
-### LangChain tools
+### LangChain 工具
 
-Additionally, LangChain supports a wide range of prebuilt tool integrations for interacting with APIs, databases, file systems, web data, and more. These tools extend the functionality of agents and enable rapid development.
+此外，LangChain 还支持与 API、数据库、文件系统、Web 数据等交互的各种预建工具集成。这些工具扩展了代理的功能并实现了快速开发。
 
-You can browse the full list of available integrations in the [LangChain integrations directory](https://python.langchain.com/docs/integrations/tools/).
+您可以在 [LangChain 集成目录](https://python.langchain.com/docs/integrations/tools/) 中浏览所有可用的集成。
 
-Some commonly used tool categories include:
+一些常用的工具类别包括：
 
-- **Search**: Bing, SerpAPI, Tavily
-- **Code interpreters**: Python REPL, Node.js REPL
-- **Databases**: SQL, MongoDB, Redis
-- **Web data**: Web scraping and browsing
-- **APIs**: OpenWeatherMap, NewsAPI, and others
+- **搜索**：Bing、SerpAPI、Tavily
+- **代码解释器**：Python REPL、Node.js REPL
+- **数据库**：SQL、MongoDB、Redis
+- **Web 数据**：Web 抓取和浏览
+- **API**：OpenWeatherMap、NewsAPI 等
 
-These integrations can be configured and added to your agents using the same `tools` parameter shown in the examples above.
-
+这些集成可以使用上面示例中显示的相同 `tools` 参数进行配置和添加到您的代理中。

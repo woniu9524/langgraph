@@ -1,19 +1,19 @@
-# Manage assistants
+# 管理助手
 
-!!! info "Prerequisites"
+!!! info "先决条件"
 
-    - [Assistants Overview](../../../concepts/assistants.md)
+    - [助手概览](../../../concepts/assistants.md)
 
-LangGraph Studio lets you view, edit, and update your assistants, and allows you to run your graph using these assistant configurations.
+LangGraph Studio 允许您查看、编辑和更新您的助手，并允许您使用这些助手配置来运行您的图。
 
-## Graph mode
+## 图模式
 
-To view your assistants, click the "Manage Assistants" button in the bottom left corner.
+要查看您的助手，请点击左下角的“管理助手”按钮。
 
-This opens a modal for you to view all the assistants for the selected graph. Specify the assistant and its version you would like to mark as "Active", and this assistant will be used when submitting runs.
+这将打开一个模态框，供您查看所选图的所有助手。指定您希望标记为“活动”的助手及其版本，当提交运行时将使用此助手。
 
-By default, the "Default configuration" option will be active. This option reflects the default configuration defined in your graph. Edits made to this configuration will be used to update the run-time configuration, but will not update or create a new assistant unless you click "Create new assistant".
+默认情况下，“默认配置”选项将处于活动状态。此选项反映了在您的图中定义的默认配置。对此配置所做的编辑将用于更新运行时配置，但除非您单击“创建新助手”，否则不会更新或创建新助手。
 
-## Chat mode
+## 聊天模式
 
-Chat mode enables you to switch through the different assistants in your graph via the dropdown selector at the top of the page. To create, edit, or delete assistants, use Graph mode.
+聊天模式使您可以通过页面顶部的下拉选择器切换图中的不同助手。要创建、编辑或删除助手，请使用图模式。

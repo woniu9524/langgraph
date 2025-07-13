@@ -1,36 +1,36 @@
-# Add memory
+# 添加记忆
 
-The chatbot can now [use tools](./2-add-tools.md) to answer user questions, but it does not remember the context of previous interactions. This limits its ability to have coherent, multi-turn conversations.
+聊天机器人现在可以[使用工具](./2-add-tools.md)来回答用户问题了，但它无法记住之前交互的上下文。这限制了它进行连贯的多轮对话的能力。
 
-LangGraph solves this problem through **persistent checkpointing**. If you provide a `checkpointer` when compiling the graph and a `thread_id` when calling your graph, LangGraph automatically saves the state after each step. When you invoke the graph again using the same `thread_id`, the graph loads its saved state, allowing the chatbot to pick up where it left off. 
+LangGraph 通过**持久化检查点**解决了这个问题。如果你在编译图时提供了一个 `checkpointer`，并在调用图时提供了一个 `thread_id`，LangGraph 会在每一步后自动保存状态。当你使用相同的 `thread_id` 再次调用图时，图会加载其保存的状态，从而让聊天机器人可以从上次中断的地方继续。
 
-We will see later that **checkpointing** is _much_ more powerful than simple chat memory - it lets you save and resume complex state at any time for error recovery, human-in-the-loop workflows, time travel interactions, and more. But first, let's add checkpointing to enable multi-turn conversations.
+稍后我们会看到，**检查点**比简单的聊天记忆 _强大得多_——它允许你在任何时候保存和恢复复杂状态，以实现错误恢复、人工审核工作流、时间旅行交互等。但首先，让我们添加检查点以启用多轮对话。
 
 !!! note
 
-    This tutorial builds on [Add tools](./2-add-tools.md).
+    本教程建立在 [添加工具](./2-add-tools.md) 的基础上。
 
-## 1. Create a `MemorySaver` checkpointer
+## 1. 创建一个 `MemorySaver` 检查点
 
-Create a `MemorySaver` checkpointer:
+创建一个 `MemorySaver` 检查点：
 
-``` python
+```python
 from langgraph.checkpoint.memory import MemorySaver
 
 memory = MemorySaver()
 ```
 
-This is in-memory checkpointer, which is convenient for the tutorial. However, in a production application, you would likely change this to use `SqliteSaver` or `PostgresSaver` and connect a database.
+这是一个内存中的检查点，对于本教程来说很方便。但是，在生产环境中，你可能会将其更改为使用 `SqliteSaver` 或 `PostgresSaver` 并连接数据库。
 
-## 2. Compile the graph
+## 2. 编译图
 
-Compile the graph with the provided checkpointer, which will checkpoint the `State` as the graph works through each node:
+使用提供的检查点来编译图，它将在图处理每个节点时检查点 `State`：
 
-``` python
+```python
 graph = graph_builder.compile(checkpointer=memory)
 ```
 
-``` python
+```python
 from IPython.display import Image, display
 
 try:
@@ -40,22 +40,22 @@ except Exception:
     pass
 ```
 
-## 3. Interact with your chatbot
+## 3. 与你的聊天机器人互动
 
-Now you can interact with your bot!
+现在你可以与你的机器人互动了！
 
-1. Pick a thread to use as the key for this conversation.
+1. 选择一个 thread 来作为本次对话的 key。
 
     ```python
     config = {"configurable": {"thread_id": "1"}}
     ```
 
-2. Call your chatbot:
+2. 调用你的聊天机器人：
 
     ```python
     user_input = "Hi there! My name is Will."
 
-    # The config is the **second positional argument** to stream() or invoke()!
+    # Config 是 stream() 或 invoke() 的 **第二个位置参数**！
     events = graph.stream(
         {"messages": [{"role": "user", "content": user_input}]},
         config,
@@ -76,16 +76,16 @@ Now you can interact with your bot!
 
     !!! note 
 
-        The config was provided as the **second positional argument** when calling our graph. It importantly is _not_ nested within the graph inputs (`{'messages': []}`).
+        在调用我们的图时，Config 作为了 **第二个位置参数**。重要的是，它没有嵌套在图的输入（`{'messages': []}`）中。
 
-## 4. Ask a follow up question
+## 4. 提出后续问题
 
-Ask a follow up question:
+提出一个后续问题：
 
 ```python
 user_input = "Remember my name?"
 
-# The config is the **second positional argument** to stream() or invoke()!
+# Config 是 stream() 或 invoke() 的 **第二个位置参数**！
 events = graph.stream(
     {"messages": [{"role": "user", "content": user_input}]},
     config,
@@ -104,12 +104,12 @@ Remember my name?
 Of course, I remember your name, Will. I always try to pay attention to important details that users share with me. Is there anything else you'd like to talk about or any questions you have? I'm here to help with a wide range of topics or tasks.
 ```
 
-**Notice** that we aren't using an external list for memory: it's all handled by the checkpointer! You can inspect the full execution in this [LangSmith trace](https://smith.langchain.com/public/29ba22b5-6d40-4fbe-8d27-b369e3329c84/r) to see what's going on.
+**请注意**，我们没有使用外部列表来存储记忆：所有内容都由检查点处理！你可以查看此 [LangSmith trace](https://smith.langchain.com/public/29ba22b5-6d40-4fbe-8d27-b369e3329c84/r) 中的完整执行过程，了解正在发生什么。
 
-Don't believe me? Try this using a different config.
+不相信我？尝试使用不同的 config 来验证。
 
 ```python
-# The only difference is we change the `thread_id` here to "2" instead of "1"
+# 唯一的区别是我们在这里将 `thread_id` 改为 "2" 而不是 "1"
 events = graph.stream(
     {"messages": [{"role": "user", "content": user_input}]},
     # highlight-next-line
@@ -129,11 +129,11 @@ Remember my name?
 I apologize, but I don't have any previous context or memory of your name. As an AI assistant, I don't retain information from past conversations. Each interaction starts fresh. Could you please tell me your name so I can address you properly in this conversation?
 ```
 
-**Notice** that the **only** change we've made is to modify the `thread_id` in the config. See this call's [LangSmith trace](https://smith.langchain.com/public/51a62351-2f0a-4058-91cc-9996c5561428/r) for comparison.
+**请注意**，我们所做的**唯一**改变是修改了 Config 中的 `thread_id`。请参阅此调用的 [LangSmith trace](https://smith.langchain.com/public/51a62351-2f0a-4058-91cc-9996c5561428/r) 进行比较。
 
-## 5. Inspect the state
+## 5. 检查状态
 
-By now, we have made a few checkpoints across two different threads. But what goes into a checkpoint? To inspect a graph's `state` for a given config at any time, call `get_state(config)`.
+现在，我们已经在两个不同的 thread 中进行了几次检查点。但检查点中包含什么？要随时检查给定配置的图的 `state`，请调用 `get_state(config)`。
 
 ```python
 snapshot = graph.get_state(config)
@@ -144,15 +144,15 @@ snapshot
 StateSnapshot(values={'messages': [HumanMessage(content='Hi there! My name is Will.', additional_kwargs={}, response_metadata={}, id='8c1ca919-c553-4ebf-95d4-b59a2d61e078'), AIMessage(content="Hello Will! It's nice to meet you. How can I assist you today? Is there anything specific you'd like to know or discuss?", additional_kwargs={}, response_metadata={'id': 'msg_01WTQebPhNwmMrmmWojJ9KXJ', 'model': 'claude-3-5-sonnet-20240620', 'stop_reason': 'end_turn', 'stop_sequence': None, 'usage': {'input_tokens': 405, 'output_tokens': 32}}, id='run-58587b77-8c82-41e6-8a90-d62c444a261d-0', usage_metadata={'input_tokens': 405, 'output_tokens': 32, 'total_tokens': 437}), HumanMessage(content='Remember my name?', additional_kwargs={}, response_metadata={}, id='daba7df6-ad75-4d6b-8057-745881cea1ca'), AIMessage(content="Of course, I remember your name, Will. I always try to pay attention to important details that users share with me. Is there anything else you'd like to talk about or any questions you have? I'm here to help with a wide range of topics or tasks.", additional_kwargs={}, response_metadata={'id': 'msg_01E41KitY74HpENRgXx94vag', 'model': 'claude-3-5-sonnet-20240620', 'stop_reason': 'end_turn', 'stop_sequence': None, 'usage': {'input_tokens': 444, 'output_tokens': 58}}, id='run-ffeaae5c-4d2d-4ddb-bd59-5d5cbf2a5af8-0', usage_metadata={'input_tokens': 444, 'output_tokens': 58, 'total_tokens': 502})]}, next=(), config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef7d06e-93e0-6acc-8004-f2ac846575d2'}}, metadata={'source': 'loop', 'writes': {'chatbot': {'messages': [AIMessage(content="Of course, I remember your name, Will. I always try to pay attention to important details that users share with me. Is there anything else you'd like to talk about or any questions you have? I'm here to help with a wide range of topics or tasks.", additional_kwargs={}, response_metadata={'id': 'msg_01E41KitY74HpENRgXx94vag', 'model': 'claude-3-5-sonnet-20240620', 'stop_reason': 'end_turn', 'stop_sequence': None, 'usage': {'input_tokens': 444, 'output_tokens': 58}}, id='run-ffeaae5c-4d2d-4ddb-bd59-5d5cbf2a5af8-0', usage_metadata={'input_tokens': 444, 'output_tokens': 58, 'total_tokens': 502})]}}, 'step': 4, 'parents': {}}, created_at='2024-09-27T19:30:10.820758+00:00', parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef7d06e-859f-6206-8003-e1bd3c264b8f'}}, tasks=())
 ```
 
-```
-snapshot.next  # (since the graph ended this turn, `next` is empty. If you fetch a state from within a graph invocation, next tells which node will execute next)
+```python
+snapshot.next  # (因为图在此轮结束了，所以 `next` 是空的。如果你获取的是图调用中的状态，next 会告诉你下一个将要执行的节点)
 ```
 
-The snapshot above contains the current state values, corresponding config, and the `next` node to process. In our case, the graph has reached an `END` state, so `next` is empty.
+上面的快照包含当前状态值、相应的配置以及要处理的 `next` 节点。在我们的例子中，图已达到 `END` 状态，因此 `next` 为空。
 
-**Congratulations!** Your chatbot can now maintain conversation state across sessions thanks to LangGraph's checkpointing system. This opens up exciting possibilities for more natural, contextual interactions. LangGraph's checkpointing even handles **arbitrarily complex graph states**, which is much more expressive and powerful than simple chat memory.
+**恭喜！** 借助 LangGraph 的检查点系统，你的聊天机器人现在可以在会话之间维护对话状态。这为更自然、更具上下文的交互开启了令人兴奋的可能性。LangGraph 的检查点甚至可以处理**任意复杂的图状态**，这比简单的聊天记忆更具表现力和强大性。
   
-Check out the code snippet below to review the graph from this tutorial:
+查看下面的代码片段，回顾本教程中的图：
 
 {% include-markdown "../../../snippets/chat_model_tabs.md" %}
 
@@ -204,6 +204,6 @@ memory = MemorySaver()
 graph = graph_builder.compile(checkpointer=memory)
 ```
 
-## Next steps
+## 下一步
 
-In the next tutorial, you will [add human-in-the-loop to the chatbot](./4-human-in-the-loop.md) to handle situations where it may need guidance or verification before proceeding.
+在下一个教程中，你将[向聊天机器人添加人工审核](./4-human-in-the-loop.md)，以处理在某些情况下需要指导或验证才能继续进行的情况。

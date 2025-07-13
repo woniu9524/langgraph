@@ -1,19 +1,19 @@
-# Document API authentication in OpenAPI
+# 文档 API 身份验证（OpenAPI）
 
-This guide shows how to customize the OpenAPI security schema for your LangGraph Platform API documentation. A well-documented security schema helps API consumers understand how to authenticate with your API and even enables automatic client generation. See the [Authentication & Access Control conceptual guide](../../concepts/auth.md) for more details about LangGraph's authentication system.
+本指南展示了如何为 LangGraph 平台 API 文档自定义 OpenAPI 安全模式。完善的安全模式文档有助于 API 消费者了解如何通过 API 进行身份验证，甚至可以自动生成客户端。有关 LangGraph 身份验证系统的更多详细信息，请参阅[身份验证与访问控制概念指南](../../concepts/auth.md)。
 
-!!! note "Implementation vs Documentation"
-    This guide only covers how to document your security requirements in OpenAPI. To implement the actual authentication logic, see [How to add custom authentication](./custom_auth.md).
+!!! note "实现 vs 文档"
+    本指南仅涵盖如何在 OpenAPI 中记录你的安全要求。要实现实际的身份验证逻辑，请参阅[如何添加自定义身份验证](./custom_auth.md)。
 
-This guide applies to all LangGraph Platform deployments (Cloud and self-hosted). It does not apply to usage of the LangGraph open source library if you are not using LangGraph Platform.
+本指南适用于所有 LangGraph 平台部署（云部署和自托管）。如果你未使用 LangGraph 平台，那么它不适用于 LangGraph 开源库的使用。
 
-## Default Schema
+## 默认模式
 
-The default security scheme varies by deployment type:
+默认安全模式因部署类型而异：
 
-=== "LangGraph Platform"
+=== "LangGraph 平台"
 
-By default, LangGraph Platform requires a LangSmith API key in the `x-api-key` header:
+默认情况下，LangGraph 平台要求在 `x-api-key` 请求头中提供 LangSmith API 密钥：
 
 ```yaml
 components:
@@ -26,34 +26,34 @@ security:
   - apiKeyAuth: []
 ```
 
-When using one of the LangGraph SDK's, this can be inferred from environment variables.
+当使用 LangGraph SDK 时，这可以从环境变量中推断出来。
 
-=== "Self-hosted"
+=== "自托管"
 
-By default, self-hosted deployments have no security scheme. This means they are to be deployed only on a secured network or with authentication. To add custom authentication, see [How to add custom authentication](./custom_auth.md).
+默认情况下，自托管部署没有安全模式。这意味着它们只能部署在安全网络上或通过身份验证进行部署。要添加自定义身份验证，请参阅[如何添加自定义身份验证](./custom_auth.md)。
 
-## Custom Security Schema
+## 自定义安全模式
 
-To customize the security schema in your OpenAPI documentation, add an `openapi` field to your `auth` configuration in `langgraph.json`. Remember that this only updates the API documentation - you must also implement the corresponding authentication logic as shown in [How to add custom authentication](./custom_auth.md).
+要自定义 OpenAPI 文档中的安全模式，请在 `langgraph.json` 的 `auth` 配置中添加 `openapi` 字段。请记住，这只会更新 API 文档 — 你还必须按照[如何添加自定义身份验证](./custom_auth.md)中的说明实现相应的身份验证逻辑。
 
-Note that LangGraph Platform does not provide authentication endpoints - you'll need to handle user authentication in your client application and pass the resulting credentials to the LangGraph API.
+请注意，LangGraph 平台不提供身份验证端点 — 你需要在客户端应用程序中处理用户身份验证，并将生成的凭证传递给 LangGraph API。
 
-=== "OAuth2 with Bearer Token"
+=== "OAuth2 令牌持有人"
 
     ```json
     {
       "auth": {
-        "path": "./auth.py:my_auth",  // Implement auth logic here
+        "path": "./auth.py:my_auth",  // 在此处实现身份验证逻辑
         "openapi": {
           "securitySchemes": {
-            "OAuth2": {
+            " OAuth2": {
               "type": "oauth2",
               "flows": {
                 "implicit": {
                   "authorizationUrl": "https://your-auth-server.com/oauth/authorize",
                   "scopes": {
-                    "me": "Read information about the current user",
-                    "threads": "Access to create and manage threads"
+                    "me": "读取当前用户信息",
+                    "threads": "访问创建和管理线程"
                   }
                 }
               }
@@ -67,12 +67,12 @@ Note that LangGraph Platform does not provide authentication endpoints - you'll 
     }
     ```
 
-=== "API Key"
+=== "API 密钥"
 
     ```json
     {
       "auth": {
-        "path": "./auth.py:my_auth",  // Implement auth logic here
+        "path": "./auth.py:my_auth",  // 在此处实现身份验证逻辑
         "openapi": {
           "securitySchemes": {
             "apiKeyAuth": {
@@ -89,10 +89,10 @@ Note that LangGraph Platform does not provide authentication endpoints - you'll 
     }
     ```
 
-## Testing
+## 测试
 
-After updating your configuration:
+更新配置后：
 
-1. Deploy your application
-2. Visit `/docs` to see the updated OpenAPI documentation
-3. Try out the endpoints using credentials from your authentication server (make sure you've implemented the authentication logic first)
+1. 部署你的应用程序
+2. 访问 `/docs` 查看更新后的 OpenAPI 文档
+3. 使用来自身份验证服务器的凭证尝试使用端点（请确保你已首先实现了身份验证逻辑）

@@ -1,8 +1,8 @@
 # LangGraph SQLite Checkpoint
 
-Implementation of LangGraph CheckpointSaver that uses SQLite DB (both sync and async, via `aiosqlite`)
+LangGraph CheckpointSaver 的实现，它使用 SQLite 数据库（同步和异步，通过 `aiosqlite`）。
 
-## Usage
+## 用法
 
 ```python
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -36,13 +36,13 @@ with SqliteSaver.from_conn_string(":memory:") as checkpointer:
         },
     }
 
-    # store checkpoint
+    # 存储 checkpoint
     checkpointer.put(write_config, checkpoint, {}, {})
 
-    # load checkpoint
+    # 加载 checkpoint
     checkpointer.get(read_config)
 
-    # list checkpoints
+    # 列出 checkpoints
     list(checkpointer.list(read_config))
 ```
 
@@ -77,12 +77,12 @@ async with AsyncSqliteSaver.from_conn_string(":memory:") as checkpointer:
         },
     }
 
-    # store checkpoint
+    # 存储 checkpoint
     await checkpointer.aput(write_config, checkpoint, {}, {})
 
-    # load checkpoint
+    # 加载 checkpoint
     await checkpointer.aget(read_config)
 
-    # list checkpoints
+    # 列出 checkpoints
     [c async for c in checkpointer.alist(read_config)]
 ```

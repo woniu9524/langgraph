@@ -3,48 +3,48 @@ search:
   boost: 2
 ---
 
-# LangGraph runtime
+# LangGraph 运行时
 
-[Pregel][langgraph.pregel.Pregel] implements LangGraph's runtime, managing the execution of LangGraph applications.
+[Pregel][langgraph.pregel.Pregel] 实现了 LangGraph 的运行时，负责管理 LangGraph 应用程序的执行。
 
-Compiling a [StateGraph][langgraph.graph.StateGraph] or creating an [entrypoint][langgraph.func.entrypoint] produces a [Pregel][langgraph.pregel.Pregel] instance that can be invoked with input.
+编译一个 [StateGraph][langgraph.graph.StateGraph] 或创建一个 [入口点][langgraph.func.entrypoint]会生成一个可以被调用的 [Pregel][langgraph.pregel.Pregel] 实例。
 
-This guide explains the runtime at a high level and provides instructions for directly implementing applications with Pregel.
+本指南将从高层解释这个运行时，并提供直接使用 Pregel 实现应用程序的说明。
 
-> **Note:** The [Pregel][langgraph.pregel.Pregel] runtime is named after [Google's Pregel algorithm](https://research.google/pubs/pub37252/), which describes an efficient method for large-scale parallel computation using graphs.
+> **注意：** [Pregel][langgraph.pregel.Pregel] 运行时之所以命名为 [Google 的 Pregel 算法](https://research.google/pubs/pub37252/)，是因为该算法描述了一种使用图进行大规模并行计算的高效方法。
 
-## Overview
+## 概述
 
-In LangGraph, Pregel combines [**actors**](https://en.wikipedia.org/wiki/Actor_model) and **channels** into a single application. **Actors** read data from channels and write data to channels. Pregel organizes the execution of the application into multiple steps, following the **Pregel Algorithm**/**Bulk Synchronous Parallel** model.
+在 LangGraph 中，Pregel 将 [**Actor**](https://en.wikipedia.org/wiki/Actor_model) 和 **Channel** 整合到一个单一的应用程序中。**Actor** 从 Channel 读取数据并向 Channel 写入数据。Pregel 将应用程序的执行组织成多个步骤，遵循 **Pregel 算法**/**批量同步并行**（Bulk Synchronous Parallel）模型。
 
-Each step consists of three phases:
+每个步骤包含三个阶段：
 
-- **Plan**: Determine which **actors** to execute in this step. For example, in the first step, select the **actors** that subscribe to the special **input** channels; in subsequent steps, select the **actors** that subscribe to channels updated in the previous step.
-- **Execution**: Execute all selected **actors** in parallel, until all complete, or one fails, or a timeout is reached. During this phase, channel updates are invisible to actors until the next step.
-- **Update**: Update the channels with the values written by the **actors** in this step.
+- **规划 (Plan)**：确定此步骤中要执行的 **Actor**。例如，在第一步，选择订阅特殊 **输入 (input)** Channel 的 **Actor**；在后续步骤中，选择在前一 步更新的 Channel 上订阅的 **Actor**。
+- **执行 (Execution)**：并行执行所有选定的 **Actor**，直到所有 Actor 完成，或其中一个失败，或达到超时时间。在此阶段，Channel 的更新对 Actor 是不可见的，直到下一个步骤。
+- **更新 (Update)**：用此步骤中 **Actor** 写入的值来更新 Channel。
 
-Repeat until no **actors** are selected for execution, or a maximum number of steps is reached.
+重复此过程，直到没有 **Actor** 被选中执行，或者达到最大步数。
 
-## Actors
+## Actor
 
-An **actor** is a `PregelNode`. It subscribes to channels, reads data from them, and writes data to them. It can be thought of as an **actor** in the Pregel algorithm. `PregelNodes` implement LangChain's Runnable interface.
+Actor 是一个 `PregelNode`。它订阅 Channel，从 Channel 读取数据并写入数据。可以将其视为 Pregel 算法中的一个 **Actor**。`PregelNodes` 实现 LangChain 的 Runnable 接口。
 
-## Channels
+## Channel
 
-Channels are used to communicate between actors (PregelNodes). Each channel has a value type, an update type, and an update function – which takes a sequence of updates and modifies the stored value. Channels can be used to send data from one chain to another, or to send data from a chain to itself in a future step. LangGraph provides a number of built-in channels:
+Channel 用于 Actor（PregelNodes）之间的通信。每个 Channel 都有一个值类型、一个更新类型和一个更新函数——该函数接收一系列更新并修改存储的值。Channel 可用于将数据从一个链发送到另一个链，或将数据从一个链发送到未来步骤的自身。LangGraph 提供了一些内置的 Channel：
 
-- [LastValue][langgraph.channels.LastValue]: The default channel, stores the last value sent to the channel, useful for input and output values, or for sending data from one step to the next.
-- [Topic][langgraph.channels.Topic]: A configurable PubSub Topic, useful for sending multiple values between **actors**, or for accumulating output. Can be configured to deduplicate values or to accumulate values over the course of multiple steps.
-- [BinaryOperatorAggregate][langgraph.channels.BinaryOperatorAggregate]: stores a persistent value, updated by applying a binary operator to the current value and each update sent to the channel, useful for computing aggregates over multiple steps; e.g.,`total = BinaryOperatorAggregate(int, operator.add)`
+- [LastValue][langgraph.channels.LastValue]：默认 Channel，存储发送到 Channel 的最后一个值，适用于输入和输出值，或用于将数据从一个步骤发送到下一个步骤。
+- [Topic][langgraph.channels.Topic]：一个可配置的发布/订阅（PubSub）主题，适用于在 **Actor** 之间发送多个值，或用于累积输出。可以配置为去重值或在多个步骤中累积值。
+- [BinaryOperatorAggregate][langgraph.channels.BinaryOperatorAggregate]：存储一个持久值，通过将一个二元运算符应用于当前值和发送到 Channel 的每个更新来更新，适用于计算跨多个步骤的聚合；例如，`total = BinaryOperatorAggregate(int, operator.add)`
 
-## Examples
+## 示例
 
-While most users will interact with Pregel through the [StateGraph][langgraph.graph.StateGraph] API or
-the [entrypoint][langgraph.func.entrypoint] decorator, it is possible to interact with Pregel directly.
+虽然大多数用户会通过 [StateGraph][langgraph.graph.StateGraph] API 或
+[入口点][langgraph.func.entrypoint] 装饰器与 Pregel 交互，但也可以直接与 Pregel 交互。
 
-Below are a few different examples to give you a sense of the Pregel API.
+以下是一些不同的示例，让您了解 Pregel API。
 
-=== "Single node"
+=== "单个节点"
 
     ```python
 
@@ -74,7 +74,7 @@ Below are a few different examples to give you a sense of the Pregel API.
     {'b': 'foofoo'}
     ```
 
-=== "Multiple nodes"
+=== "多个节点"
 
     ```python
     from langgraph.channels import LastValue, EphemeralValue
@@ -149,7 +149,7 @@ Below are a few different examples to give you a sense of the Pregel API.
 
 === "BinaryOperatorAggregate"
 
-    This examples demonstrates how to use the BinaryOperatorAggregate channel to implement a reducer.
+    此示例演示如何使用 BinaryOperatorAggregate Channel 实现一个reducer。
 
     ```python
     from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
@@ -188,11 +188,9 @@ Below are a few different examples to give you a sense of the Pregel API.
     app.invoke({"a": "foo"})
     ```
 
-=== "Cycle"
+=== "循环"
 
-    This example demonstrates how to introduce a cycle in the graph, by having
-    a chain write to a channel it subscribes to. Execution will continue
-    until a None value is written to the channel.
+    此示例演示如何通过让一个链写入其订阅的 Channel 来引入图中的循环。执行将持续进行，直到向 Channel 写入 None 值。
 
     ```python
     from langgraph.channels import EphemeralValue
@@ -220,13 +218,13 @@ Below are a few different examples to give you a sense of the Pregel API.
     {'value': 'aaaaaaaaaaaaaaaa'}
     ```
 
-## High-level API
+## 高层 API
 
-LangGraph provides two high-level APIs for creating a Pregel application: the [StateGraph (Graph API)](./low_level.md) and the [Functional API](functional_api.md).
+LangGraph 提供了两个高层 API 来创建 Pregel 应用程序：[StateGraph (Graph API)](./low_level.md) 和 [函数式 API](functional_api.md)。
 
 === "StateGraph (Graph API)"
 
-    The [StateGraph (Graph API)][langgraph.graph.StateGraph] is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
+    [StateGraph (Graph API)][langgraph.graph.StateGraph] 是一个更高级的抽象，它简化了 Pregel 应用程序的创建。它允许您定义一个由节点和边组成的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
 
     ```python
     from typing import TypedDict, Optional
@@ -259,13 +257,13 @@ LangGraph provides two high-level APIs for creating a Pregel application: the [S
     graph = builder.compile()
     ```
 
-    The compiled Pregel instance will be associated with a list of nodes and channels. You can inspect the nodes and channels by printing them.
+    编译后的 Pregel 实例将与节点和 Channel 列表相关联。您可以通过打印它们来查看节点和 Channel。
 
     ```python
     print(graph.nodes)
     ```
 
-    You will see something like this:
+    您会看到类似这样的内容：
 
     ```pycon
     {'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
@@ -277,7 +275,7 @@ LangGraph provides two high-level APIs for creating a Pregel application: the [S
     print(graph.channels)
     ```
 
-    You should see something like this
+    您应该会看到类似这样的内容
 
     ```pycon
     {'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
@@ -295,10 +293,10 @@ LangGraph provides two high-level APIs for creating a Pregel application: the [S
      'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
     ```
 
-=== "Functional API"
+=== "函数式 API"
 
-    In the [Functional API](functional_api.md), you can use an [`entrypoint`][langgraph.func.entrypoint] to create
-    a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
+    在 [函数式 API](functional_api.md) 中，您可以使用 [`entrypoint`][langgraph.func.entrypoint] 来创建
+    一个 Pregel 应用程序。`entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
 
     ```python
     from typing import TypedDict, Optional

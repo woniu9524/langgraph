@@ -1,23 +1,23 @@
-# How to integrate LangGraph with AutoGen, CrewAI, and other frameworks
+# 如何将 LangGraph 与 AutoGen、CrewAI 等框架集成
 
-This guide shows how to integrate AutoGen agents with LangGraph to leverage features like persistence, streaming, and memory, and then deploy the integrated solution to LangGraph Platform for scalable production use. In this guide we show how to build a LangGraph chatbot that integrates with AutoGen, but you can follow the same approach with other frameworks.
+本指南介绍如何将 AutoGen 代理与 LangGraph 集成，以利用持久化、流式传输和内存等功能，然后将集成解决方案部署到 LangGraph Platform 以进行可扩展的生产使用。在本指南中，我们将演示如何构建一个与 AutoGen 集成的 LangGraph 聊天机器人，但您也可以将相同的方法应用于其他框架。
 
-Integrating AutoGen with LangGraph provides several benefits:
+将 AutoGen 与 LangGraph 集成具有多项优势：
 
-- Enhanced features: Add [persistence](../concepts/persistence.md), [streaming](../concepts/streaming.md), [short and long-term memory](../concepts/memory.md) and more to your AutoGen agents.
-- Multi-agent systems: Build [multi-agent systems](../concepts/multi_agent.md) where individual agents are built with different frameworks.
-- Production deployment: Deploy your integrated solution to [LangGraph Platform](../concepts/langgraph_platform.md) for scalable production use.
+- **增强功能**：为您的 AutoGen 代理添加[持久化](../concepts/persistence.md)、[流式传输](../concepts/streaming.md)、[短期和长期记忆](../concepts/memory.md)等功能。
+- **多代理系统**：构建一个[多代理系统](../concepts/multi_agent.md)，其中单个代理使用不同的框架构建。
+- **生产部署**：将您的集成解决方案部署到[LangGraph Platform](../concepts/langgraph_platform.md) 以进行可扩展的生产使用。
 
-## Prerequisites
+## 前提条件
 
 - Python 3.9+
-- Autogen: `pip install autogen`
-- LangGraph: `pip install langgraph`
-- OpenAI API key
+- AutoGen：`pip install autogen`
+- LangGraph：`pip install langgraph`
+- OpenAI API 密钥
 
-## Setup
+## 设置
 
-Set your your environment:
+设置您的环境：
 
 ```python
 import getpass
@@ -32,9 +32,9 @@ def _set_env(var: str):
 _set_env("OPENAI_API_KEY")
 ```
 
-## 1. Define AutoGen agent
+## 1. 定义 AutoGen 代理
 
-Create an AutoGen agent that can execute code. This example is adapted from AutoGen's [official tutorials](https://github.com/microsoft/autogen/blob/0.2/notebook/agentchat_web_info.ipynb):
+创建一个可以执行代码的 AutoGen 代理。此示例改编自 AutoGen 的[官方教程](https://github.com/microsoft/autogen/blob/0.2/notebook/agentchat_web_info.ipynb)：
 
 ```python
 import autogen
@@ -62,15 +62,15 @@ user_proxy = autogen.UserProxyAgent(
     code_execution_config={
         "work_dir": "web",
         "use_docker": False,
-    },  # Please set use_docker=True if docker is available to run the generated code. Using docker is safer than running the generated code directly.
+    },  # 如果可用，请将 use_docker 设置为 True 以运行生成的代码。使用 Docker 比直接运行生成的代码更安全。
     llm_config=llm_config,
-    system_message="Reply TERMINATE if the task has been solved at full satisfaction. Otherwise, reply CONTINUE, or the reason why the task is not solved yet.",
+    system_message="如果任务已完全满意地解决，请回复 TERMINATE。否则，请回复 CONTINUE，或未解决任务的原因。",
 )
 ```
 
-## 2. Create the graph
+## 2. 创建图表
 
-We will now create a LangGraph chatbot graph that calls AutoGen agent.
+现在我们将创建一个调用 AutoGen 代理的 LangGraph 聊天机器人图表。
 
 ```python
 from langchain_core.messages import convert_to_openai_messages
@@ -78,37 +78,37 @@ from langgraph.graph import StateGraph, MessagesState, START
 from langgraph.checkpoint.memory import MemorySaver
 
 def call_autogen_agent(state: MessagesState):
-    # Convert LangGraph messages to OpenAI format for AutoGen
+    # 将 LangGraph 消息转换为 AutoGen 的 OpenAI 格式
     messages = convert_to_openai_messages(state["messages"])
     
-    # Get the last user message
+    # 获取最后一条用户消息
     last_message = messages[-1]
     
-    # Pass previous message history as context (excluding the last message)
+    # 将先前的消息历史作为上下文传递（不包括最后一条消息）
     carryover = messages[:-1] if len(messages) > 1 else []
     
-    # Initiate chat with AutoGen
+    # 使用 AutoGen 启动聊天
     response = user_proxy.initiate_chat(
         autogen_agent,
         message=last_message,
         carryover=carryover
     )
     
-    # Extract the final response from the agent
+    # 从代理中提取最终响应
     final_content = response.chat_history[-1]["content"]
     
-    # Return the response in LangGraph format
+    # 以 LangGraph 格式返回响应
     return {"messages": {"role": "assistant", "content": final_content}}
 
-# Create the graph with memory for persistence
+# 使用内存创建带持久化的图表
 checkpointer = MemorySaver()
 
-# Build the graph
+# 构建图表
 builder = StateGraph(MessagesState)
 builder.add_node("autogen", call_autogen_agent)
 builder.add_edge(START, "autogen")
 
-# Compile with checkpointer for persistence
+# 使用 checkpointer 进行编译以实现持久化
 graph = builder.compile(checkpointer=checkpointer)
 ```
 
@@ -120,12 +120,12 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 ![Graph](./assets/autogen-output.png)
 
-## 3. Test the graph locally
+## 3. 在本地测试图表
 
-Before deploying to LangGraph Platform, you can test the graph locally:
+在部署到 LangGraph Platform 之前，您可以在本地测试该图表：
 
 ```python
-# pass the thread ID to persist agent outputs for future interactions
+# 将 thread_id 传递给持久化代理输出以进行将来的交互
 # highlight-next-line
 config = {"configurable": {"thread_id": "1"}}
 
@@ -134,7 +134,7 @@ for chunk in graph.stream(
         "messages": [
             {
                 "role": "user",
-                "content": "Find numbers between 10 and 30 in fibonacci sequence",
+                "content": "找到斐波那契数列中介于 10 和 30 之间的数字",
             }
         ]
     },
@@ -144,25 +144,25 @@ for chunk in graph.stream(
     print(chunk)
 ```
 
-**Output:**
+**输出：**
 ```
 user_proxy (to assistant):
 
-Find numbers between 10 and 30 in fibonacci sequence
+找到斐波那契数列中介于 10 和 30 之间的数字
 
 --------------------------------------------------------------------------------
 assistant (to user_proxy):
 
-To find numbers between 10 and 30 in the Fibonacci sequence, we can generate the Fibonacci sequence and check which numbers fall within this range. Here's a plan:
+要找到斐波那契数列中介于 10 和 30 之间的数字，我们可以生成斐波那契数列并检查哪些数字在此范围内。这是一个计划：
 
-1. Generate Fibonacci numbers starting from 0.
-2. Continue generating until the numbers exceed 30.
-3. Collect and print the numbers that are between 10 and 30.
+1. 从 0 开始生成斐波那契数。
+2. 继续生成，直到数字超过 30。
+3. 收集并打印介于 10 和 30 之间的数字。
 
 ...
 ```
 
-Since we're leveraging LangGraph's [persistence](https://langchain-ai.github.io/langgraph/concepts/persistence/) features we can now continue the conversation using the same thread ID -- LangGraph will automatically pass previous history to the AutoGen agent:
+由于我们利用了 LangGraph 的[持久化](https://langchain-ai.github.io/langgraph/concepts/persistence/)功能，现在我们可以使用相同的 thread_id 继续对话——LangGraph 将自动将先前的历史记录传递给 AutoGen 代理：
 
 ```python
 for chunk in graph.stream(
@@ -170,7 +170,7 @@ for chunk in graph.stream(
         "messages": [
             {
                 "role": "user",
-                "content": "Multiply the last number by 3",
+                "content": "将最后一个数字乘以 3",
             }
         ]
     },
@@ -180,45 +180,45 @@ for chunk in graph.stream(
     print(chunk)
 ```
 
-**Output:**
+**输出：**
 ```
 user_proxy (to assistant):
 
-Multiply the last number by 3
-Context: 
-Find numbers between 10 and 30 in fibonacci sequence
-The Fibonacci numbers between 10 and 30 are 13 and 21. 
+将最后一个数字乘以 3
+上下文： 
+找到斐波那契数列中介于 10 和 30 之间的数字
+斐波那契数列中介于 10 和 30 之间的数字是 13 和 21。 
 
-These numbers are part of the Fibonacci sequence, which is generated by adding the two preceding numbers to get the next number, starting from 0 and 1. 
+这些数字是斐波那契数列的一部分，该数列通过将前两个数字相加来得到下一个数字，从 0 和 1 开始。 
 
-The sequence goes: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
+数列为：0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
 
-As you can see, 13 and 21 are the only numbers in this sequence that fall between 10 and 30.
+如您所见，13 和 21 是此数列中唯一介于 10 和 30 之间的数字。 
 
 TERMINATE
 
 --------------------------------------------------------------------------------
 assistant (to user_proxy):
 
-The last number in the Fibonacci sequence between 10 and 30 is 21. Multiplying 21 by 3 gives:
+斐波那契数列中介于 10 和 30 之间的最后一个数字是 21。将 21 乘以 3 得到：
 
 21 * 3 = 63
 
 TERMINATE
 
 --------------------------------------------------------------------------------
-{'call_autogen_agent': {'messages': {'role': 'assistant', 'content': 'The last number in the Fibonacci sequence between 10 and 30 is 21. Multiplying 21 by 3 gives:\n\n21 * 3 = 63\n\nTERMINATE'}}}
+{'call_autogen_agent': {'messages': {'role': 'assistant', 'content': '斐波那契数列中介于 10 和 30 之间的最后一个数字是 21。将 21 乘以 3 得到：\n\n21 * 3 = 63\n\nTERMINATE'}}}
 ``` 
 
-## 4. Prepare for deployment
+## 4. 为部署做准备
 
-To deploy to LangGraph Platform, create a file structure like the following:
+要部署到 LangGraph Platform，请创建类似以下的目录结构：
 
 ```
 my-autogen-agent/
-├── agent.py          # Your main agent code
-├── requirements.txt  # Python dependencies
-└── langgraph.json   # LangGraph configuration
+├── agent.py          # 您的主要代理代码
+├── requirements.txt  # Python 依赖项
+└── langgraph.json   # LangGraph 配置
 ```
 
 === "agent.py"
@@ -230,7 +230,7 @@ my-autogen-agent/
     from langgraph.graph import StateGraph, MessagesState, START
     from langgraph.checkpoint.memory import MemorySaver
 
-    # AutoGen configuration
+    # AutoGen 配置
     config_list = [{"model": "gpt-4o", "api_key": os.environ["OPENAI_API_KEY"]}]
 
     llm_config = {
@@ -240,7 +240,7 @@ my-autogen-agent/
         "temperature": 0,
     }
 
-    # Create AutoGen agents
+    # 创建 AutoGen 代理
     autogen_agent = autogen.AssistantAgent(
         name="assistant",
         llm_config=llm_config,
@@ -256,11 +256,11 @@ my-autogen-agent/
             "use_docker": False,
         },
         llm_config=llm_config,
-        system_message="Reply TERMINATE if the task has been solved at full satisfaction.",
+        system_message="如果任务已完全满意地解决，请回复 TERMINATE。",
     )
 
     def call_autogen_agent(state: MessagesState):
-        """Node function that calls the AutoGen agent"""
+        """调用 AutoGen 代理的节点函数"""
         messages = convert_to_openai_messages(state["messages"])
         last_message = messages[-1]
         carryover = messages[:-1] if len(messages) > 1 else []
@@ -274,7 +274,7 @@ my-autogen-agent/
         final_content = response.chat_history[-1]["content"]
         return {"messages": {"role": "assistant", "content": final_content}}
 
-    # Create and compile the graph
+    # 创建并编译图表
     def create_graph():
         checkpointer = MemorySaver()
         builder = StateGraph(MessagesState)
@@ -282,7 +282,7 @@ my-autogen-agent/
         builder.add_edge(START, "autogen")
         return builder.compile(checkpointer=checkpointer)
 
-    # Export the graph for LangGraph Platform
+    # 导出图表以供 LangGraph Platform 使用
     graph = create_graph()
     ```
 
@@ -308,9 +308,9 @@ my-autogen-agent/
     ```
 
 
-## 5. Deploy to LangGraph Platform
+## 5. 部署到 LangGraph Platform
 
-Deploy the graph with the LangGraph Platform CLI:
+使用 LangGraph Platform CLI 部署图表：
 
 ```
 pip install -U langgraph-cli

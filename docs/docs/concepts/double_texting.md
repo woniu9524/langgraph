@@ -3,45 +3,45 @@ search:
   boost: 2
 ---
 
-# Double Texting
+# 重复发送消息
 
-!!! info "Prerequisites"
+!!! info "先决条件"
     - [LangGraph Server](./langgraph_server.md)
 
-Many times users might interact with your graph in unintended ways. 
-For instance, a user may send one message and before the graph has finished running send a second message. 
-More generally, users may invoke the graph a second time before the first run has finished.
-We call this "double texting".
+很多时候用户可能会以非预期的方式与您的图进行交互。
+例如，用户可能发送一条消息，在图完成运行之前又发送了第二条消息。
+更普遍地说，用户可能在第一次运行完成之前调用图第二次。
+我们将这种情况称为“重复发送消息”（double texting）。
 
-Currently, LangGraph only addresses this as part of [LangGraph Platform](langgraph_platform.md), not in the open source.
-The reason for this is that in order to handle this we need to know how the graph is deployed, and since LangGraph Platform deals with deployment the logic needs to live there.
-If you do not want to use LangGraph Platform, we describe the options we have implemented in detail below.
+目前，LangGraph 仅在 [LangGraph Platform](langgraph_platform.md) 中解决了此问题，开源版本未提供。
+原因是，为了处理这个问题，我们需要了解图是如何部署的，由于 LangGraph Platform 负责部署，因此逻辑需要保留在那里。
+如果您不想使用 LangGraph Platform，我们在下面详细介绍了我们已实现的所有选项。
 
 ![](img/double_texting.png)
 
-## Reject
+## 拒绝 (Reject)
 
-This is the simplest option, this just rejects any follow-up runs and does not allow double texting. 
-See the [how-to guide](../cloud/how-tos/reject_concurrent.md) for configuring the reject double text option.
+这是最简单的选项，它会拒绝任何后续运行，不允许重复发送消息。
+请参阅 [操作指南](../cloud/how-tos/reject_concurrent.md) 配置拒绝重复发送消息的选项。
 
-## Enqueue
+## 排队 (Enqueue)
 
-This is a relatively simple option which continues the first run until it completes the whole run, then sends the new input as a separate run. 
-See the [how-to guide](../cloud/how-tos/enqueue_concurrent.md) for configuring the enqueue double text option.
+这是一个相对简单的选项，它会继续执行第一次运行直到整个运行完成，然后将新输入作为一次单独的运行发送。
+请参阅 [操作指南](../cloud/how-tos/enqueue_concurrent.md) 配置排队重复发送消息的选项。
 
-## Interrupt
+## 中断 (Interrupt)
 
-This option interrupts the current execution but saves all the work done up until that point. 
-It then inserts the user input and continues from there. 
+此选项会中断当前执行，但会保存到目前为止所做的所有工作。
+然后它会插入用户输入并从那里继续。
 
-If you enable this option, your graph should be able to handle weird edge cases that may arise. 
-For example, you could have called a tool but not yet gotten back a result from running that tool.
-You may need to remove that tool call in order to not have a dangling tool call.
+如果启用此选项，您的图应能够处理可能出现的奇怪的边缘情况。
+例如，您可能调用了一个工具，但尚未收到该工具运行的结果。
+您可能需要删除该工具调用，以免留下悬空的工具调用。
 
-See the [how-to guide](../cloud/how-tos/interrupt_concurrent.md) for configuring the interrupt double text option.
+请参阅 [操作指南](../cloud/how-tos/interrupt_concurrent.md) 配置中断重复发送消息的选项。
 
-## Rollback
+## 回滚 (Rollback)
 
-This option interrupts the current execution AND rolls back all work done up until that point, including the original run input. It then sends the new user input in, basically as if it was the original input.
+此选项会中断当前执行，并回滚到目前为止所做的所有工作（包括原始运行输入）。然后它会插入新的用户输入，基本就像原始输入一样。
 
-See the [how-to guide](../cloud/how-tos/rollback_concurrent.md) for configuring the rollback double text option.
+请参阅 [操作指南](../cloud/how-tos/rollback_concurrent.md) 配置回滚重复发送消息的选项。

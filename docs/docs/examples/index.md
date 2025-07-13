@@ -1,23 +1,23 @@
-# Examples
+# 示例
 
-The pages in this section provide end-to-end examples for the following topics:
+本节中的页面提供了以下主题的端到端示例：
 
-## General 
+## 通用
 
-- [Template Applications](../concepts/template_applications.md): Create a LangGraph application from a template.
-- [Agentic RAG](../tutorials/rag/langgraph_agentic_rag.md): Build a retrieval agent that can decide when to use a retriever tool.
-- [Agent Supervisor](../tutorials/multi_agent/agent_supervisor.md): Build a supervisor agent that can manage a team of agents.
-- [SQL agent](../tutorials/sql/sql-agent.md): Build a SQL agent that can execute SQL queries and return the results.
-- [Prebuilt chat UI](../agents/ui.md): Use a prebuilt chat UI to interact with any LangGraph agent.
-- [Graph runs in LangSmith](../how-tos/run-id-langsmith.md): Use LangSmith to track and analyze graph runs.
+- [模板应用程序](../concepts/template_applications.md): 从模板创建 LangGraph 应用程序。
+- [Agentic RAG](../tutorials/rag/langgraph_agentic_rag.md): 构建一个检索代理，该代理可以决定何时使用检索器工具。
+- [代理监督器](../tutorials/multi_agent/agent_supervisor.md): 构建一个监督代理，该代理可以管理代理团队。
+- [SQL 代理](../tutorials/sql/sql-agent.md): 构建一个 SQL 代理，该代理可以执行 SQL 查询并返回结果。
+- [预构建聊天 UI](../agents/ui.md): 使用预构建的聊天 UI 与任何 LangGraph 代理进行交互。
+- [LangSmith 中的图运行](../how-tos/run-id-langsmith.md): 使用 LangSmith 来跟踪和分析图运行。
 
-## LangGraph Platform
+## LangGraph 平台
 
-- [Set up custom authentication](../tutorials/auth/getting_started.md): Set up custom authentication for your LangGraph application.
-- [Make conversations private](../tutorials/auth/resource_auth.md): Make conversations private by using resource-based authentication.
-- [Connect an authentication provider](../tutorials/auth/add_auth_server.md): Connect an authentication provider to your LangGraph application.
-- [Rebuild graph at runtime](../cloud/deployment/graph_rebuild.md): Rebuild a graph at runtime.
-- [Use RemoteGraph](../how-tos/use-remote-graph.md): Use RemoteGraph to deploy your LangGraph application to a remote server.
-- [Deploy CrewAI, AutoGen, and other frameworks](../how-tos/autogen-integration.md): Deploy CrewAI, AutoGen, and other frameworks with LangGraph.
-- [Integrate LangGraph into a React app](../cloud/how-tos/use_stream_react.md)
-- [Implement Generative User Interfaces with LangGraph](../cloud/how-tos/generative_ui_react.md)
+- [设置自定义身份验证](../tutorials/auth/getting_started.md): 为您的 LangGraph 应用程序设置自定义身份验证。
+- [使对话私有化](../tutorials/auth/resource_auth.md): 通过使用基于资源的身份验证使对话私有化。
+- [连接身份验证提供程序](../tutorials/auth/add_auth_server.md): 将身份验证提供程序连接到您的 LangGraph 应用程序。
+- [在运行时重建图](../cloud/deployment/graph_rebuild.md): 在运行时重建图。
+- [使用 RemoteGraph](../how-tos/use-remote-graph.md): 使用 RemoteGraph 将您的 LangGraph 应用程序部署到远程服务器。
+- [部署 CrewAI、AutoGen 和其他框架](../how-tos/autogen-integration.md): 使用 LangGraph 部署 CrewAI、AutoGen 和其他框架。
+- [将 LangGraph 集成到 React 应用程序中](../cloud/how-tos/use_stream_react.md)
+- [使用 LangGraph 实现生成式用户界面](../cloud/how-tos/generative_ui_react.md)

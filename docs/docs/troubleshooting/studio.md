@@ -1,10 +1,10 @@
-# LangGraph Studio Troubleshooting
+# LangGraph Studio 排错指南
 
-## :fontawesome-brands-safari:{ .safari } Safari Connection Issues
+## :fontawesome-brands-safari:{ .safari } Safari 连接问题
 
-Safari blocks plain-HTTP traffic on localhost. When running Studio with `langgraph dev`, you may see "Failed to load assistants" errors.
+Safari 会阻止 `localhost` 上的纯 HTTP 流量。当您运行 `langgraph dev` 并使用 Studio 时，可能会看到“Failed to load assistants”的错误。
 
-### Solution 1: Use Cloudflare Tunnel
+### 解决方案 1：使用 Cloudflare Tunnel
 
 === "Python"
 
@@ -16,33 +16,33 @@ Safari blocks plain-HTTP traffic on localhost. When running Studio with `langgra
 === "JS"
 
     ```shell
-    # Requires @langchain/langgraph-cli>=0.0.26
+    # 需要 @langchain/langgraph-cli>=0.0.26
     npx @langchain/langgraph-cli dev --tunnel
     ```
 
-The command outputs a URL in this format:
+该命令会输出一个类似如下格式的 URL：
 
 ```shell
 https://smith.langchain.com/studio/?baseUrl=https://hamilton-praise-heart-costumes.trycloudflare.com
 ```
 
-Use this URL in Safari to load Studio. Here, the `baseUrl` parameter specifies your agent server endpoint.
+在 Safari 中使用此 URL 来加载 Studio。其中，`baseUrl` 参数指定了您的代理服务器端点。
 
-### Solution 2: Use Chromium Browser
+### 解决方案 2：使用 Chromium 浏览器
 
-Chrome and other Chromium browsers allow HTTP on localhost. Use `langgraph dev` without additional configuration.
+Chrome 及其他 Chromium 浏览器允许在 `localhost` 上使用 HTTP。您可以直接运行 `langgraph dev`，无需额外配置。
 
-## :fontawesome-brands-brave:{ .brave } Brave Connection Issues
+## :fontawesome-brands-brave:{ .brave } Brave 连接问题
 
-Brave blocks plain-HTTP traffic on localhost when Brave Shields are enabled. When running Studio with `langgraph dev`, you may see "Failed to load assistants" errors.
+在启用 Brave Shields 时，Brave 会阻止 `localhost` 上的纯 HTTP 流量。当您运行 `langgraph dev` 并使用 Studio 时，可能会看到“Failed to load assistants”的错误。
 
-### Solution 1: Disable Brave Shields
+### 解决方案 1：禁用 Brave Shields
 
-Disable Brave Shields for LangSmith using the Brave icon in the URL bar.
+通过点击 URL 栏中的 Brave 图标来禁用 LangSmith 的 Brave Shields。
 
 ![Brave Shields](./img/brave-shields.png)
 
-### Solution 2: Use Cloudflare Tunnel
+### 解决方案 2：使用 Cloudflare Tunnel
 
 === "Python"
 
@@ -54,26 +54,25 @@ Disable Brave Shields for LangSmith using the Brave icon in the URL bar.
 === "JS"
 
     ```shell
-    # Requires @langchain/langgraph-cli>=0.0.26
+    # 需要 @langchain/langgraph-cli>=0.0.26
     npx @langchain/langgraph-cli dev --tunnel
     ```
 
-The command outputs a URL in this format:
+该命令会输出一个类似如下格式的 URL：
 
 ```shell
 https://smith.langchain.com/studio/?baseUrl=https://hamilton-praise-heart-costumes.trycloudflare.com
 ```
 
-Use this URL in Brave to load Studio. Here, the `baseUrl` parameter specifies your agent server endpoint.
+在 Brave 中使用此 URL 来加载 Studio。其中，`baseUrl` 参数指定了您的代理服务器端点。
 
-## Graph Edge Issues
+## Graph 边 (Edge) 问题
 
-Undefined conditional edges may show unexpected connections in your graph. This is
-because without proper definition, LangGraph Studio assumes the conditional edge could access all other nodes. To address this, explicitly define the routing paths using one of these methods:
+未定义的条件边可能会在您的图中显示意外的连接。这是因为，在没有正确定义的情况下，LangGraph Studio 会假设条件边可以连接到所有其他节点。要解决此问题，请使用以下方法之一显式定义路由路径：
 
-### Solution 1: Path Map
+### 解决方案 1：路径映射 (Path Map)
 
-Define a mapping between router outputs and target nodes:
+定义路由输出与目标节点之间的映射关系：
 
 === "Python"
 
@@ -87,9 +86,9 @@ Define a mapping between router outputs and target nodes:
     graph.addConditionalEdges("node_a", routingFunction, { true: "node_b", false: "node_c" });
     ```
 
-### Solution 2: Router Type Definition (Python)
+### 解决方案 2：路由类型定义 (Python)
 
-Specify possible routing destinations using Python's `Literal` type:
+使用 Python 的 `Literal` 类型指定可能的路由目标：
 
 ```python
 def routing_function(state: GraphState) -> Literal["node_b","node_c"]:

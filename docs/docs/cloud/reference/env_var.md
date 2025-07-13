@@ -1,147 +1,147 @@
-# Environment Variables
+# 环境变量
 
-The LangGraph Server supports specific environment variables for configuring a deployment.
+LangGraph 服务器支持用于配置部署的特定环境变量。
 
 ## `BG_JOB_ISOLATED_LOOPS`
 
-Set `BG_JOB_ISOLATED_LOOPS` to `True` to execute background runs in an isolated event loop separate from the serving API event loop.
+将 `BG_JOB_ISOLATED_LOOPS` 设置为 `True`，以在与服务 API 事件循环 separate 的隔离事件循环中执行后台运行。
 
-This environment variable should be set to `True` if the implementation of a graph/node contains synchronous code. In this situation, the synchronous code will block the serving API event loop, which may cause the API to be unavailable. A symptom of an unavailable API is continuous application restarts due to failing health checks.
+如果图/节点实现包含同步代码，则应将此环境变量设置为 `True`。在这种情况下，同步代码将阻塞服务 API 事件循环，这可能会导致 API 不可用。API 不可用的症状是由于健康检查失败导致应用程序持续重启。
 
-Defaults to `False`.
+默认为 `False`。
 
 ## `BG_JOB_SHUTDOWN_GRACE_PERIOD_SECS`
 
-Specifies, in seconds, how long the server will wait for background jobs to finish after the queue receives a shutdown signal. After this period, the server will force termination. Defaults to `180` seconds. Set this to ensure jobs have enough time to complete cleanly during shutdown. Added in `langgraph-api==0.2.16`.
+以秒为单位指定服务器在队列收到关闭信号后等待后台作业完成的时间。在此期间之后，服务器将强制终止。默认为 `180` 秒。设置此选项可确保作业在关闭期间有足够的时间正常完成。添加到 `langgraph-api==0.2.16`。
 
 ## `BG_JOB_TIMEOUT_SECS`
 
-The timeout of a background run can be increased. However, the infrastructure for a Cloud SaaS deployment enforces a 1 hour timeout limit for API requests. This means the connection between client and server will timeout after 1 hour. This is not configurable.
+可以增加后台运行的超时时间。但是，Cloud SaaS 部署的基础设施对 API 请求强制执行 1 小时的超时限制。这意味着客户端和服务器之间的连接将在 1 小时后超时。此设置不可配置。
 
-A background run can execute for longer than 1 hour, but a client must reconnect to the server (e.g. join stream via `POST /threads/{thread_id}/runs/{run_id}/stream`) to retrieve output from the run if the run is taking longer than 1 hour.
+后台运行可以执行超过 1 小时，但客户端必须重新连接到服务器（例如，通过 `POST /threads/{thread_id}/runs/{run_id}/stream` 加入流）才能检索运行的输出，如果运行时间超过 1 小时。
 
-Defaults to `3600`.
+默认为 `3600`。
 
 ## `DD_API_KEY`
 
-Specify `DD_API_KEY` (your [Datadog API Key](https://docs.datadoghq.com/account_management/api-app-keys/)) to automatically enable Datadog tracing for the deployment. Specify other [`DD_*` environment variables](https://ddtrace.readthedocs.io/en/stable/configuration.html) to configure the tracing instrumentation.
+指定 `DD_API_KEY`（您的 [Datadog API 密钥](https://docs.datadoghq.com/account_management/api-app-keys/)）以自动为部署启用 Datadog 跟踪。指定其他 [`DD_*`环境变量](https://ddtrace.readthedocs.io/en/stable/configuration.html) 来配置跟踪仪器。
 
-If `DD_API_KEY` is specified, the application process is wrapped in the [`ddtrace-run` command](https://ddtrace.readthedocs.io/en/stable/installation_quickstart.html). Other `DD_*` environment variables (e.g. `DD_SITE`, `DD_ENV`, `DD_SERVICE`, `DD_TRACE_ENABLED`) are typically needed to properly configure the tracing instrumentation. See [`DD_*` environment variables](https://ddtrace.readthedocs.io/en/stable/configuration.html) for more details.
+如果指定了 `DD_API_KEY`，则应用程序进程将包装在 [`ddtrace-run` 命令](https://ddtrace.readthedocs.io/en/stable/installation_quickstart.html) 中。通常需要其他 `DD_*` 环境变量（例如 `DD_SITE`、`DD_ENV`、`DD_SERVICE`、`DD_TRACE_ENABLED`）来正确配置跟踪仪器。有关更多详细信息，请参阅 [`DD_*` 环境变量](https://ddtrace.readthedocs.io/en/stable/configuration.html)。
 
 ## `LANGCHAIN_TRACING_SAMPLING_RATE`
 
-Sampling rate for traces sent to LangSmith. Valid values: Any float between `0` and `1`.
+发送到 LangSmith 的跟踪的采样率。有效值：介于 `0` 和 `1` 之间的任何浮点数。
 
-See <a href="https://docs.smith.langchain.com/how_to_guides/tracing/sample_traces" target="_blank">LangSmith documentation</a> for more details.
+有关更多详细信息，请参阅 <a href="https://docs.smith.langchain.com/how_to_guides/tracing/sample_traces" target="_blank">LangSmith 文档</a>。
 
 ## `LANGGRAPH_AUTH_TYPE`
 
-Type of authentication for the LangGraph Server deployment. Valid values: `langsmith`, `noop`.
+LangGraph 服务器部署的身份验证类型。有效值：`langsmith`、`noop`。
 
-For deployments to LangGraph Platform, this environment variable is set automatically. For local development or deployments where authentication is handled externally (e.g. self-hosted), set this environment variable to `noop`.
+对于部署到 LangGraph 平台，此环境变量会自动设置。对于本地开发或外部处理身份验证的部署（例如自托管），请将此环境变量设置为 `noop`。
 
 ## `LANGGRAPH_POSTGRES_POOL_MAX_SIZE`
 
-Beginning with langgraph-api version `0.2.12`, the maximum size of the Postgres connection pool (per replica) can be controlled using the `LANGGRAPH_POSTGRES_POOL_MAX_SIZE` environment variable. By setting this variable, you can determine the upper bound on the number of simultaneous connections the server will establish with the Postgres database.
+从 langgraph-api 版本 `0.2.12` 开始，可以通过 `LANGGRAPH_POSTGRES_POOL_MAX_SIZE` 环境变量控制 Postgres 连接池的最大大小（每个副本）。通过设置此变量，您可以确定服务器与 Postgres 数据库建立的并发连接数的上限。
 
-For example, if a deployment is scaled up to 10 replicas and `LANGGRAPH_POSTGRES_POOL_MAX_SIZE` is configured to `150`, then up to `1500` connections to Postgres can be established. This is particularly useful for deployments where database resources are limited (or more available) or where you need to tune connection behavior for performance or scaling reasons.
+例如，如果一个部署扩展到 10 个副本，并且 `LANGGRAPH_POSTGRES_POOL_MAX_SIZE` 配置为 `150`，则最多可以建立 `1500` 个与 Postgres 的连接。这对于数据库资源有限（或更多可用）的部署非常有用，或者当您需要调整连接行为以获得性能或扩展性时。
 
-Defaults to `150` connections.
+默认为 `150` 个连接。
 
 ## `LANGSMITH_RUNS_ENDPOINTS`
 
-For deployments with [self-hosted LangSmith](https://docs.smith.langchain.com/self_hosting) only.
+仅适用于具有 [自托管 LangSmith](https://docs.smith.langchain.com/self_hosting) 的部署。
 
-Set this environment variable to have a deployment send traces to a self-hosted LangSmith instance. The value of `LANGSMITH_RUNS_ENDPOINTS` is a JSON string: `{"<SELF_HOSTED_LANGSMITH_HOSTNAME>":"<LANGSMITH_API_KEY>"}`.
+设置此环境变量以使部署能够将跟踪发送到自托管的 LangSmith 实例。`LANGSMITH_RUNS_ENDPOINTS` 的值是一个 JSON 字符串：`{"<SELF_HOSTED_LANGSMITH_HOSTNAME>":"<LANGSMITH_API_KEY>"}`。
 
-`SELF_HOSTED_LANGSMITH_HOSTNAME` is the hostname of the self-hosted LangSmith instance. It must be accessible to the deployment. `LANGSMITH_API_KEY` is a LangSmith API generated from the self-hosted LangSmith instance.
+`SELF_HOSTED_LANGSMITH_HOSTNAME` 是自托管 LangSmith 实例的主机名。部署必须可以访问它。`LANGSMITH_API_KEY` 是从自托管 LangSmith 实例生成的 LangSmith API 密钥。
 
 ## `LANGSMITH_TRACING`
 
-Set `LANGSMITH_TRACING` to `false` to disable tracing to LangSmith.
+将 `LANGSMITH_TRACING` 设置为 `false` 以禁用发送到 LangSmith 的跟踪。
 
-Defaults to `true`.
+默认为 `true`。
 
 ## `LOG_COLOR`
 
-This is mainly relevant in the context of using the dev server via the `langgraph dev` command. Set `LOG_COLOR` to `true` to enable ANSI-colored console output when using the default console renderer. Disabling color output by setting this variable to `false` produces monochrome logs. Defaults to `true`.
+这主要与通过 `langgraph dev` 命令使用开发服务器的上下文相关。将 `LOG_COLOR` 设置为 `true` 可在默认控制台渲染器中使用时启用 ANSI 彩色控制台输出。将此变量设置为 `false` 以禁用彩色输出会产生单色日志。默认为 `true`。
 
 ## `LOG_LEVEL`
 
-Configure [log level](https://docs.python.org/3/library/logging.html#logging-levels). Defaults to `INFO`.
+配置 [日志级别](https://docs.python.org/3/library/logging.html#logging-levels)。默认为 `INFO`。
 
 ## `LOG_JSON`
 
-Set `LOG_JSON` to `true` to render all log messages as JSON objects using the configured `JSONRenderer`. This produces structured logs that can be easily parsed or ingested by log management systems. Defaults to `false`.
+将 `LOG_JSON` 设置为 `true` 以使用配置的 `JSONRenderer` 将所有日志消息呈现为 JSON 对象。这会生成结构化日志，日志管理系统可以轻松解析或摄入这些日志。默认为 `false`。
 
 ## `MOUNT_PREFIX`
 
-!!! info "Only Allowed in Self-Hosted Deployments"
-    The `MOUNT_PREFIX` environment variable is only allowed in Self-Hosted Deployment models, LangGraph Platform SaaS will not allow this environment variable.
+!!! info "仅允许在自托管部署中使用"
+    `MOUNT_PREFIX` 环境变量仅允许在自托管部署模型中使用，LangGraph 平台 SaaS 不允许使用此环境变量。
 
-Set `MOUNT_PREFIX` to serve the LangGraph Server under a specific path prefix. This is useful for deployments where the server is behind a reverse proxy or load balancer that requires a specific path prefix.
+设置 `MOUNT_PREFIX` 以在特定路径前缀下提供 LangGraph 服务器。这对于服务器位于需要特定路径前缀的反向代理或负载均衡器后面的部署很有用。
 
-For example, if the server is to be served under `https://example.com/langgraph`, set `MOUNT_PREFIX` to `/langgraph`.
+例如，如果服务器要在 `https://example.com/langgraph` 下提供服务，请将 `MOUNT_PREFIX` 设置为 `/langgraph`。
 
 ## `N_JOBS_PER_WORKER`
 
-Number of jobs per worker for the LangGraph Server task queue. Defaults to `10`.
+LangGraph 服务器任务队列的每个 worker 的作业数。默认为 `10`。
 
 ## `POSTGRES_URI_CUSTOM`
 
-!!! info "Only for Self-Hosted Data Plane and Self-Hosted Control Plane"
-    Custom Postgres instances are only available for [Self-Hosted Data Plane](../../concepts/langgraph_self_hosted_data_plane.md) and [Self-Hosted Control Plane](../../concepts/langgraph_self_hosted_control_plane.md) deployments.
+!!! info "仅适用于自托管数据平面和自托管控制平面"
+    自定义 Postgres 实例仅适用于 [自托管数据平面](../../concepts/langgraph_self_hosted_data_plane.md) 和 [自托管控制平面](../../concepts/langgraph_self_hosted_control_plane.md) 部署。
 
-Specify `POSTGRES_URI_CUSTOM` to use a custom Postgres instance. The value of `POSTGRES_URI_CUSTOM` must be a valid [Postgres connection URI](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS).
+指定 `POSTGRES_URI_CUSTOM` 以使用自定义 Postgres 实例。`POSTGRES_URI_CUSTOM` 的值必须是有效的 [Postgres 连接 URI](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS)。
 
-Postgres:
+Postgres：
 
-- Version 15.8 or higher.
-- An initial database must be present and the connection URI must reference the database.
+- 版本 15.8 或更高版本。
+- 必须存在初始数据库，并且连接 URI 必须引用该数据库。
 
-Control Plane Functionality:
+控制平面功能：
 
-- If `POSTGRES_URI_CUSTOM` is specified, the LangGraph Control Plane will not provision a database for the server.
-- If `POSTGRES_URI_CUSTOM` is removed, the LangGraph Control Plane will not provision a database for the server and will not delete the externally managed Postgres instance.
-- If `POSTGRES_URI_CUSTOM` is removed, deployment of the revision will not succeed. Once `POSTGRES_URI_CUSTOM` is specified, it must always be set for the lifecycle of the deployment.
-- If the deployment is deleted, the LangGraph Control Plane will not delete the externally managed Postgres instance.
-- The value of `POSTGRES_URI_CUSTOM` can be updated. For example, a password in the URI can be updated.
+- 如果指定了 `POSTGRES_URI_CUSTOM`，LangGraph 控制平面将不会为服务器预配数据库。
+- 如果删除了 `POSTGRES_URI_CUSTOM`，LangGraph 控制平面将不会为服务器预配数据库，也不会删除外部托管的 Postgres 实例。
+- 如果删除了 `POSTGRES_URI_CUSTOM`，则修订版的部署将不会成功。一旦指定了 `POSTGRES_URI_CUSTOM`，就必须始终在部署的生命周期内设置它。
+- 如果删除了部署，LangGraph 控制平面将不会删除外部托管的 Postgres 实例。
+- `POSTGRES_URI_CUSTOM` 的值可以更新。例如，可以更新 URI 中的密码。
 
-Database Connectivity:
+数据库连接：
 
-- The custom Postgres instance must be accessible by the LangGraph Server. The user is responsible for ensuring connectivity.
+- LangGraph 服务器必须可以访问自定义 Postgres 实例。用户负责确保连接性。
 
 ## `REDIS_CLUSTER`
 
-!!! info "Only Allowed in Self-Hosted Deployments"
-    Redis Cluster mode is only available in Self-Hosted Deployment models, LangGraph Platform SaaS will provision a redis instance for you by default.
+!!! info "仅允许在自托管部署中使用"
+    Redis Cluster 模式仅在自托管部署模型中可用，LangGraph 平台 SaaS 将默认为您预配一个 redis 实例。
 
-Set `REDIS_CLUSTER` to `True` to enable Redis Cluster mode. When enabled, the system will connect to Redis using cluster mode. This is useful when connecting to a Redis Cluster deployment.
+将 `REDIS_CLUSTER` 设置为 `True` 以启用 Redis Cluster 模式。启用后，系统将使用集群模式连接到 Redis。当连接到 Redis Cluster 部署时，此功能非常有用。
 
-Defaults to `False`.
+默认为 `False`。
 
 ## `REDIS_KEY_PREFIX`
 
-!!! info "Available in API Server version 0.1.9+"
-    This environment variable is supported in API Server version 0.1.9 and above.
+!!! info "API 服务器版本 0.1.9+ 可用"
+    API 服务器版本 0.1.9 及更高版本支持此环境变量。
 
-Specify a prefix for Redis keys. This allows multiple LangGraph Server instances to share the same Redis instance by using different key prefixes. 
+为 Redis 键指定前缀。这允许多个 LangGraph 服务器实例通过使用不同的键前缀来共享同一个 Redis 实例。
 
-Defaults to `''`.
+默认为 `''`。
 
 ## `REDIS_URI_CUSTOM`
 
-!!! info "Only for Self-Hosted Data Plane and Self-Hosted Control Plane"
-    Custom Redis instances are only available for [Self-Hosted Data Plane](../../concepts/langgraph_self_hosted_data_plane.md) and [Self-Hosted Control Plane](../../concepts/langgraph_self_hosted_control_plane.md) deployments.
+!!! info "仅适用于自托管数据平面和自托管控制平面"
+    自定义 Redis 实例仅适用于 [自托管数据平面](../../concepts/langgraph_self_hosted_data_plane.md) 和 [自托管控制平面](../../concepts/langgraph_self_hosted_control_plane.md) 部署。
 
-Specify `REDIS_URI_CUSTOM` to use a custom Redis instance. The value of `REDIS_URI_CUSTOM` must be a valid [Redis connection URI](https://redis-py.readthedocs.io/en/stable/connections.html#redis.Redis.from_url).
+指定 `REDIS_URI_CUSTOM` 以使用自定义 Redis 实例。`REDIS_URI_CUSTOM` 的值必须是有效的 [Redis 连接 URI](https://redis-py.readthedocs.io/en/stable/connections.html#redis.Redis.from_url)。
 
 ## `RESUMABLE_STREAM_TTL_SECONDS`
 
-Time-to-live in seconds for resumable stream data in Redis.
+Redis 中可恢复流数据的生存时间（以秒为单位）。
 
-When a run is created and the output is streamed, the stream can be configured to be resumable (e.g. `stream_resumable=True`). If a stream is resumable, output from the stream is temporarily stored in Redis. The TTL for this data can be configured by setting `RESUMABLE_STREAM_TTL_SECONDS`.
+创建运行并流式传输输出时，可以将流配置为可恢复的（例如 `stream_resumable=True`）。如果流是可恢复的，则流的输出会暂时存储在 Redis 中。此数据的 TTL 可通过设置 `RESUMABLE_STREAM_TTL_SECONDS` 进行配置。
 
-See the [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.RunsClient.stream) and [JS/TS](https://langchain-ai.github.io/langgraphjs/reference/classes/sdk_client.RunsClient.html#stream) SDKs for more details on how to implement resumable streams.
+有关如何实现可恢复流的更多详细信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.RunsClient.stream) 和 [JS/TS](https://langchain-ai.github.io/langgraphjs/reference/classes/sdk_client.RunsClient.html#stream) SDK。
 
-Defaults to `120` seconds.
+默认为 `120` 秒。

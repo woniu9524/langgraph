@@ -1,30 +1,30 @@
 # LangGraph Checkpoint Postgres
 
-Implementation of LangGraph CheckpointSaver that uses Postgres.
+LangGraph CheckpointSaver 的实现，使用 Postgres。
 
-## Dependencies
+## 依赖
 
-By default `langgraph-checkpoint-postgres` installs `psycopg` (Psycopg 3) without any extras. However, you can choose a specific installation that best suits your needs [here](https://www.psycopg.org/psycopg3/docs/basic/install.html) (for example, `psycopg[binary]`).
+默认情况下，`langgraph-checkpoint-postgres` 会安装不带任何附加组件的 `psycopg`（Psycopg 3）。但是，您可以选择最适合您需求的特定安装版本，有关说明请参见 [此处](https://www.psycopg.org/psycopg3/docs/basic/install.html)（例如 `psycopg[binary]`）。
 
-## Usage
-
-> [!IMPORTANT]
-> When using Postgres checkpointers for the first time, make sure to call `.setup()` method on them to create required tables. See example below.
+## 用法
 
 > [!IMPORTANT]
-> When manually creating Postgres connections and passing them to `PostgresSaver` or `AsyncPostgresSaver`, make sure to include `autocommit=True` and `row_factory=dict_row` (`from psycopg.rows import dict_row`). See a full example in this [how-to guide](https://langchain-ai.github.io/langgraph/how-tos/persistence_postgres/).
+> 首次使用 Postgres checkpointer 时，请务必调用其 `.setup()` 方法来创建所需的表。请参见下面的示例。
+
+> [!IMPORTANT]
+> 在手动创建 Postgres 连接并将其传递给 `PostgresSaver` 或 `AsyncPostgresSaver` 时，请确保包含 `autocommit=True` 和 `row_factory=dict_row`（`from psycopg.rows import dict_row`）。完整的示例请参见此 [操作指南](https://langchain-ai.github.io/langgraph/how-tos/persistence_postgres/)。
 >
-> **Why these parameters are required:**
-> - `autocommit=True`: Required for the `.setup()` method to properly commit the checkpoint tables to the database. Without this, table creation may not be persisted.
-> - `row_factory=dict_row`: Required because the PostgresSaver implementation accesses database rows using dictionary-style syntax (e.g., `row["column_name"]`). The default `tuple_row` factory returns tuples that only support index-based access (e.g., `row[0]`), which will cause `TypeError` exceptions when the checkpointer tries to access columns by name.
+> **为什么需要这些参数：**
+> - `autocommit=True`：`.setup()` 方法需要此参数才能将检查点表正确提交到数据库。否则，表创建可能不会被持久化。
+> - `row_factory=dict_row`：PostgresSaver 实现使用类似字典的语法（例如 `row["column_name"]`）访问数据库行，因此需要此参数。默认的 `tuple_row` 工厂返回仅支持基于索引的访问（例如 `row[0]`）的元组，当 checkpointer 尝试按名称访问列时，这将导致 `TypeError` 异常。
 >
-> **Example of incorrect usage:**
+> **错误用法示例：**
 > ```python
-> # ❌ This will fail with TypeError during checkpointer operations
-> with psycopg.connect(DB_URI) as conn:  # Missing autocommit=True and row_factory=dict_row
+> # ❌ 这将在 checkpointer 操作期间因 TypeError 而失败
+> with psycopg.connect(DB_URI) as conn:  # 缺少 autocommit=True 和 row_factory=dict_row
 >     checkpointer = PostgresSaver(conn)
->     checkpointer.setup()  # May not persist tables properly
->     # Any operation that reads from database will fail with:
+>     checkpointer.setup()  # 表可能无法正确持久化
+>     # 任何从数据库读取的操作都会失败并出现以下错误：
 >     # TypeError: tuple indices must be integers or slices, not str
 > ```
 
@@ -36,7 +36,7 @@ read_config = {"configurable": {"thread_id": "1"}}
 
 DB_URI = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-    # call .setup() the first time you're using the checkpointer
+    # 首次使用 checkpointer 时调用 .setup()
     checkpointer.setup()
     checkpoint = {
         "v": 4,
@@ -63,13 +63,13 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
         },
     }
 
-    # store checkpoint
+    # 存储 checkpoint
     checkpointer.put(write_config, checkpoint, {}, {})
 
-    # load checkpoint
+    # 加载 checkpoint
     checkpointer.get(read_config)
 
-    # list checkpoints
+    # 列出 checkpoints
     list(checkpointer.list(read_config))
 ```
 
@@ -104,12 +104,12 @@ async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:
         },
     }
 
-    # store checkpoint
+    # 存储 checkpoint
     await checkpointer.aput(write_config, checkpoint, {}, {})
 
-    # load checkpoint
+    # 加载 checkpoint
     await checkpointer.aget(read_config)
 
-    # list checkpoints
+    # 列出 checkpoints
     [c async for c in checkpointer.alist(read_config)]
 ```

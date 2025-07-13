@@ -1,3 +1,3 @@
-# LangGraph examples
+# LangGraph 示例
 
-This directory should NOT be used for documentation. All new documentation must be added to `docs/docs/` directory.
+此目录**不应**用于文档。所有新文档都必须添加到 `docs/docs/` 目录。

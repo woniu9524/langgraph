@@ -1,6 +1,6 @@
 ---
-title: Reference
-description: API reference for LangGraph
+title: 参考
+description: LangGraph 的 API 参考
 search:
   boost: 0.5
 ---
@@ -11,47 +11,47 @@ search:
 }
 </style>
 
-# Reference
+# 参考
 
-Welcome to the LangGraph reference docs! These pages detail the core interfaces you will use when building with LangGraph. Each section covers a different part of the ecosystem.
+欢迎来到 LangGraph 参考文档！这些页面详细介绍了您在使用 LangGraph 进行构建时将使用的核心接口。每个部分涵盖了生态系统的不同部分。
 
 !!! tip
 
-    If you are just getting started, see [LangGraph basics](../concepts/why-langgraph.md) for an introduction to the main concepts and usage patterns.
+    如果您才刚刚开始，请参阅 [LangGraph 基础](../concepts/why-langgraph.md) 以了解主要概念和用法模式的介绍。
 
 
 ## LangGraph
 
-The core APIs for the LangGraph open source library.
+LangGraph 开源库的核心 API。
 
-- [Graphs](graphs.md): Main graph abstraction and usage.
-- [Functional API](func.md): Functional programming interface for graphs.
-- [Pregel](pregel.md): Pregel-inspired computation model.
-- [Checkpointing](checkpoints.md): Saving and restoring graph state.
-- [Storage](store.md): Storage backends and options.
-- [Caching](cache.md): Caching mechanisms for performance.
-- [Types](types.md): Type definitions for graph components.
-- [Config](config.md): Configuration options.
-- [Errors](errors.md): Error types and handling.
-- [Constants](constants.md): Global constants.
-- [Channels](channels.md): Message passing and channels.
+- [Graphs](graphs.md): 主要的图抽象和用法。
+- [Functional API](func.md): 图的函数式编程接口。
+- [Pregel](pregel.md): 受 Pregel 启发的计算模型。
+- [Checkpointing](checkpoints.md): 保存和恢复图状态。
+- [Storage](store.md): 存储后端和选项。
+- [Caching](cache.md): 用于性能的缓存机制。
+- [Types](types.md): 图组件的类型定义。
+- [Config](config.md): 配置选项。
+- [Errors](errors.md): 错误类型和处理。
+- [Constants](constants.md): 全局常量。
+- [Channels](channels.md): 消息传递和通道。
 
-## Prebuilt components
+## 预构建组件
 
-Higher-level abstractions for common workflows, agents, and other patterns.
+用于常见工作流、代理和其他模式的更高级抽象。
 
-- [Agents](agents.md): Built-in agent patterns.
-- [Supervisor](supervisor.md): Orchestration and delegation.
-- [Swarm](swarm.md): Multi-agent collaboration.
-- [MCP Adapters](mcp.md): Integrations with external systems.
+- [Agents](agents.md): 内置的代理模式。
+- [Supervisor](supervisor.md): 编排和委托。
+- [Swarm](swarm.md): 多代理协作。
+- [MCP Adapters](mcp.md): 与外部系统的集成。
 
 ## LangGraph Platform
 
-Tools for deploying and connecting to the LangGraph Platform.
+用于部署和连接到 LangGraph Platform 的工具。
 
-- [CLI](../cloud/reference/cli.md): Command-line interface for building and deploying LangGraph Platform applications.
-- [Server API](../cloud/reference/api/api_ref.md): REST API for the LangGraph Server.
-- [SDK (Python)](../cloud/reference/sdk/python_sdk_ref.md): Python SDK for interacting with instances of the LangGraph Server.
-- [SDK (JS/TS)](../cloud/reference/sdk/js_ts_sdk_ref.md): JavaScript/TypeScript SDK for interacting with instances of the LangGraph Server.
-- [RemoteGraph](remote_graph.md): `Pregel` abstraction for connecting to LangGraph Server instances.
-- [Environment variables](../cloud/reference/env_var.md): Supported configuration variables when deploying with the LangGraph Platform.
+- [CLI](../cloud/reference/cli.md): 用于构建和部署 LangGraph Platform 应用程序的命令行接口。
+- [Server API](../cloud/reference/api/api_ref.md): LangGraph 服务器的 REST API。
+- [SDK (Python)](../cloud/reference/sdk/python_sdk_ref.md): 用于与 LangGraph Server 实例交互的 Python SDK。
+- [SDK (JS/TS)](../cloud/reference/sdk/js_ts_sdk_ref.md): 用于与 LangGraph Server 实例交互的 JavaScript/TypeScript SDK。
+- [RemoteGraph](remote_graph.md): 用于连接到 LangGraph Server 实例的 `Pregel` 抽象。
+- [Environment variables](../cloud/reference/env_var.md): 使用 LangGraph Platform 进行部署时支持的配置变量。

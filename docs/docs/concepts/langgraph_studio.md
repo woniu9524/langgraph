@@ -5,41 +5,41 @@ search:
 
 # LangGraph Studio
 
-!!! info "Prerequisites"
+!!! info "先决条件"
 
     - [LangGraph Platform](./langgraph_platform.md)
     - [LangGraph Server](./langgraph_server.md)
     - [LangGraph CLI](./langgraph_cli.md)
 
-LangGraph Studio is a specialized agent IDE that enables visualization, interaction, and debugging of agentic systems that implement the LangGraph Server API protocol. Studio also integrates with LangSmith to enable tracing, evaluation, and prompt engineering.
+LangGraph Studio 是一个专门的代理 IDE，可实现实现 LangGraph Server API 协议的代理系统的可视化、交互和调试。 Studio 还与 LangSmith 集成，以实现跟踪、评估和提示工程。
 
 ![](img/lg_studio.png)
 
-## Features
+## 功能
 
-Key features of LangGraph Studio:
+LangGraph Studio 的主要功能：
 
-- Visualize your graph architecture
-- [Run and interact with your agent](../cloud/how-tos/invoke_studio.md)
-- [Manage assistants](../cloud/how-tos/studio/manage_assistants.md)
-- [Manage threads](../cloud/how-tos/threads_studio.md)
-- [Iterate on prompts](../cloud/how-tos/iterate_graph_studio.md)
-- [Run experiments over a dataset](../cloud/how-tos/studio/run_evals.md)
-- Manage [long term memory](memory.md)
-- Debug agent state via [time travel](time-travel.md)
+- 可视化您的图架构
+- [运行并与您的代理交互](../cloud/how-tos/invoke_studio.md)
+- [管理助手](../cloud/how-tos/studio/manage_assistants.md)
+- [管理线程](../cloud/how-tos/threads_studio.md)
+- [迭代提示](../cloud/how-tos/iterate_graph_studio.md)
+- [针对数据集运行实验](../cloud/how-tos/studio/run_evals.md)
+- 管理[长期记忆](memory.md)
+- 通过[时间旅行](time-travel.md)调试代理状态
 
-LangGraph Studio works for graphs that are deployed on [LangGraph Platform](../cloud/quick_start.md) or for graphs that are running locally via the [LangGraph Server](../tutorials/langgraph-platform/local-server.md).
+LangGraph Studio 可用于部署在[LangGraph Platform](../cloud/quick_start.md)上的图，或通过[LangGraph Server](../tutorials/langgraph-platform/local-server.md)在本地运行的图。
 
-Studio supports two modes:
+Studio 支持两种模式：
 
-### Graph mode
+### 图模式
 
-Graph mode exposes the full feature-set of Studio and is useful when you would like as many details about the execution of your agent, including the nodes traversed, intermediate states, and LangSmith integrations (such as adding to datasets and playground).
+图模式公开了 Studio 的完整功能集，特别适合您想要了解代理执行的尽可能多的细节时，包括遍历的节点、中间状态以及 LangSmith 集成（例如添加到数据集和 Playground）。
 
-### Chat mode
+### 聊天模式
 
-Chat mode is a simpler UI for iterating on and testing chat-specific agents. It is useful for business users and those who want to test overall agent behavior. Chat mode is only supported for graph's whose state includes or extends [`MessagesState`](https://langchain-ai.github.io/langgraph/how-tos/graph-api/#messagesstate).
+聊天模式是用于迭代和测试聊天特定代理的更简洁的用户界面。它对于业务用户和希望测试整体代理行为的用户非常有用。聊天模式仅支持状态包含或扩展了 [`MessagesState`](https://langchain-ai.github.io/langgraph/how-tos/graph-api/#messagesstate) 的图。
 
-## Learn more
+## 了解更多
 
-- See this guide on how to [get started](../cloud/how-tos/studio/quick_start.md) with LangGraph Studio.
+- 请参阅此指南，了解如何[开始使用](../cloud/how-tos/studio/quick_start.md) LangGraph Studio。

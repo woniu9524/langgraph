@@ -1,12 +1,12 @@
 # Reject
 
-This guide assumes knowledge of what double-texting is, which you can learn about in the [double-texting conceptual guide](../../concepts/double_texting.md).
+本指南假定您了解什么是“双重发送”（double-texting），您可以在双重发送概念指南中了解更多信息：[double-texting conceptual guide](../../concepts/double_texting.md)。
 
-The guide covers the `reject` option for double texting, which rejects the new run of the graph by throwing an error and continues with the original run until completion. Below is a quick example of using the `reject` option.
+本指南涵盖了双重发送的 `reject` 选项，该选项通过抛出错误来拒绝图的首次运行，并继续执行原始运行直至完成。下面是一个使用 `reject` 选项的简短示例。
 
 ## Setup
 
-First, we will define a quick helper function for printing out JS and CURL model outputs (you can skip this if using Python):
+首先，我们将定义一个快速的辅助函数，用于打印 JS 和 CURL 模型输出（如果您使用的是 Python，可以跳过此步骤）：
 
 === "Javascript"
 
@@ -45,7 +45,7 @@ First, we will define a quick helper function for printing out JS and CURL model
     }
     ```
 
-Now, let's import our required packages and instantiate our client, assistant, and thread.
+现在，让我们导入所需的包并实例化我们的客户端、助手和线程。
 
 === "Python"
 
@@ -82,7 +82,7 @@ Now, let's import our required packages and instantiate our client, assistant, a
 
 ## Create runs
 
-Now we can run a thread and try to run a second one with the "reject" option, which should fail since we have already started a run:
+现在我们可以运行一个线程并尝试使用“reject”选项运行第二个线程，由于我们已经启动了一个运行，因此第二个线程应该会失败：
 
 
 === "Python"
@@ -155,7 +155,7 @@ Output:
 
 ## View run results
 
-We can verify that the original thread finished executing:
+我们可以验证原始线程是否已完成执行：
 
 === "Python"
 
@@ -226,4 +226,3 @@ Output:
     - Layers are recommended for changing weather conditions
     
     So in summary, you can expect mild, foggy mornings giving way to sunny but cool afternoons in San Francisco this time of year. The marine layer keeps temperatures moderate compared to other parts of California in June.
-

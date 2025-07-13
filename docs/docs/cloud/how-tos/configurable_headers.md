@@ -1,10 +1,10 @@
-# Configurable Headers
+# 可配置的 Headers
 
-LangGraph allows runtime configuration to modify agent behavior and permissions dynamically. When using the [LangGraph Platform](../quick_start.md), you can pass this configuration in the request body (`config`) or specific request headers. This enables adjustments based on user identity or other request data.
+LangGraph 允许在运行时进行配置，以动态修改 Agent 的行为和权限。当使用 [LangGraph Platform](../quick_start.md) 时，您可以在请求体 (`config`) 或特定的请求 Header 中传递此配置。这使得可以根据用户身份或其他请求数据进行调整。
 
-For privacy, control which headers are passed to the runtime configuration via the `http.configurable_headers` section in your `langgraph.json` file.
+为了保护隐私，请通过 `langgraph.json` 文件中的 `http.configurable_headers` 部分来控制哪些 Header 会被传递到运行时配置中。
 
-Here's how to customize the included and excluded headers:
+以下是如何自定义包含和排除的 Headers：
 
 ```json
 {
@@ -17,12 +17,11 @@ Here's how to customize the included and excluded headers:
 }
 ```
 
+`include` 和 `exclude` 列表接受精确的 Header 名称，或使用 `*` 进行模式匹配以匹配任意数量的字符。为了您的安全，不支持其他任何正则表达式模式。
 
-The `include` and `exclude` lists accept exact header names or patterns using `*` to match any number of characters. For your security, no other regex patterns are supported.
+## 在您的图中进行使用
 
-## Using within your graph
-
-You can access the included headers in your graph using the `config` argument of any node.
+您可以在图中使用 `config` 参数来访问包含的 Headers：
 
 ```python
 def my_node(state, config):
@@ -30,7 +29,7 @@ def my_node(state, config):
   ...
 ```
 
-Or by fetching from context (useful in tools and or within other nested functions).
+或者通过从上下文获取（这在工具或任何其他嵌套函数中非常有用）。
 
 ```python
 from langgraph.config import get_config
@@ -40,8 +39,7 @@ def search_everything(query: str):
   ...
 ```
 
-
-You can even use this to dynamically compile the graph.
+您甚至可以使用此功能动态编译图。
 
 ```python
 # my_graph.py.
@@ -65,9 +63,9 @@ async def generate_agent(config):
 }
 ```
 
-### Opt-out of configurable headers
+### 退出可配置的 Headers
 
-If you'd like to opt-out of configurable headers, you can simply set a wildcard pattern in the `exclude` list:
+如果您想退出可配置的 Headers，只需在 `exclude` 列表中设置一个通配符模式：
 
 ```json
 {
@@ -79,6 +77,6 @@ If you'd like to opt-out of configurable headers, you can simply set a wildcard 
 }
 ```
 
-This will exclude all headers from being added to your run's configuration.
+这将排除所有 Headers 不被添加到您的运行配置中。
 
-Note that exclusions take precedence over inclusions.
+请注意，排除项优先于包含项。

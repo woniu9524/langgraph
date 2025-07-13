@@ -1,45 +1,45 @@
-!!! info "Prerequisites"
+!!! info "先决条件"
 
-    - [LangGraph Studio Overview](../../../concepts/langgraph_studio.md)
+    - [LangGraph Studio 概览](../../../concepts/langgraph_studio.md)
 
-LangGraph Studio supports connecting to two types of graphs:
+LangGraph Studio 支持连接两种类型的图：
 
-- Graphs deployed on [LangGraph Platform](../../../cloud/quick_start.md)
-- Graphs running locally via the [LangGraph Server](../../../tutorials/langgraph-platform/local-server.md).
+- 部署在 [LangGraph 平台](../../../cloud/quick_start.md)上的图
+- 通过 [LangGraph 服务器](../../../tutorials/langgraph-platform/local-server.md)在本地运行的图。
 
-LangGraph Studio is accessed from the LangSmith UI, within the LangGraph Platform Deployments tab.
+LangGraph Studio 可从 LangSmith UI 中的 LangGraph Platform Deployments（LangGraph 平台部署）选项卡访问。
 
-## Deployed application
+## 已部署的应用
 
-For applications that are [deployed](../../quick_start.md) on LangGraph Platform, you can access Studio as part of that deployment. To do so, navigate to the deployment in LangGraph Platform within the LangSmith UI and click the "LangGraph Studio" button.
+对于已在 LangGraph 平台[部署](../../quick_start.md)的应用，您可以将其 Studio 作为该部署的一部分进行访问。为此，请在 LangSmith UI 中的 LangGraph 平台中导航到该部署，然后点击“LangGraph Studio”按钮。
 
-This will load the Studio UI connected to your live deployment, allowing you to create, read, and update the [threads](../../../concepts/persistence.md#threads), [assistants](../../../concepts/assistants.md), and [memory](../../../concepts//memory.md) in that deployment.
+这将加载与您的实时部署连接的 Studio UI，允许您创建、读取和更新该部署中的[线程](../../../concepts/persistence.md#threads)、[助手](../../../concepts/assistants.md)和[内存](../../../concepts//memory.md)。
 
-## Local development server
+## 本地开发服务器
 
-To test your locally running application using LangGraph Studio, ensure your application is set up following [this guide](https://langchain-ai.github.io/langgraph/cloud/deployment/setup/).
+要使用 LangGraph Studio 测试您本地运行的应用，请确保您的应用已按照[本指南](https://langchain-ai.github.io/langgraph/cloud/deployment/setup/)进行设置。
 
-!!! info "LangSmith Tracing"
-    For local development, if you do not wish to have data traced to LangSmith, set `LANGSMITH_TRACING=false` in your application's `.env` file. With tracing disabled, no data will leave your local server.
+!!! info "LangSmith 追踪"
+    对于本地开发，如果您不希望将数据追踪到 LangSmith，请在应用的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用追踪后，没有任何数据会离开您的本地服务器。
 
-Next, install the [LangGraph CLI](../../../concepts/langgraph_cli.md):
+接下来，安装 [LangGraph CLI](../../../concepts/langgraph_cli.md)：
 
 ```
 pip install -U "langgraph-cli[inmem]"
 ```
 
-and run:
+然后运行：
 
 ```
 langgraph dev
 ```
 
-!!! warning "Browser Compatibility"
-    Safari blocks `localhost` connections to Studio. To work around this, run the above command with `--tunnel` to access Studio via a secure tunnel.
+!!! warning "浏览器兼容性"
+    Safari 会阻止对 Studio 的 `localhost` 连接。要解决此问题，请使用 `--tunnel` 参数运行上述命令，通过安全隧道访问 Studio。
 
-This will start the LangGraph Server locally, running in-memory. The server will run in watch mode, listening for and automatically restarting on code changes. Read this [reference](https://langchain-ai.github.io/langgraph/cloud/reference/cli/#dev) to learn about all the options for starting the API server.
+这将首先在本地启动 LangGraph 服务器，以内存模式运行。服务器将以监视模式运行，监听代码更改并自动重启。阅读此[参考](https://langchain-ai.github.io/langgraph/cloud/reference/cli/#dev)以了解启动 API 服务器的所有选项。
 
-If successful, you will see the following logs:
+如果成功，您将看到以下日志：
 
 > Ready!
 >
@@ -49,32 +49,32 @@ If successful, you will see the following logs:
 >
 > - LangGraph Studio Web UI: https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024
 
-Once running, you will automatically be directed to LangGraph Studio.
+运行后，您将自动跳转到 LangGraph Studio。
 
-For an already running server, access Studio by either:
+对于已运行的服务器，可以通过以下任一方式访问 Studio：
 
-1.  Directly navigate to the following URL: `https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024`.
-2.  Within LangSmith, navigate to the LangGraph Platform Deployments tab, click the "LangGraph Studio" button, enter `http://127.0.0.1:2024` and click "Connect".
+1.  直接导航到以下 URL：`https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024`。
+2.  在 LangSmith 中，导航到 LangGraph Platform Deployments 选项卡，点击“LangGraph Studio”按钮，输入 `http://127.0.0.1:2024`，然后点击“Connect”。
 
-If running your server at a different host or port, simply update the `baseUrl` to match.
+如果在不同的主机或端口上运行服务器，只需更新 `baseUrl` 以匹配即可。
 
-### (Optional) Attach a debugger
+### (可选) 连接调试器
 
-For step-by-step debugging with breakpoints and variable inspection:
+如需进行带有断点和变量检查的分步调试：
 
 ```bash
-# Install debugpy package
+# 安装 debugpy 包
 pip install debugpy
 
-# Start server with debugging enabled
+# 启用调试模式启动服务器
 langgraph dev --debug-port 5678
 ```
 
-Then attach your preferred debugger:
+然后附加您首选的调试器：
 
 === "VS Code"
 
-    Add this configuration to `launch.json`:
+    将此配置添加到 `launch.json`：
 
     ```json
     {
@@ -88,25 +88,25 @@ Then attach your preferred debugger:
     }
     ```
 
-=== "PyCharm" 
+=== "PyCharm"
 
-    1. Go to Run → Edit Configurations 
-    2. Click + and select "Python Debug Server" 
-    3. Set IDE host name: `localhost` 
-    4. Set port: `5678` (or the port number you chose in the previous step) 
-    5. Click "OK" and start debugging
+    1. 转到 Run → Edit Configurations
+    2. 点击 + 号并选择 “Python Debug Server”
+    3. 设置 IDE host name：`localhost`
+    4. 设置 port：`5678`（或在上一步中选择的端口号）
+    5. 点击“OK”并开始调试
 
-## Troubleshooting
+## 故障排查
 
-For issues getting started, please see this [troubleshooting guide](../../../troubleshooting/studio.md).
+有关入门问题，请参阅此[故障排查指南](../../../troubleshooting/studio.md)。
 
-## Next steps
+## 后续步骤
 
-See the following guides for more information on how to use Studio:
+请参阅以下指南，了解有关如何使用 Studio 的更多信息：
 
-- [Run application](../invoke_studio.md)
-- [Manage assistants](./manage_assistants.md)
-- [Manage threads](../threads_studio.md)
-- [Iterate on prompts](../iterate_graph_studio.md)
-- [Debug LangSmith traces](../clone_traces_studio.md)
-- [Add node to dataset](../datasets_studio.md)
+- [运行应用](../invoke_studio.md)
+- [管理助手](./manage_assistants.md)
+- [管理线程](../threads_studio.md)
+- [迭代提示](../iterate_graph_studio.md)
+- [调试 LangSmith 追踪](../clone_traces_studio.md)
+- [添加节点到数据集](../datasets_studio.md)

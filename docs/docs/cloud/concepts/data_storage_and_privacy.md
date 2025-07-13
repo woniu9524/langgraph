@@ -1,54 +1,54 @@
-# Data Storage and Privacy
+# 数据存储与隐私
 
-This document describes how data is processed in the LangGraph CLI and the LangGraph Server for both the in-memory server (`langgraph dev`) and the local Docker server (`langgraph up`). It also describes what data is tracked when interacting with the hosted LangGraph Studio frontend.
+本文档描述了 LangGraph CLI 和 LangGraph Server 中如何处理数据，包括内存服务器 (`langgraph dev`) 和本地 Docker 服务器 (`langgraph up`)。同时，也描述了与托管的 LangGraph Studio 前端交互时跟踪的数据。
 
 ## CLI
 
-LangGraph **CLI** is the command-line interface for building and running LangGraph applications; see the [CLI guide](../../concepts/langgraph_cli.md) to learn more.
+LangGraph **CLI** 是用于构建和运行 LangGraph 应用程序的命令行界面；请参阅 [CLI 指南](../../concepts/langgraph_cli.md) 了解更多信息。
 
-By default, calls to most CLI commands log a single analytics event upon invocation. This helps us better prioritize improvements to the CLI experience. Each telemetry event contains the calling process's OS, OS version, Python version, the CLI version, the command name (`dev`, `up`, `run`, etc.), and booleans representing whether a flag was passed to the command. You can see the full analytics logic [here](https://github.com/langchain-ai/langgraph/blob/main/libs/cli/langgraph_cli/analytics.py). 
+默认情况下，大多数 CLI 命令的调用都会在调用时记录一个分析事件。这有助于我们更好地确定 CLI 体验的改进优先级。每个遥测事件包含调用进程的操作系统、操作系统版本、Python 版本、CLI 版本、命令名称（`dev`、`up`、`run` 等），以及表示是否向命令传递了标志的布尔值。您可以在此处查看完整的分析逻辑：[here](https://github.com/langchain-ai/langgraph/blob/main/libs/cli/langgraph_cli/analytics.py)。
 
-You can disable all CLI telemetry by setting `LANGGRAPH_CLI_NO_ANALYTICS=1`.
+您可以通过设置 `LANGGRAPH_CLI_NO_ANALYTICS=1` 来禁用所有 CLI 遥测。
 
-## LangGraph Server (in-memory & docker)
+## LangGraph Server (内存 & Docker)
 
-The [LangGraph Server](../../concepts/langgraph_server.md) provides a durable execution runtime that relies on persisting checkpoints of your application state, long-term memories, thread metadata, assistants, and similar resources to the local file system or a database. Unless you have deliberately customized the storage location, this information is either written to local disk (for `langgraph dev`) or a PostgreSQL database (for `langgraph up` and in all deployments).
+[LangGraph Server](../../concepts/langgraph_server.md) 提供了一个持久化的执行运行时，它依赖于将您的应用程序状态、长期记忆、线程元数据、助手和类似资源的检查点持久化到本地文件系统或数据库。除非您已明确自定义存储位置，否则这些信息将被写入本地磁盘（对于 `langgraph dev`）或 PostgreSQL 数据库（对于 `langgraph up` 和所有部署）。
 
-### LangSmith Tracing
+### LangSmith 跟踪
 
-When running the LangGraph server (either in-memory or in Docker), LangSmith tracing may be enabled to facilitate faster debugging and offer observability of graph state and LLM prompts in production. You can always disable tracing by setting `LANGSMITH_TRACING=false` in your server's runtime environment.
+在运行 LangGraph Server（内存或 Docker）时，可以启用 LangSmith 跟踪以方便更快的调试并提供对生产环境中图状态和 LLM 提示的观察能力。您始终可以通过在服务器的运行时环境中设置 `LANGSMITH_TRACING=false` 来禁用跟踪。
 
-### In-memory development server (`langgraph dev`)
+### 内存开发服务器 (`langgraph dev`)
 
-`langgraph dev` runs an [in-memory development server](../../tutorials/langgraph-platform/local-server.md) as a single Python process, designed for quick development and testing. It saves all checkpointing and memory data to disk within a `.langgraph_api` directory in the current working directory. Apart from the telemetry data described in the [CLI](#cli) section, no data leaves the machine unless you have enabled tracing or your graph code explicitly contacts an external service.
+`langgraph dev` 运行一个[内存开发服务器](../../tutorials/langgraph-platform/local-server.md)，它是一个单一的 Python 进程，专为快速开发和测试而设计。它将所有检查点和内存数据保存到当前工作目录下的 `.langgraph_api` 目录中的磁盘上。除了在[CLI](#cli) 部分描述的遥测数据外，除非您启用了跟踪或图代码明确联系了外部服务，否则不会有数据离开机器。
 
-### Standalone Container (`langgraph up`)
+### 独立容器 (`langgraph up`)
 
-`langgraph up` builds your local package into a Docker image and runs the server as a [standalone container](../../concepts/deployment_options.md#standalone-container) consisting of three containers: the API server, a PostgreSQL container, and a Redis container. All persistent data (checkpoints, assistants, etc.) are stored in the PostgreSQL database. Redis is used as a pubsub connection for real-time streaming of events. You can encrypt all checkpoints before saving to the database by setting a valid `LANGGRAPH_AES_KEY` environment variable. You can also specify [TTLs](../../how-tos/ttl/configure_ttl.md) for checkpoints and cross-thread memories in `langgraph.json` to control how long data is stored. All persisted threads, memories, and other data can be deleted via the relevant API endpoints.
+`langgraph up` 将您的本地包构建成 Docker 镜像，并将服务器作为[独立容器](../../concepts/deployment_options.md#standalone-container)运行，该容器由三个容器组成：API 服务器、PostgreSQL 容器和 Redis 容器。所有持久化数据（检查点、助手等）都存储在 PostgreSQL 数据库中。Redis 用于作为实时事件流的发布/订阅连接。您可以通过设置有效的 `LANGGRAPH_AES_KEY` 环境变量来加密所有保存到数据库的检查点。您还可以通过 `langgraph.json` 中为检查点和跨线程内存指定[TTL](../../how-tos/ttl/configure_ttl.md) 来控制数据的存储时间。所有持久化的线程、内存和其他数据都可以通过相关的 API 端点删除。
 
-Additional API calls are made to confirm that the server has a valid license and to track the number of executed runs and tasks. Periodically, the API server validates the provided license key (or API key).
+还会进行额外的 API 调用，以确认服务器拥有有效许可证并跟踪已执行的运行和任务数量。API 服务器会定期验证提供的许可证密钥（或 API 密钥）。
 
-If you've disabled [tracing](#langsmith-tracing), no user data is persisted externally unless your graph code explicitly contacts an external service.
+如果您禁用了[跟踪](#langsmith-tracing)，除非您的图代码明确联系了外部服务，否则不会在外部持久化用户数据。
 
 ## Studio
 
-[LangGraph Studio](../../concepts/langgraph_studio.md) is a graphical interface for interacting with your LangGraph server. It does not persist any private data (the data you send to your server is not sent to LangSmith). Though the studio interface is served at [smith.langchain.com](https://smith.langchain.com), it is run in your browser and connects directly to your local LangGraph server so that no data needs to be sent to LangSmith.
+[LangGraph Studio](../../concepts/langgraph_studio.md) 是一个与您的 LangGraph Server 交互的图形界面。它不持久化任何私人数据（您发送到服务器的数据不会发送到 LangSmith）。虽然 Studio 界面在 [smith.langchain.com](https://smith.langchain.com) 上提供服务，但它在您的浏览器中运行，并直接连接到您的本地 LangGraph Server，因此无需将任何数据发送到 LangSmith。
 
-If you are logged in, LangSmith does collect some usage analytics to help improve studio's user experience. This includes:
+如果您已登录，LangSmith 会收集一些使用情况分析数据，以帮助改善 Studio 的用户体验。这包括：
 
-- Page visits and navigation patterns
-- User actions (button clicks)
-- Browser type and version
-- Screen resolution and viewport size
+- 页面访问和导航模式
+- 用户操作（按钮点击）
+- 浏览器类型和版本
+- 屏幕分辨率和视口大小
 
-Importantly, no application data or code (or other sensitive configuration details) are collected. All of that is stored in the persistence layer of your LangGraph server. When using Studio anonymously, no account creation is required and usage analytics are not collected.
+重要的是，不会收集任何应用程序数据或代码（或其他敏感配置详细信息）。所有这些都存储在 LangGraph Server 的持久化层中。匿名使用 Studio 时，不需要创建账户，也不会收集使用情况分析。
 
-## Quick reference
+## 快速参考
 
-In summary, you can opt-out of server-side telemetry by turning off CLI analytics and disabling tracing.
+总而言之，您可以通过关闭 CLI 分析和禁用跟踪来选择退出服务器端遥测。
 
-| Variable                       | Purpose                   | Default                          |
-| ------------------------------ | ------------------------- | -------------------------------- |
-| `LANGGRAPH_CLI_NO_ANALYTICS=1` | Disable CLI analytics     | Analytics enabled                |
-| `LANGSMITH_API_KEY`            | Enable LangSmith tracing  | Tracing disabled                 |
-| `LANGSMITH_TRACING=false`      | Disable LangSmith tracing | Depends on environment           |
+| 变量                       | 目的                   | 默认                          |
+| -------------------------- | ------------------------ | -------------------------------- |
+| `LANGGRAPH_CLI_NO_ANALYTICS=1` | 禁用 CLI 分析     | 分析已启用                |
+| `LANGSMITH_API_KEY`            | 启用 LangSmith 跟踪  | 跟踪已禁用                 |
+| `LANGSMITH_TRACING=false`      | 禁用 LangSmith 跟踪 | 取决于环境           |

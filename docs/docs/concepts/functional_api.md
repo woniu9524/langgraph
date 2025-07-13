@@ -3,40 +3,39 @@ search:
   boost: 2
 ---
 
-# Functional API concepts
+# Functional API 概念
 
-## Overview
+## 概述
 
-The **Functional API** allows you to add LangGraph's key features — [persistence](./persistence.md), [memory](../how-tos/memory/add-memory.md), [human-in-the-loop](./human_in_the_loop.md), and [streaming](./streaming.md) — to your applications with minimal changes to your existing code.
+**Functional API** 允许您通过最少的代码更改，将 LangGraph 的核心功能 — [持久化](./persistence.md)、[内存](../how-tos/memory/add-memory.md)、[人工干预](./human_in_the_loop.md) 和 [流式传输](./streaming.md) — 添加到您的应用程序中。
 
-It is designed to integrate these features into existing code that may use standard language primitives for branching and control flow, such as `if` statements, `for` loops, and function calls. Unlike many data orchestration frameworks that require restructuring code into an explicit pipeline or DAG, the Functional API allows you to incorporate these capabilities without enforcing a rigid execution model.  
+它旨在将这些功能集成到可能使用标准语言原语进行分支和控制流的现有代码中，例如 `if` 语句，`for` 循环和函数调用。与许多强制要求将代码重构为显式管道或 DAG 的数据编排框架不同，Functional API 允许您在不强制执行严格执行模型的情况下结合这些功能。
 
-The Functional API uses two key building blocks:  
+Functional API 使用两个关键构建块：
 
-- **`@entrypoint`** – Marks a function as the starting point of a workflow, encapsulating logic and managing execution flow, including handling long-running tasks and interrupts.  
-- **`@task`** – Represents a discrete unit of work, such as an API call or data processing step, that can be executed asynchronously within an entrypoint. Tasks return a future-like object that can be awaited or resolved synchronously.  
+- **`@entrypoint`** – 将函数标记为工作流的起点，封装逻辑并管理执行流，包括处理长期运行的任务和中断。
+- **`@task`** – 表示离散的工作单元，例如 API 调用或数据处理步骤，可以在入口点内异步执行。任务返回一个类似 future 的对象，可以同步等待或解析。
 
-This provides a minimal abstraction for building workflows with state management and streaming.
+这为构建具有状态管理和流式传输的工作流提供了一个最小化的抽象。
 
 !!! tip
 
-    For information on how to use the functional API, see [Use Functional API](../how-tos/use-functional-api.md).
+    有关如何使用 Functional API 的信息，请参阅 [使用 Functional API](../how-tos/use-functional-api.md)。
 
-## Functional API vs. Graph API
+## Functional API 与 Graph API 对比
 
-For users who prefer a more declarative approach, LangGraph's [Graph API](./low_level.md) allows you to define workflows using a Graph paradigm. Both APIs share the same underlying runtime, so you can use them together in the same application.
+对于偏爱更声明式方法的用户，LangGraph 的 [Graph API](./low_level.md) 允许您使用 Graph 范例定义工作流。两个 API 使用相同的底层运行时，因此您可以在同一个应用程序中一起使用它们。
 
-Here are some key differences:
+以下是一些主要区别：
 
-- **Control flow**: The Functional API does not require thinking about graph structure. You can use standard Python constructs to define workflows. This will usually trim the amount of code you need to write.
-- **Short-term memory**: The **GraphAPI** requires declaring a [**State**](./low_level.md#state) and may require defining [**reducers**](./low_level.md#reducers) to manage updates to the graph state. `@entrypoint` and `@tasks` do not require explicit state management as their state is scoped to the function and is not shared across functions.
-- **Checkpointing**: Both APIs generate and use checkpoints. In the **Graph API** a new checkpoint is generated after every [superstep](./low_level.md). In the **Functional API**, when tasks are executed, their results are saved to an existing checkpoint associated with the given entrypoint instead of creating a new checkpoint.
-- **Visualization**: The Graph API makes it easy to visualize the workflow as a graph which can be useful for debugging, understanding the workflow, and sharing with others. The Functional API does not support visualization as the graph is dynamically generated during runtime.
+- **控制流**：Functional API 不需要考虑图结构。您可以使用标准的 Python 构造来定义工作流。这通常会减少您需要编写的代码量。
+- **短期内存**：**Graph API** 需要声明一个 [**状态**](./low_level.md#state)，并且可能需要定义 [** reducers**](./low_level.md#reducers) 来管理图状态的更新。`@entrypoint` 和 `@tasks` 不需要显式状态管理，因为它们的状态范围限定在函数内，并且不跨函数共享。
+"- **检查点**：两个 API 都会生成和使用检查点。在 **Graph API** 中，每个 [superstep](./low_level.md) 之后都会生成一个新的检查点。在 **Functional API** 中，当执行任务时，其结果会被保存​​到与给定入口点关联的现有检查点中，而不是创建新检查点。
+- **可视化**：Graph API 可以轻松地将工作流可视化为图，这对于调试、理解工作流和与他人共享很有用。Functional API 不支持可视化，因为图是在运行时动态生成的。
 
+## 示例
 
-## Example
-
-Below we demonstrate a simple application that writes an essay and [interrupts](human_in_the_loop.md) to request human review.
+下面我们演示一个简单的应用程序，该应用程序撰写一篇论文并[中断](./human_in_the_loop.md)以请求人工审查。
 
 ```python
 from langgraph.checkpoint.memory import MemorySaver
@@ -70,11 +69,11 @@ def workflow(topic: str) -> dict:
     }
 ```
 
-??? example "Detailed Explanation"
+??? example "详细说明"
 
-    This workflow will write an essay about the topic "cat" and then pause to get a review from a human. The workflow can be interrupted for an indefinite amount of time until a review is provided.
+    此工作流将围绕主题“cat”写一篇论文，然后暂停以获取人工审查。工作流可以无限期地中断，直到提供审查。
 
-    When the workflow is resumed, it executes from the very start, but because the result of the `write_essay` task was already saved, the task result will be loaded from the checkpoint instead of being recomputed.
+    恢复工作流时，它会从头开始执行，但由于 `write_essay` 任务的结果已被保存，因此将从检查点加载任务结果，而不是重新计算。
 
     ```python
     import time
@@ -126,7 +125,7 @@ def workflow(topic: str) -> dict:
     {'__interrupt__': (Interrupt(value={'essay': 'An essay about topic: cat', 'action': 'Please approve/reject the essay'}, resumable=True, ns=['workflow:f7b8508b-21c0-8b4c-5958-4e8de74d2684'], when='during'),)}
     ```
 
-    An essay has been written and is ready for review. Once the review is provided, we can resume the workflow:
+    文章已写好并准备审查。一旦提供审查，我们就可以恢复工作流：
 
     ```python
     from langgraph.types import Command
@@ -143,23 +142,23 @@ def workflow(topic: str) -> dict:
     {'workflow': {'essay': 'An essay about topic: cat', 'is_approved': False}}
     ```
 
-    The workflow has been completed and the review has been added to the essay.
+    工作流已完成，审查已添加到论文中。
 
 ## Entrypoint
 
-The [`@entrypoint`][langgraph.func.entrypoint] decorator can be used to create a workflow from a function. It encapsulates workflow logic and manages execution flow, including handling *long-running tasks* and [interrupts](./human_in_the_loop.md).
+[`@entrypoint`][langgraph.func.entrypoint] 装饰器可用于从函数创建工作流。它封装了工作流逻辑并管理执行流，包括处理*长期运行的任务*和[中断](./human_in_the_loop.md)。
 
-### Definition
+### 定义
 
-An **entrypoint** is defined by decorating a function with the `@entrypoint` decorator. 
+**入口点**通过使用 `@entrypoint` 装饰器来定义一个函数。
 
-The function **must accept a single positional argument**, which serves as the workflow input. If you need to pass multiple pieces of data, use a dictionary as the input type for the first argument.
+该函数**必须接受一个位置参数**，该参数用作工作流输入。如果您需要传递多个数据，请使用字典作为第一个参数的输入类型。
 
-Decorating a function with an `entrypoint` produces a [`Pregel`][langgraph.pregel.Pregel.stream] instance which helps to manage the execution of the workflow (e.g., handles streaming, resumption, and checkpointing).
+使用 `entrypoint` 装饰函数会生成一个 [`Pregel`][langgraph.pregel.Pregel.stream] 实例，该实例有助于管理工作流的执行（例如，处理流式传输、恢复和检查点）。
 
-You will usually want to pass a **checkpointer** to the `@entrypoint` decorator to enable persistence and use features like **human-in-the-loop**.
+您通常希望将**检查点**传递给 `@entrypoint` 装饰器，以启用持久化并使用诸如**人工干预**之类的功能。
 
-=== "Sync"
+=== "同步"
 
     ```python
     from langgraph.func import entrypoint
@@ -172,7 +171,7 @@ You will usually want to pass a **checkpointer** to the `@entrypoint` decorator 
         return result
     ```
 
-=== "Async"
+=== "异步"
 
     ```python
     from langgraph.func import entrypoint
@@ -182,31 +181,29 @@ You will usually want to pass a **checkpointer** to the `@entrypoint` decorator 
         # some logic that may involve long-running tasks like API calls,
         # and may be interrupted for human-in-the-loop
         ...
-        return result 
+        return result
     ```
 
-!!! important "Serialization"
+!!! important "序列化"
 
-    The **inputs** and **outputs** of entrypoints must be JSON-serializable to support checkpointing. Please see the [serialization](#serialization) section for more details.
+    入口点的**输入**和**输出**必须是 JSON 序列化的，以支持检查点。请参阅[序列化](#serialization)部分了解更多详细信息。
 
+### 可注入参数
 
-### Injectable parameters
+在声明 `entrypoint` 时，您可以请求访问将在运行时自动注入的其他参数。这些参数包括：
 
-When declaring an `entrypoint`, you can request access to additional parameters that will be injected automatically at run time. These parameters include:
-
-
-| Parameter    | Description                                                                                                                                                        |
+| 参数     | 描述                                                                                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **previous** | Access the state associated with the previous `checkpoint` for the given thread. See [short-term-memory](#short-term-memory).                                  |
-| **store**    | An instance of [BaseStore][langgraph.store.base.BaseStore]. Useful for [long-term memory](../how-tos/use-functional-api.md#long-term-memory).                      |
-| **writer**   | Use to access the StreamWriter when working with Async Python < 3.11. See [streaming with functional API for details](../how-tos/use-functional-api.md#streaming). |
-| **config**   | For accessing run time configuration. See [RunnableConfig](https://python.langchain.com/docs/concepts/runnables/#runnableconfig) for information.                  |
+| **previous** | 访问给定线程上一次 `checkpoint` 关联的状态。请参阅[短期内存](#short-term-memory)。                                                                                                                                                              |
+| **store**    | [BaseStore][langgraph.store.base.BaseStore] 的实例。对[长期内存](../how-tos/use-functional-api.md#long-term-memory)很有用。                                                                                                                                                                                                                                       |
+| **writer**   | 使用此参数访问 StreamWriter，以便在处理 Async Python < 3.11 时能够使用。有关详细信息，请参阅[使用 Functional API 进行流式传输](../how-tos/use-functional-api.md#streaming)。                                                                                                                                                                                                                                                |
+| **config**   | 用于访问运行时的配置。有关信息，请参阅[RunnableConfig](https://python.langchain.com/docs/concepts/runnables/#runnableconfig)。                                                                                                                                                                                                                                                  |
 
 !!! important
 
-    Declare the parameters with the appropriate name and type annotation.
+    使用适当的名称和类型注解声明参数。
 
-??? example "Requesting Injectable Parameters"
+??? example "请求可注入参数"
 
     ```python
     from langchain_core.runnables import RunnableConfig
@@ -219,7 +216,7 @@ When declaring an `entrypoint`, you can request access to additional parameters 
     @entrypoint(
         checkpointer=checkpointer,  # Specify the checkpointer
         store=in_memory_store  # Specify the store
-    )  
+    )
     def my_workflow(
         some_input: dict,  # The input (e.g., passed via `invoke`)
         *,
@@ -230,9 +227,9 @@ When declaring an `entrypoint`, you can request access to additional parameters 
     ) -> ...:
     ```
 
-### Executing
+### 执行
 
-Using the [`@entrypoint`](#entrypoint) yields a [`Pregel`][langgraph.pregel.Pregel.stream] object that can be executed using the `invoke`, `ainvoke`, `stream`, and `astream` methods.
+使用 [`@entrypoint`](#entrypoint) 会产生一个 [`Pregel`][langgraph.pregel.Pregel.stream] 对象，可以使用 `invoke`、`ainvoke`、`stream` 和 `astream` 方法对其进行执行。
 
 === "Invoke"
 
@@ -257,7 +254,7 @@ Using the [`@entrypoint`](#entrypoint) yields a [`Pregel`][langgraph.pregel.Preg
     ```
 
 === "Stream"
-    
+
     ```python
     config = {
         "configurable": {
@@ -282,9 +279,9 @@ Using the [`@entrypoint`](#entrypoint) yields a [`Pregel`][langgraph.pregel.Preg
         print(chunk)
     ```
 
-### Resuming
+### 恢复
 
-Resuming an execution after an [interrupt][langgraph.types.interrupt] can be done by passing a **resume** value to the [Command][langgraph.types.Command] primitive.
+可以通过将**恢复**值传递给 [Command][langgraph.types.Command] 原始类型来恢复[中断][langgraph.types.interrupt]后的执行。
 
 === "Invoke"
 
@@ -296,7 +293,7 @@ Resuming an execution after an [interrupt][langgraph.types.interrupt] can be don
             "thread_id": "some_thread_id"
         }
     }
-    
+
     my_workflow.invoke(Command(resume=some_resume_value), config)
     ```
 
@@ -310,7 +307,7 @@ Resuming an execution after an [interrupt][langgraph.types.interrupt] can be don
             "thread_id": "some_thread_id"
         }
     }
-    
+
     await my_workflow.ainvoke(Command(resume=some_resume_value), config)
     ```
 
@@ -324,7 +321,7 @@ Resuming an execution after an [interrupt][langgraph.types.interrupt] can be don
             "thread_id": "some_thread_id"
         }
     }
-    
+
     for chunk in my_workflow.stream(Command(resume=some_resume_value), config):
         print(chunk)
     ```
@@ -344,12 +341,11 @@ Resuming an execution after an [interrupt][langgraph.types.interrupt] can be don
         print(chunk)
     ```
 
-**Resuming after an error**
+**恢复错误后**
 
+要从错误中恢复，请使用 `None` 和相同的**线程 ID**（配置）运行 `entrypoint`。
 
-To resume after an error, run the `entrypoint` with a `None` and the same **thread id** (config).
-
-This assumes that the underlying **error** has been resolved and execution can proceed successfully.
+这假设底层的**错误**已解决，并且执行可以成功继续。
 
 === "Invoke"
 
@@ -360,7 +356,7 @@ This assumes that the underlying **error** has been resolved and execution can p
             "thread_id": "some_thread_id"
         }
     }
-    
+
     my_workflow.invoke(None, config)
     ```
 
@@ -373,7 +369,7 @@ This assumes that the underlying **error** has been resolved and execution can p
             "thread_id": "some_thread_id"
         }
     }
-    
+
     await my_workflow.ainvoke(None, config)
     ```
 
@@ -386,7 +382,7 @@ This assumes that the underlying **error** has been resolved and execution can p
             "thread_id": "some_thread_id"
         }
     }
-    
+
     for chunk in my_workflow.stream(None, config):
         print(chunk)
     ```
@@ -405,13 +401,13 @@ This assumes that the underlying **error** has been resolved and execution can p
         print(chunk)
     ```
 
-### Short-term memory
+### 短期记忆
 
-When an `entrypoint` is defined with a `checkpointer`, it stores information between successive invocations on the same **thread id** in [checkpoints](persistence.md#checkpoints). 
+当使用 `checkpointer` 定义 `entrypoint` 时，它会在同一**线程 ID** 上的连续调用之间将信息存储在[检查点](persistence.md#checkpoints)中。
 
-This allows accessing the state from the previous invocation using the `previous` parameter.
+这使得可以使用 `previous` 参数从前一个调用中访问状态。
 
-By default, the `previous` parameter is the return value of the previous invocation.
+默认情况下，`previous` 参数是前一个调用的返回值。
 
 ```python
 @entrypoint(checkpointer=checkpointer)
@@ -431,16 +427,16 @@ my_workflow.invoke(2, config)  # 3 (previous was 1 from the previous invocation)
 
 #### `entrypoint.final`
 
-[entrypoint.final][langgraph.func.entrypoint.final] is a special primitive that can be returned from an entrypoint and allows **decoupling** the value that is **saved in the checkpoint** from the **return value of the entrypoint**.
+[entrypoint.final][langgraph.func.entrypoint.final] 是可以从入口点返回的特殊原语，它允许**解耦**要在**检查点中保存**的值与**入口点的返回值**。
 
-The first value is the return value of the entrypoint, and the second value is the value that will be saved in the checkpoint. The type annotation is `entrypoint.final[return_type, save_type]`.
+第一个值是入口点的返回值，第二个值是要保存在检查点中的值。类型注解为 `entrypoint.final[return_type, save_type]`。
 
 ```python
 @entrypoint(checkpointer=checkpointer)
 def my_workflow(number: int, *, previous: Any = None) -> entrypoint.final[int, int]:
     previous = previous or 0
     # This will return the previous value to the caller, saving
-    # 2 * number to the checkpoint, which will be used in the next invocation 
+    # 2 * number to the checkpoint, which will be used in the next invocation
     # for the `previous` parameter.
     return entrypoint.final(value=previous, save=2 * number)
 
@@ -456,14 +452,14 @@ my_workflow.invoke(1, config)  # 6 (previous was 3 * 2 from the previous invocat
 
 ## Task
 
-A **task** represents a discrete unit of work, such as an API call or data processing step. It has two key characteristics:
+**任务**代表离散的工作单元，例如 API 调用或数据处理步骤。它具有两个关键特征：
 
-* **Asynchronous Execution**: Tasks are designed to be executed asynchronously, allowing multiple operations to run concurrently without blocking.
-* **Checkpointing**: Task results are saved to a checkpoint, enabling resumption of the workflow from the last saved state. (See [persistence](persistence.md) for more details).
+* **异步执行**：任务设计用于异步执行，允许多个操作并发运行而不阻塞。
+* **检查点**：任务结果被保存到检查点，从而能够从最后一个保存的状态恢复工作流。（有关更多详细信息，请参阅[持久化](persistence.md)）。
 
-### Definition
+### 定义
 
-Tasks are defined using the `@task` decorator, which wraps a regular Python function.
+任务使用 `@task` 装饰器定义，该装饰器包装了一个常规的 Python 函数。
 
 ```python
 from langgraph.func import task
@@ -475,22 +471,21 @@ def slow_computation(input_value):
     return result
 ```
 
-!!! important "Serialization"
+!!! important "序列化"
 
-    The **outputs** of tasks must be JSON-serializable to support checkpointing.
+    任务的**输出**必须是 JSON 序列化的，以支持检查点。
 
-### Execution
+### 执行
 
-**Tasks** can only be called from within an **entrypoint**, another **task**, or a [state graph node](./low_level.md#nodes). 
+**任务**只能在**入口点**、另一个**任务**或[状态图节点](./low_level.md#nodes)内部调用。
 
-Tasks *cannot* be called directly from the main application code. 
+**任务**不能直接从主应用程序代码调用。
 
-When you call a **task**, it returns *immediately* with a future object. A future is a placeholder for a result that will be available later.
+当您调用一个**任务**时，它会立即返回一个 future 对象。Future 是稍后将可用结果的占位符。
 
-To obtain the result of a **task**, you can either wait for it synchronously (using `result()`) or await it asynchronously (using `await`).
+要获取**任务**的结果，您可以同步等待（使用 `result()`）或异步等待（使用 `await`）。
 
-
-=== "Synchronous Invocation"
+=== "同步调用"
 
     ```python
     @entrypoint(checkpointer=checkpointer)
@@ -499,7 +494,7 @@ To obtain the result of a **task**, you can either wait for it synchronously (us
         return future.result()  # Wait for the result synchronously
     ```
 
-=== "Asynchronous Invocation"
+=== "异步调用"
 
     ```python
     @entrypoint(checkpointer=checkpointer)
@@ -507,51 +502,50 @@ To obtain the result of a **task**, you can either wait for it synchronously (us
         return await slow_computation(some_input)  # Await result asynchronously
     ```
 
-## When to use a task
+## 何时使用任务
 
-**Tasks** are useful in the following scenarios:
+**任务**在以下场景中很有用：
 
-- **Checkpointing**: When you need to save the result of a long-running operation to a checkpoint, so you don't need to recompute it when resuming the workflow.
-- **Human-in-the-loop**: If you're building a workflow that requires human intervention, you MUST use **tasks** to encapsulate any randomness (e.g., API calls) to ensure that the workflow can be resumed correctly. See the [determinism](#determinism) section for more details.
-- **Parallel Execution**: For I/O-bound tasks, **tasks** enable parallel execution, allowing multiple operations to run concurrently without blocking (e.g., calling multiple APIs).
-- **Observability**: Wrapping operations in **tasks** provides a way to track the progress of the workflow and monitor the execution of individual operations using [LangSmith](https://docs.smith.langchain.com/).
-- **Retryable Work**: When work needs to be retried to handle failures or inconsistencies, **tasks** provide a way to encapsulate and manage the retry logic.
- 
-## Serialization
+- **检查点**：当您需要将长期运行操作的结果保存到检查点时，以便在恢复工作流时不必重新计算它。
+- **人工干预**：如果您正在构建需要人工干预的工作流，则必须使用**任务**来封装任何随机性（例如，API 调用），以确保工作流能够正确恢复。有关更多详细信息，请参阅[确定性](#determinism)部分。
+- **并行执行**：对于 I/O 密集型任务，**任务**支持并行执行，允许多个操作并发运行而不阻塞（例如，调用多个 API）。
+- **可观测性**：将操作包装在**任务**中，可以通过[LangSmith](https://docs.smith.langchain.com/) 提供一种跟踪工作流进度和监控单个操作执行的方法。
+- **可重试工作**：当需要重试工作以处理失败或不一致时，**任务**提供了一种封装和管理重试逻辑的方法。
 
-There are two key aspects to serialization in LangGraph:
+## 序列化
 
-1. `@entrypoint` inputs and outputs must be JSON-serializable.
-2. `@task` outputs must be JSON-serializable.
+LangGraph 中的序列化有两个关键方面：
 
-These requirements are necessary for enabling checkpointing and workflow resumption. Use python primitives
-like dictionaries, lists, strings, numbers, and booleans to ensure that your inputs and outputs are serializable.
+1. `@entrypoint` 输入和输出必须是 JSON 序列化的。
+2. `@task` 输出必须是 JSON 序列化的。
 
-Serialization ensures that workflow state, such as task results and intermediate values, can be reliably saved and restored. This is critical for enabling human-in-the-loop interactions, fault tolerance, and parallel execution.
+这些要求对于启用检查点和工作流恢复至关重要。使用 Python 原始类型，如字典、列表、字符串、数字和布尔值，以确保您的输入和输出是可序列化的。
 
-Providing non-serializable inputs or outputs will result in a runtime error when a workflow is configured with a checkpointer.
+序列化可确保工作流状态（如任务结果和中间值）能够被可靠地保存和恢复。这对于启用人工干预交互、容错和并行执行至关重要。
 
-## Determinism
+提供不可序列化的输入或输出，在配置了检查点的​​工作流运行时会导致错误。
 
-To utilize features like **human-in-the-loop**, any randomness should be encapsulated inside of **tasks**. This guarantees that when execution is halted (e.g., for human in the loop) and then resumed, it will follow the same *sequence of steps*, even if **task** results are non-deterministic.
+## 确定性
 
-LangGraph achieves this behavior by persisting **task** and [**subgraph**](./subgraphs.md) results as they execute. A well-designed workflow ensures that resuming execution follows the *same sequence of steps*, allowing previously computed results to be retrieved correctly without having to re-execute them. This is particularly useful for long-running **tasks** or **tasks** with non-deterministic results, as it avoids repeating previously done work and allows resuming from essentially the same.
+为了利用**人工干预**等功能，任何随机性都应封装在**任务**内部。这可以确保当执行暂停（例如，为了人工干预）然后恢复时，即使**任务**结果不是确定性的，它也会遵循相同的*步骤序列*。
 
-While different runs of a workflow can produce different results, resuming a **specific** run should always follow the same sequence of recorded steps. This allows LangGraph to efficiently look up **task** and **subgraph** results that were executed prior to the graph being interrupted and avoid recomputing them.
+LangGraph 通过在执行时持久化**任务**和[**子图**](./subgraphs.md)结果来实现此行为。设计良好的工作流可确保恢复执行遵循*相同的步骤序列*，从而允许在不重新执行的情况下正确检索先前计算的结果。这对于长期运行的**任务**或具有非确定性结果的**任务**特别有用，因为它避免了重复先前完成的工作，并允许从几乎相同的位置恢复。
 
-## Idempotency
+虽然工作流的不同运行可能会产生不同的结果，但恢复*特定*运行应始终遵循相同的已记录步骤序列。这使得 LangGraph 能够有效地查找图被中断之前执行的**任务**和**子图**结果，并避免重新计算它们。
 
-Idempotency ensures that running the same operation multiple times produces the same result. This helps prevent duplicate API calls and redundant processing if a step is rerun due to a failure. Always place API calls inside **tasks** functions for checkpointing, and design them to be idempotent in case of re-execution. Re-execution can occur if a **task** starts, but does not complete successfully. Then, if the workflow is resumed, the **task** will run again. Use idempotency keys or verify existing results to avoid duplication.
+## 幂等性
 
-## Common Pitfalls
+幂等性确保多次运行相同的操作会产生相同的结果。这有助于防止重复的 API 调用和冗余处理，如果某个步骤因失败而重新执行。始终将 API 调用放在**任务**函数中以进行检查点，并根据需要设计它们以在重新执行时具有幂等性。重新执行可能发生在任务开始但未成功完成时。然后，如果恢复工作流，任务将再次运行。使用幂等性键或验证现有结果以避免重复。
 
-### Handling side effects
+## 常见陷阱
 
-Encapsulate side effects (e.g., writing to a file, sending an email) in tasks to ensure they are not executed multiple times when resuming a workflow.
+### 处理副作用
 
-=== "Incorrect"
+将副作用（例如，写入文件、发送电子邮件）封装在任务中，以确保在恢复工作流时不会多次执行它们。
 
-    In this example, a side effect (writing to a file) is directly included in the workflow, so it will be executed a second time when resuming the workflow.
+=== "不正确"
+
+    在此示例中，副作用（写入文件）直接包含在工作流中，因此在恢复工作流时将执行第二次。
 
     ```python
     @entrypoint(checkpointer=checkpointer)
@@ -566,9 +560,9 @@ Encapsulate side effects (e.g., writing to a file, sending an email) in tasks to
         return value
     ```
 
-=== "Correct"
+=== "正确"
 
-    In this example, the side effect is encapsulated in a task, ensuring consistent execution upon resumption.
+    在此示例中，副作用已封装在任务中，从而确保在恢复时执行一致。
 
     ```python
     from langgraph.func import task
@@ -588,24 +582,22 @@ Encapsulate side effects (e.g., writing to a file, sending an email) in tasks to
         return value
     ```
 
-### Non-deterministic control flow
+### 非确定性控制流
 
-Operations that might give different results each time (like getting current time or random numbers) should be encapsulated in tasks to ensure that on resume, the same result is returned.
+每次可能产生不同结果的操作（例如，获取当前时间或随机数）应封装在任务中，以确保恢复时返回相同的结果。
 
-* In a task: Get random number (5) → interrupt → resume → (returns 5 again) → ...
-* Not in a task: Get random number (5) → interrupt → resume → get new random number (7) → ...
+* 在任务中：获取随机数 (5) → 中断 → 恢复 → (再次返回 5) → ...
+* 不在任务中：获取随机数 (5) → 中断 → 恢复 → 获取新的随机数 (7) → ...
 
-This is especially important when using **human-in-the-loop** workflows with multiple interrupts calls. LangGraph keeps a list
-of resume values for each task/entrypoint. When an interrupt is encountered, it's matched with the corresponding resume value.
-This matching is strictly **index-based**, so the order of the resume values should match the order of the interrupts.
+当在具有多个中断调用的**人工干预**工作流中使用时，这一点尤其重要。LangGraph 会维护一个每个任务/入口点的恢复值列表。遇到中断时，它会与相应的恢复值匹配。此匹配严格基于*索引*，因此恢复值的顺序应与中断的顺序匹配。
 
-If order of execution is not maintained when resuming, one `interrupt` call may be matched with the wrong `resume` value, leading to incorrect results.
+如果恢复时未维护执行顺序，一个 `interrupt` 调用可能会与错误的 `resume` 值匹配，从而导致结果不正确。
 
-Please read the section on [determinism](#determinism) for more details.
+有关更多详细信息，请阅读[确定性](#determinism)部分。
 
-=== "Incorrect"
+=== "不正确"
 
-    In this example, the workflow uses the current time to determine which task to execute. This is non-deterministic because the result of the workflow depends on the time at which it is executed.
+    在此示例中，工作流使用当前时间来确定要执行哪个任务。这是非确定性的，因为工作流的结果取决于其执行的时间。
 
     ```python
     from langgraph.func import entrypoint
@@ -615,25 +607,25 @@ Please read the section on [determinism](#determinism) for more details.
         t0 = inputs["t0"]
         # highlight-next-line
         t1 = time.time()
-        
+
         delta_t = t1 - t0
-        
+
         if delta_t > 1:
             result = slow_task(1).result()
             value = interrupt("question")
         else:
             result = slow_task(2).result()
             value = interrupt("question")
-            
+
         return {
             "result": result,
             "value": value
         }
     ```
 
-=== "Correct"
+=== "正确"
 
-    In this example, the workflow uses the input `t0` to determine which task to execute. This is deterministic because the result of the workflow depends only on the input.
+    在此示例中，工作流使用输入 `t0` 来确定要执行哪个任务。这是确定性的，因为工作流的结果仅取决于输入。
 
     ```python
     import time
@@ -651,19 +643,18 @@ Please read the section on [determinism](#determinism) for more details.
         t0 = inputs["t0"]
         # highlight-next-line
         t1 = get_time().result()
-        
+
         delta_t = t1 - t0
-        
+
         if delta_t > 1:
             result = slow_task(1).result()
             value = interrupt("question")
         else:
             result = slow_task(2).result()
             value = interrupt("question")
-            
+
         return {
             "result": result,
             "value": value
         }
     ```
-

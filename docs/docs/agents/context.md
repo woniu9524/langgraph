@@ -1,30 +1,28 @@
-# Context
+# 上下文
 
-**Context engineering** is the practice of building dynamic systems that provide the right information and tools, in the right format, so that a language model can plausibly accomplish a task.
+**上下文工程** 是构建动态系统的实践，这些系统以正确的格式提供正确的信息和工具，以便语言模型能够合理地完成任务。
 
-Context includes *any* data outside the message list that can shape behavior. This can be:
+上下文包括消息列表之外的*任何*数据，这些数据可以影响行为。这些可以是：
 
-- Information passed at runtime, like a `user_id` or API credentials.
-- Internal state updated during a multi-step reasoning process.
-- Persistent memory or facts from previous interactions.
+- 在运行时传递的信息，例如 `user_id` 或 API 凭据。
+- 在多步推理过程中更新的内部状态。
+- 先前交互的持久内存或事实。
 
-LangGraph provides **three** primary ways to supply context:
+LangGraph 提供**三种**主要方式来提供上下文：
 
-| Type                                                                         | Description                                   | Mutable? | Lifetime                |
-|------------------------------------------------------------------------------|-----------------------------------------------|----------|-------------------------|
-| [**Config**](#config-static-context)                                         | data passed at the start of a run             | ❌        | per run                 |
-| [**Short-term memory (State)**](#short-term-memory-mutable-context)          | dynamic data that can change during execution | ✅        | per run or conversation |
-| [**Long-term memory (Store)**](#long-term-memory-cross-conversation-context) | data that can be shared between conversations | ✅        | across conversations    |
+| 类型                                                                         | 描述                                   | 可变？ | 生命周期            |
+|------------------------------------------------------------------------------|----------------------------------------|--------|---------------------|
+| [**Config**](#config-static-context)                                         | 在运行开始时传递的数据                 | ❌     | 每个运行          |
+| [**短期记忆 (State)**](#short-term-memory-mutable-context)                   | 执行期间可以更改的动态数据             | ✅     | 每个运行或对话    |
+| [**长期记忆 (Store)**](#long-term-memory-cross-conversation-context)         | 可以在对话之间共享的数据               | ✅     | 跨对话            |
 
-## Provide runtime context
+## 提供运行时上下文
 
-### Config (static context)
+### Config（静态上下文）
 
-Config is for immutable data like user metadata or API keys. Use
-when you have values that don't change mid-run.
+Config 用于不可变数据，如用户元数据或 API 密钥。当拥有在运行过程中不会更改的值时使用。
 
-Specify configuration using a key called **"configurable"** which is reserved
-for this purpose:
+使用一个称为 **"configurable"** 的键指定配置，该键为此目的保留：
 
 ```python
 graph.invoke( # (1)!
@@ -34,9 +32,9 @@ graph.invoke( # (1)!
 )
 ```
 
-1. This is the invocation of the agent or graph. The `invoke` method runs the underlying graph with the provided input.
-2. This example uses messages as an input, which is common, but your application may use different input structures.
-3. This is where you pass the configuration data. The `config` parameter allows you to provide additional context that the agent can use during its execution.
+1. 这是代理或图的调用。`invoke` 方法使用提供的输入运行底层图。
+2. 此示例使用消息作为输入，这是常见的，但您的应用程序可能使用不同的输入结构。
+3. 这是你传递配置数据的地方。`config` 参数允许你提供代理在执行期间可以使用額外外上下文。
 
 === "Agent prompt"
 
@@ -65,7 +63,7 @@ graph.invoke( # (1)!
     )
     ```
 
-    * See [Agents](../agents/agents.md) for details.
+    * 有关详细信息，请参阅 [Agents](../agents/agents.md)。
 
 === "Workflow node"
 
@@ -78,7 +76,7 @@ graph.invoke( # (1)!
         ...
     ```
 
-    * See [the Graph API](https://langchain-ai.github.io/langgraph/how-tos/graph-api/#add-runtime-configuration) for details.
+    * 有关详细信息，请参阅 [Graph API](https://langchain-ai.github.io/langgraph/how-tos/graph-api/#add-runtime-configuration)。
 
 === "In a tool"
 
@@ -93,17 +91,17 @@ graph.invoke( # (1)!
         return "User is John Smith" if user_id == "user_123" else "Unknown user"
     ```
 
-    See the [tool calling guide](../how-tos/tool-calling.md#configuration) for details.
+    有关详细信息，请参阅 [tool calling guide](../how-tos/tool-calling.md#configuration)。
 
-### Short-term memory (mutable context)
+### 短期记忆（可变上下文）
 
-State acts as [short-term memory](../concepts/memory.md) during a run. It holds dynamic data that can evolve during execution, such as values derived from tools or LLM outputs.
+State 在运行期间充当[短期记忆](../concepts/memory.md)。它包含在执行过程中可能演变的数据，例如来自工具或 LLM 输出的值。
 
 === "In an agent"
 
-    Example shows how to incorporate state into an agent **prompt**.
+    示例展示如何将状态合并到代理**prompt**中。
 
-    State can also be accessed by the agent's **tools**, which can read or update the state as needed. See [tool calling guide](../how-tos/tool-calling.md#short-term-memory) for details.
+    代理的**tools**也可以访问状态，工具可以根据需要读取或更新状态。有关详细信息，请参阅 [tool calling guide](../how-tos/tool-calling.md#short-term-memory)。
 
     ```python
     from langchain_core.messages import AnyMessage
@@ -137,8 +135,8 @@ State acts as [short-term memory](../concepts/memory.md) during a run. It holds 
     })
     ```
 
-    1. Define a custom state schema that extends `AgentState` or `MessagesState`.
-    2. Pass the custom state schema to the agent. This allows the agent to access and modify the state during execution.
+    1. 定义一个扩展 `AgentState` 或 `MessagesState` 的自定义状态。
+    2. 将自定义状态模式传递给代理。这允许代理在执行期间访问和修改状态。
 
 
 === "In a workflow"
@@ -168,17 +166,17 @@ State acts as [short-term memory](../concepts/memory.md) during a run. It holds 
     graph = builder.compile()
     ```
     
-    1. Define a custom state
-    2. Access the state in any node or tool
-    3. The Graph API is designed to work as easily as possible with state. The return value of a node represents a requested update to the state.
+    1. 定义一个自定义状态
+    2. 在任何节点或工具中访问状态
+    3. Graph API 的设计宗旨是尽可能轻松地与状态协同工作。节点返回值代表对状态的请求更新。
 
 
-!!! tip "Turning on memory"
+!!! tip "启用记忆"
 
-    Please see the [memory guide](../how-tos/memory/add-memory.md) for more details on how to enable memory. This is a powerful feature that allows you to persist the agent's state across multiple invocations. Otherwise, the state is scoped only to a single run.
+    有关如何启用内存的更多详细信息，请参阅[内存指南](../how-tos/memory/add-memory.md)。这是一个强大的功能，它允许你在多次调用之间保持代理的状态。否则，状态仅限于单个运行。
 
-### Long-term memory (cross-conversation context)
+### 长期记忆（跨对话上下文）
 
-For context that spans *across* conversations or sessions, LangGraph allows access to **long-term memory** via a `store`. This can be used to read or update persistent facts (e.g., user profiles, preferences, prior interactions). 
+对于跨越对话或会话的上下文，LangGraph 允许通过 `store` 访问**长期记忆**。这可用于读取或更新持久事实（例如 用户配置文件、偏好设置、先前的交互）。
 
-For more information, see the [Memory guide](../how-tos/memory/add-memory.md).
+有关更多信息，请参阅[内存指南](../how-tos/memory/add-memory.md)。

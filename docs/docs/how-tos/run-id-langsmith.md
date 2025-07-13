@@ -1,45 +1,45 @@
-# How to pass custom run ID or set tags and metadata for graph runs in LangSmith
+# 如何为 LangSmith 中的图执行传递自定义运行 ID 或设置标签和元数据
 
-!!! tip "Prerequisites"
-    This guide assumes familiarity with the following:
-    
-    - [LangSmith Documentation](https://docs.smith.langchain.com)
-    - [LangSmith Platform](https://smith.langchain.com)
+!!! tip "先决条件"
+    本指南假设您熟悉以下内容：
+
+    - [LangSmith 文档](https://docs.smith.langchain.com)
+    - [LangSmith 平台](https://smith.langchain.com)
     - [RunnableConfig](https://api.python.langchain.com/en/latest/runnables/langchain_core.runnables.config.RunnableConfig.html#langchain_core.runnables.config.RunnableConfig)
-    - [Add metadata and tags to traces](https://docs.smith.langchain.com/how_to_guides/tracing/trace_with_langchain#add-metadata-and-tags-to-traces)
-    - [Customize run name](https://docs.smith.langchain.com/how_to_guides/tracing/trace_with_langchain#customize-run-name)
+    - [为跟踪添加元数据和标签](https://docs.smith.langchain.com/how_to_guides/tracing/trace_with_langchain#add-metadata-and-tags-to-traces)
+    - [自定义运行名称](https://docs.smith.langchain.com/how_to_guides/tracing/trace_with_langchain#customize-run-name)
 
-Debugging graph runs can sometimes be difficult to do in an IDE or terminal. [LangSmith](https://docs.smith.langchain.com) lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph — read the [LangSmith documentation](https://docs.smith.langchain.com) for more information on how to get started.
+在 IDE 或终端中调试图执行有时会很困难。[LangSmith](https://docs.smith.langchain.com) 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用 — 阅读[LangSmith 文档](https://docs.smith.langchain.com)以获取有关如何开始的更多信息。
 
-To make it easier to identify and analyzed traces generated during graph invocation, you can set additional configuration at run time (see [RunnableConfig](https://api.python.langchain.com/en/latest/runnables/langchain_core.runnables.config.RunnableConfig.html#langchain_core.runnables.config.RunnableConfig)):
+为了更容易地识别和分析在图调用期间生成的跟踪，您可以在运行时设置附加配置（请参阅[RunnableConfig](https://api.python.langchain.com/en/latest/runnables/langchain_core.runnables.config.RunnableConfig.html#langchain_core.runnables.config.RunnableConfig)）：
 
-| **Field**   | **Type**            | **Description**                                                                                                    |
+| **字段** | **类型** | **描述** |
 |-------------|---------------------|--------------------------------------------------------------------------------------------------------------------|
-| run_name    | `str`               | Name for the tracer run for this call. Defaults to the name of the class.                                          |
-| run_id      | `UUID`              | Unique identifier for the tracer run for this call. If not provided, a new UUID will be generated.                 |
-| tags        | `List[str]`         | Tags for this call and any sub-calls (e.g., a Chain calling an LLM). You can use these to filter calls.            |
-| metadata    | `Dict[str, Any]`    | Metadata for this call and any sub-calls (e.g., a Chain calling an LLM). Keys should be strings, values should be JSON-serializable. |
+| run_name | `str` | 此调用跟踪运行的名称。默认为类名。 |
+| run_id | `UUID` | 此调用跟踪运行的唯一标识符。如果未提供，将生成新的 UUID。 |
+| tags | `List[str]` | 此调用及任何子调用（例如，调用 LLM 的 Chain）的标签。您可以使用它们来过滤调用。 |
+| metadata | `Dict[str, Any]` | 此调用及任何子调用（例如，调用 LLM 的 Chain）的元数据。键应该是字符串，值应该是 JSON 可序列化的。 |
 
-LangGraph graphs implement the [LangChain Runnable Interface](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) and accept a second argument (`RunnableConfig`) in methods like `invoke`, `ainvoke`, `stream` etc.
+LangGraph 图实现了[LangChain Runnable 接口](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html)，并在 `invoke`、`ainvoke`、`stream` 等方法中接受第二个参数 (`RunnableConfig`)。
 
-The LangSmith platform will allow you to search and filter traces based on `run_name`, `run_id`, `tags` and `metadata`.
+LangSmith 平台将允许您根据 `run_name`、`run_id`、`tags` 和 `metadata` 搜索和过滤跟踪。
 
-## TLDR
+## 简而言之
 
 ```python
 import uuid
-# Generate a random UUID -- it must be a UUID
+# 生成一个随机 UUID——它必须是一个 UUID
 config = {"run_id": uuid.uuid4()}, "tags": ["my_tag1"], "metadata": {"a": 5}}
-# Works with all standard Runnable methods 
-# like invoke, batch, ainvoke, astream_events etc
+# 适用于所有标准的 Runnable 方法
+# 如 invoke, batch, ainvoke, astream_events 等
 graph.stream(inputs, config, stream_mode="values")
 ```
 
-The rest of the how to guide will show a full agent.
+本指南的其余部分将展示一个完整的代理。
 
-## Setup
+## 设置
 
-First, let's install the required packages and set our API keys
+首先，让我们安装所需的包并设置我们的 API 密钥
 
 ```python
 %%capture --no-stderr
@@ -61,11 +61,11 @@ _set_env("LANGSMITH_API_KEY")
 ```
 
 !!! tip
-    Sign up for LangSmith to quickly spot issues and improve the performance of your LangGraph projects. [LangSmith](https://docs.smith.langchain.com) lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph — read more about how to get started [here](https://docs.smith.langchain.com).
+    注册 LangSmith 以快速发现问题并提高 LangGraph 项目的性能。[LangSmith](https://docs.smith.langchain.com) 允许您使用跟踪数据来调试、测试和监控使用 LangGraph 构建的 LLM 应用 — 在[此处](https://docs.smith.langchain.com)了解有关如何开始的更多信息。
 
-## Define the graph
+## 定义 Graph
 
-For this example we will use the [prebuilt ReAct agent](https://langchain-ai.github.io/langgraph/how-tos/create-react-agent/).
+在本例中，我们将使用[预构建的 ReAct 代理](https://langchain-ai.github.io/langgraph/how-tos/create-react-agent/)。
 
 ```python
 from langchain_openai import ChatOpenAI
@@ -73,14 +73,14 @@ from typing import Literal
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import tool
 
-# First we initialize the model we want to use.
+# 首先我们初始化要使用的的模型。
 model = ChatOpenAI(model="gpt-4o", temperature=0)
 
 
-# For this tutorial we will use custom tool that returns pre-defined values for weather in two cities (NYC & SF)
+# 对于本教程，我们将使用自定义工具，该工具返回两个城市（NYC 和 SF）的预定义天气值
 @tool
 def get_weather(city: Literal["nyc", "sf"]):
-    """Use this to get weather information."""
+    """使用此工具获取天气信息。"""
     if city == "nyc":
         return "It might be cloudy in nyc"
     elif city == "sf":
@@ -92,17 +92,17 @@ def get_weather(city: Literal["nyc", "sf"]):
 tools = [get_weather]
 
 
-# Define the graph
+# 定义图
 graph = create_react_agent(model, tools=tools)
 ```
 
-## Run your graph
+## 运行 Graph
 
-Now that we've defined our graph let's run it once and view the trace in LangSmith. In order for our trace to be easily accessible in LangSmith, we will pass in a custom `run_id` in the config.
+现在我们已经定义了我们的图，让我们运行一次并在 LangSmith 中查看跟踪。为了方便在 LangSmith 中访问我们的跟踪，我们将向配置中传递一个自定义的 `run_id`。
 
-This assumes that you have set your `LANGSMITH_API_KEY` environment variable.
+这假设您已设置 `LANGSMITH_API_KEY` 环境变量。
 
-Note that you can also configure what project to trace to by setting the `LANGCHAIN_PROJECT` environment variable, by default runs will be traced to the `default` project.
+请注意，您还可以通过设置 `LANGCHAIN_PROJECT` 环境变量来配置要跟踪的项目，默认情况下，运行将跟踪到 `default` 项目。
 
 ```python
 import uuid
@@ -124,7 +124,7 @@ config = {"run_name": "agent_007", "tags": ["cats are awesome"]}
 print_stream(graph.stream(inputs, config, stream_mode="values"))
 ```
 
-**Output:**
+**输出：**
 ```
 ================================ Human Message ==================================
 
@@ -144,12 +144,12 @@ It's always sunny in sf
 The weather in San Francisco is currently sunny.
 ```
 
-## View the trace in LangSmith
+## 在 LangSmith 中查看跟踪
 
-Now that we've ran our graph, let's head over to LangSmith and view our trace. First click into the project that you traced to (in our case the default project). You should see a run with the custom run name "agent_007".
+现在我们已经运行了我们的图，让我们前往 LangSmith 查看我们的跟踪。首先，点击您跟踪到的项目（在本例中为默认项目）。您应该会看到一个具有自定义运行名称“agent_007”的运行。
 
 ![LangSmith Trace View](assets/d38d1f2b-0f4c-4707-b531-a3c749de987f.png)
 
-In addition, you will be able to filter traces after the fact using the tags or metadata provided. For example,
+此外，您将能够事后使用提供的标签或元数据来过滤跟踪。例如，
 
-![LangSmith Filter View](assets/410e0089-2ab8-46bb-a61a-827187fd46b3.png) 
+![LangSmith Filter View](assets/410e0089-2ab8-46bb-a61a-827187fd46b3.png)

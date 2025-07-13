@@ -7,17 +7,17 @@ hide:
   - tags
 ---
 
-# Use MCP
+# 使用 MCP
 
-The Model Context Protocol (MCP) is an open protocol that standardizes how applications provide tools and context to language models. LangGraph agents can use tools defined on MCP servers through the `langchain-mcp-adapters` library.
+模型上下文协议 (MCP) 是一种开放协议，它标准化了应用程序如何向语言模型提供工具和上下文。LangGraph 代理可以通过 `langchain-mcp-adapters` 库使用定义在 MCP 服务器上的工具。
 
-## Use MCP tools
+## 使用 MCP 工具
 
-The `langchain-mcp-adapters` package enables agents to use tools defined across one or more MCP servers.
+`langchain-mcp-adapters` 包使代理能够使用在一个或多个 MCP 服务器上定义的工具。
 
-=== "In an agent"
+=== "在代理中"
 
-    ```python title="Agent using tools defined on MCP servers"
+    ```python title="使用 MCP 服务器上定义的工具的代理"
     # highlight-next-line
     from langchain_mcp_adapters.client import MultiServerMCPClient
     from langgraph.prebuilt import create_react_agent
@@ -27,12 +27,12 @@ The `langchain-mcp-adapters` package enables agents to use tools defined across 
         {
             "math": {
                 "command": "python",
-                # Replace with absolute path to your math_server.py file
+                # 替换为指向你的 math_server.py 文件的绝对路径
                 "args": ["/path/to/math_server.py"],
                 "transport": "stdio",
             },
             "weather": {
-                # Ensure you start your weather server on port 8000
+                # 确保在端口 8000 上启动你的天气服务器
                 "url": "http://localhost:8000/mcp",
                 "transport": "streamable_http",
             }
@@ -53,7 +53,7 @@ The `langchain-mcp-adapters` package enables agents to use tools defined across 
     )
     ```
 
-=== "In a workflow"
+=== "在工作流中"
 
     ```python
     from langchain_mcp_adapters.client import MultiServerMCPClient
@@ -67,12 +67,12 @@ The `langchain-mcp-adapters` package enables agents to use tools defined across 
         {
             "math": {
                 "command": "python",
-                # Make sure to update to the full absolute path to your math_server.py file
+                # 确保更新为指向你的 math_server.py 文件的完整绝对路径
                 "args": ["./examples/math_server.py"],
                 "transport": "stdio",
             },
             "weather": {
-                # make sure you start your weather server on port 8000
+                # 确保在端口 8000 上启动你的天气服务器
                 "url": "http://localhost:8000/mcp/",
                 "transport": "streamable_http",
             }
@@ -100,52 +100,52 @@ The `langchain-mcp-adapters` package enables agents to use tools defined across 
 
 
 
-## Custom MCP servers
+## 自定义 MCP 服务器
 
-To create your own MCP servers, you can use the `mcp` library. This library provides a simple way to define tools and run them as servers.
+要创建自己的 MCP 服务器，你可以使用 `mcp` 库。该库提供了一种简单的方法来定义工具并将其作为服务器运行。
 
-Install the MCP library:
+安装 MCP 库：
 
 ```bash
 pip install mcp
 ```
-Use the following reference implementations to test your agent with MCP tool servers.
+使用以下参考实现来测试你的代理与 MCP 工具服务器的集成。
 
-```python title="Example Math Server (stdio transport)"
+```python title="示例数学服务器 (stdio 传输)"
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Math")
 
 @mcp.tool()
 def add(a: int, b: int) -> int:
-    """Add two numbers"""
+    """将两个数字相加"""
     return a + b
 
 @mcp.tool()
 def multiply(a: int, b: int) -> int:
-    """Multiply two numbers"""
+    """将两个数字相乘"""
     return a * b
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
-```python title="Example Weather Server (Streamable HTTP transport)"
+```python title="示例天气服务器 (Streamable HTTP 传输)"
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Weather")
 
 @mcp.tool()
 async def get_weather(location: str) -> str:
-    """Get weather for location."""
+    """获取指定地点的天气。"""
     return "It's always sunny in New York"
 
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")
 ```
 
-## Additional resources
+## 附加资源
 
-- [MCP documentation](https://modelcontextprotocol.io/introduction)
-- [MCP Transport documentation](https://modelcontextprotocol.io/docs/concepts/transports)
+- [MCP 文档](https://modelcontextprotocol.io/introduction)
+- [MCP 传输文档](https://modelcontextprotocol.io/docs/concepts/transports)
 - [langchain_mcp_adapters](https://github.com/langchain-ai/langchain-mcp-adapters)

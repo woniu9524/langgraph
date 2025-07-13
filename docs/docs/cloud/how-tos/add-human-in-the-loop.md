@@ -1,8 +1,8 @@
-# Human-in-the-loop using Server API
+# 人工干预：使用 Server API
 
-To review, edit, and approve tool calls in an agent or workflow, use LangGraph's [human-in-the-loop](../../concepts/human_in_the_loop.md) features.
+要审核、编辑和批准代理或工作流中的工具调用，请使用 LangGraph 的 [人工干预](../../concepts/human_in_the_loop.md) 功能。
 
-## Dynamic interrupts
+## 动态中断
 
 === "Python"
 
@@ -12,14 +12,14 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     from langgraph_sdk.schema import Command
     client = get_client(url=<DEPLOYMENT_URL>)
 
-    # Using the graph deployed with the name "agent"
+    # 使用名为 "agent" 的已部署图表
     assistant_id = "agent"
 
-    # create a thread
+    # 创建一个线程
     thread = await client.threads.create()
     thread_id = thread["thread_id"]
 
-    # Run the graph until the interrupt is hit.
+    # 运行图表直到命中中断点。
     result = await client.runs.wait(
         thread_id,
         assistant_id,
@@ -37,7 +37,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     # > ]
 
 
-    # Resume the graph
+    # 恢复图表
     print(await client.runs.wait(
         thread_id,
         assistant_id,
@@ -47,9 +47,9 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     # > {'some_text': 'Edited text'}
     ```
 
-    1. The graph is invoked with some initial state.
-    2. When the graph hits the interrupt, it returns an interrupt object with the payload and metadata.
-    3. The graph is resumed with a `Command(resume=...)`, injecting the human's input and continuing execution.
+    1. 图表以初始状态调用。
+    2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
+    3. 图表使用 `Command(resume=...)` 恢复，注入人工输入并继续执行。
 
 === "JavaScript"
 
@@ -57,47 +57,47 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     import { Client } from "@langchain/langgraph-sdk";
     const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
 
-    // Using the graph deployed with the name "agent"
+    // 使用名为 "agent" 的已部署图表
     const assistantID = "agent";
 
-    // create a thread
+    // 创建一个线程
     const thread = await client.threads.create();
     const threadID = thread["thread_id"];
 
-    // Run the graph until the interrupt is hit.
+    // 运行图表直到命中中断点。
     const result = await client.runs.wait(
       threadID,
       assistantID,
-      { input: { "some_text": "original text" } }   // (1)!
+      { input: { "some_text": "original text" } }   # (1)!
     );
 
     console.log(result['__interrupt__']); // (2)!
     // > [
-    // >     {
-    // >         'value': {'text_to_revise': 'original text'},
-    // >         'resumable': True,
-    // >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
-    // >         'when': 'during'
-    // >     }
-    // > ]
+    # >     {
+    # >         'value': {'text_to_revise': 'original text'},
+    # >         'resumable': True,
+    # >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
+    # >         'when': 'during'
+    # >     }
+    # > ]
 
-    // Resume the graph
+    // 恢复图表
     console.log(await client.runs.wait(
         threadID,
         assistantID,
         // highlight-next-line
-        { command: { resume: "Edited text" }}   // (3)!
+        { command: { resume: "Edited text" }}   # (3)!
     ));
-    // > {'some_text': 'Edited text'}
+    # > {'some_text': 'Edited text'}
     ```
 
-    1. The graph is invoked with some initial state.
-    2. When the graph hits the interrupt, it returns an interrupt object with the payload and metadata.
-    3. The graph is resumed with a `{ resume: ... }` command object, injecting the human's input and continuing execution.
+    1. 图表以初始状态调用。
+    2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
+    3. 图表使用 `{ resume: ... }` 命令对象恢复，注入人工输入并继续执行。
 
 === "cURL"
 
-    Create a thread:
+    创建线程：
 
     ```bash
     curl --request POST \
@@ -106,7 +106,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     --data '{}'
     ```
 
-    Run the graph until the interrupt is hit.:
+    运行图表直到命中中断点：
 
     ```bash
     curl --request POST \
@@ -118,7 +118,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     }"
     ```
 
-    Resume the graph:
+    恢复图表：
 
     ```bash
     curl --request POST \
@@ -132,10 +132,10 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
      }"
     ```
 
-??? example "Extended example: using `interrupt`"
+??? example "扩展示例：使用 `interrupt`"
 
-    This is an example graph you can run in the LangGraph API server.
-    See [LangGraph Platform quickstart](../quick_start.md) for more details.
+    这是您可以在 LangGraph API 服务器中运行的示例图表。
+    有关更多详细信息，请参阅 [LangGraph Platform 快速入门](../quick_start.md)。
 
     ```python
     from typing import TypedDict
@@ -162,7 +162,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         }
 
 
-    # Build the graph
+    # 构建图表
     graph_builder = StateGraph(State)
     graph_builder.add_node("human_node", human_node)
     graph_builder.add_edge(START, "human_node")
@@ -170,12 +170,11 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
     graph = graph_builder.compile()
     ```
 
-    1. `interrupt(...)` pauses execution at `human_node`, surfacing the given payload to a human.
-    2. Any JSON serializable value can be passed to the `interrupt` function. Here, a dict containing the text to revise.
-    3. Once resumed, the return value of `interrupt(...)` is the human-provided input, which is used to update the state.
+    1. `interrupt(...)` 在 `human_node` 处暂停执行，将给定有效负载呈现给人工。
+    2. 可以将任何 JSON 可序列化值传递给 `interrupt` 函数。此处为一个包含要修改的文本的字典。
+    3. 一旦恢复，`interrupt(...)` 的返回值就是用户提供的输入，用于更新状态。
 
-    Once you have a running LangGraph API server, you can interact with it using
-    [LangGraph SDK](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/)
+    一旦您运行了 LangGraph API 服务器，就可以使用 [LangGraph SDK](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/) 进行交互。
 
     === "Python"
 
@@ -185,14 +184,14 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         from langgraph_sdk.schema import Command
         client = get_client(url=<DEPLOYMENT_URL>)
 
-        # Using the graph deployed with the name "agent"
+        # 使用名为 "agent" 的已部署图表
         assistant_id = "agent"
 
-        # create a thread
+        # 创建一个线程
         thread = await client.threads.create()
         thread_id = thread["thread_id"]
 
-        # Run the graph until the interrupt is hit.
+        # 运行图表直到命中中断点。
         result = await client.runs.wait(
             thread_id,
             assistant_id,
@@ -210,7 +209,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         # > ]
 
 
-        # Resume the graph
+        # 恢复图表
         print(await client.runs.wait(
             thread_id,
             assistant_id,
@@ -220,9 +219,9 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         # > {'some_text': 'Edited text'}
         ```
 
-        1. The graph is invoked with some initial state.
-        2. When the graph hits the interrupt, it returns an interrupt object with the payload and metadata.
-        3. The graph is resumed with a `Command(resume=...)`, injecting the human's input and continuing execution.
+        1. 图表以初始状态调用。
+        2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
+        3. 图表使用 `Command(resume=...)` 恢复，注入人工输入并继续执行。
 
     === "JavaScript"
 
@@ -230,47 +229,47 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         import { Client } from "@langchain/langgraph-sdk";
         const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
 
-        // Using the graph deployed with the name "agent"
+        // 使用名为 "agent" 的已部署图表
         const assistantID = "agent";
 
-        // create a thread
+        // 创建一个线程
         const thread = await client.threads.create();
         const threadID = thread["thread_id"];
 
-        // Run the graph until the interrupt is hit.
+        // 运行图表直到命中中断点。
         const result = await client.runs.wait(
           threadID,
           assistantID,
-          { input: { "some_text": "original text" } }   // (1)!
+          { input: { "some_text": "original text" } }   # (1)!
         );
 
         console.log(result['__interrupt__']); // (2)!
         // > [
-        // >     {
-        // >         'value': {'text_to_revise': 'original text'},
-        // >         'resumable': True,
-        // >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
-        // >         'when': 'during'
-        // >     }
-        // > ]
+        # >     {
+        # >         'value': {'text_to_revise': 'original text'},
+        # >         'resumable': True,
+        # >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
+        # >         'when': 'during'
+        # >     }
+        # > ]
 
-        // Resume the graph
+        // 恢复图表
         console.log(await client.runs.wait(
             threadID,
             assistantID,
             // highlight-next-line
-            { command: { resume: "Edited text" }}   // (3)!
+            { command: { resume: "Edited text" }}   # (3)!
         ));
-        // > {'some_text': 'Edited text'}
+        # > {'some_text': 'Edited text'}
         ```
 
-        1. The graph is invoked with some initial state.
-        2. When the graph hits the interrupt, it returns an interrupt object with the payload and metadata.
-        3. The graph is resumed with a `{ resume: ... }` command object, injecting the human's input and continuing execution.
+        1. 图表以初始状态调用。
+        2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
+        3. 图表使用 `{ resume: ... }` 命令对象恢复，注入人工输入并继续执行。
 
     === "cURL"
 
-        Create a thread:
+        创建线程：
 
         ```bash
         curl --request POST \
@@ -279,7 +278,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         --data '{}'
         ```
 
-        Run the graph until the interrupt is hit:
+        运行图表直到命中中断点：
 
         ```bash
         curl --request POST \
@@ -291,7 +290,7 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         }"
         ```
 
-        Resume the graph:
+        恢复图表：
 
         ```bash
         curl --request POST \
@@ -305,15 +304,15 @@ To review, edit, and approve tool calls in an agent or workflow, use LangGraph's
         }"
         ```
 
-## Static interrupts
+## 静态中断
 
-Static interrupts (also known as static breakpoints) are triggered either before or after a node executes. 
+静态中断（也称为静态断点）在节点执行之前或之后触发。
 
 !!! warning
 
-    Static interrupts are **not** recommended for human-in-the-loop workflows. They are best used for debugging and testing.
+    不建议在人工干预工作流中使用静态中断。它们最适合用于调试和测试。
 
-You can set static interrupts by specifying `interrupt_before` and `interrupt_after` at compile time:
+您可以通过在编译时指定 `interrupt_before` 和 `interrupt_after` 来设置静态中断：
 
 ```python
 # highlight-next-line
@@ -325,11 +324,11 @@ graph = graph_builder.compile( # (1)!
 )
 ```
 
-1. The breakpoints are set during `compile` time.
-2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
-3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
+1. 断点在编译时设置。
+2. `interrupt_before` 指定在节点执行前应暂停执行的节点。
+3. `interrupt_after` 指定在节点执行后应暂停执行的节点。
 
-Alternatively, you can set static interrupts at run time:
+或者，您可以在运行时设置静态中断：
 
 === "Python"
 
@@ -346,9 +345,9 @@ Alternatively, you can set static interrupts at run time:
     )
     ```
 
-    1. `client.runs.wait` is called with the `interrupt_before` and `interrupt_after` parameters. This is a run-time configuration and can be changed for every invocation.
-    2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
-    3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
+    1. 调用 `client.runs.wait` 时附带 `interrupt_before` 和 `interrupt_after` 参数。这是运行时配置，可为每次调用更改。
+    2. `interrupt_before` 指定在节点执行前应暂停执行的节点。
+    3. `interrupt_after` 指定在节点执行后应暂停执行的节点。
 
 === "JavaScript"
 
@@ -367,9 +366,9 @@ Alternatively, you can set static interrupts at run time:
     )
     ```
 
-    1. `client.runs.wait` is called with the `interruptBefore` and `interruptAfter` parameters. This is a run-time configuration and can be changed for every invocation.
-    2. `interruptBefore` specifies the nodes where execution should pause before the node is executed.
-    3. `interruptAfter` specifies the nodes where execution should pause after the node is executed.
+    1. 调用 `client.runs.wait` 时附带 `interruptBefore` 和 `interruptAfter` 参数。这是运行时配置，可为每次调用更改。
+    2. `interruptBefore` 指定在节点执行前应暂停执行的节点。
+    3. `interruptAfter` 指定在节点执行后应暂停执行的节点。
 
 === "cURL"
 
@@ -385,7 +384,7 @@ Alternatively, you can set static interrupts at run time:
     }"
     ```
 
-The following example shows how to add static interrupts:
+以下示例显示了如何添加静态中断：
 
 === "Python"
 
@@ -393,21 +392,21 @@ The following example shows how to add static interrupts:
     from langgraph_sdk import get_client
     client = get_client(url=<DEPLOYMENT_URL>)
 
-    # Using the graph deployed with the name "agent"
+    # 使用名为 "agent" 的已部署图表
     assistant_id = "agent"
 
-    # create a thread
+    # 创建一个线程
     thread = await client.threads.create()
     thread_id = thread["thread_id"]
 
-    # Run the graph until the breakpoint
+    # 运行图表直到第一个断点
     result = await client.runs.wait(
         thread_id,
         assistant_id,
         input=inputs   # (1)!
     )
 
-    # Resume the graph
+    # 恢复图表
     await client.runs.wait(
         thread_id,
         assistant_id,
@@ -415,8 +414,8 @@ The following example shows how to add static interrupts:
     )
     ```
 
-    1. The graph is run until the first breakpoint is hit.
-    2. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
+    1. 图表运行直到命中第一个断点。
+    2. 通过将 `input` 设置为 `None` 来恢复图表。这将运行图表直到命中下一个断点。
 
 === "JavaScript"
 
@@ -424,34 +423,34 @@ The following example shows how to add static interrupts:
     import { Client } from "@langchain/langgraph-sdk";
     const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
 
-    // Using the graph deployed with the name "agent"
+    // 使用名为 "agent" 的已部署图表
     const assistantID = "agent";
 
-    // create a thread
+    // 创建一个线程
     const thread = await client.threads.create();
     const threadID = thread["thread_id"];
 
-    // Run the graph until the breakpoint
+    // 运行图表直到第一个断点
     const result = await client.runs.wait(
       threadID,
       assistantID,
-      { input: input }   // (1)!
+      { input: input }   # (1)!
     );
 
-    // Resume the graph
+    // 恢复图表
     await client.runs.wait(
       threadID,
       assistantID,
-      { input: null }   // (2)!
+      { input: null }   # (2)!
     );
     ```
 
-    1. The graph is run until the first breakpoint is hit.
-    2. The graph is resumed by passing in `null` for the input. This will run the graph until the next breakpoint is hit.
+    1. 图表运行直到命中第一个断点。
+    2. 通过将 `input` 设置为 `null` 来恢复图表。这将运行图表直到命中下一个断点。
 
 === "cURL"
 
-    Create a thread:
+    创建线程：
 
     ```bash
     curl --request POST \
@@ -460,7 +459,7 @@ The following example shows how to add static interrupts:
     --data '{}'
     ```
 
-    Run the graph until the breakpoint:
+    运行图表直到断点：
 
     ```bash
     curl --request POST \
@@ -472,7 +471,7 @@ The following example shows how to add static interrupts:
     }"
     ```
 
-    Resume the graph:
+    恢复图表：
 
     ```bash
     curl --request POST \
@@ -484,7 +483,7 @@ The following example shows how to add static interrupts:
     ```
 
 
-## Learn more
+## 了解更多
 
-- [Human-in-the-loop conceptual guide](../../concepts/human_in_the_loop.md): learn more about LangGraph human-in-the-loop features. 
-- [Common patterns](../../how-tos/human_in_the_loop/add-human-in-the-loop.md#common-patterns): learn how to implement patterns like approving/rejecting actions, requesting user input, tool call review, and validating human input.
+- [人工干预概念指南](../../concepts/human_in_the_loop.md): 详细了解 LangGraph 的人工干预功能。
+- [常用模式](../../how-tos/human_in_the_loop/add-human-in-the-loop.md#common-patterns): 了解如何实现批准/拒绝操作、请求用户输入、工具调用审核和验证人工输入等模式。

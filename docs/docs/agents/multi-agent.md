@@ -9,20 +9,20 @@ hide:
 
 # Multi-agent
 
-A single agent might struggle if it needs to specialize in multiple domains or manage many tools. To tackle this, you can break your agent into smaller, independent agents and compose them into a [multi-agent system](../concepts/multi_agent.md).
+单个代理可能难以胜任需要专精多个领域或管理多种工具的任务。为了解决这个问题，你可以将你的代理分解成更小、更独立的代理，并将它们组合成一个 [multi-agent system](../concepts/multi_agent.md)。
 
-In multi-agent systems, agents need to communicate between each other. They do so via [handoffs](#handoffs) — a primitive that describes which agent to hand control to and the payload to send to that agent.
+在多代理系统中，代理之间需要进行通信。它们通过 [handoffs](#handoffs) 进行通信——这是一个原始操作，用于描述将控制权交给哪个代理以及要发送给该代理的载荷（payload）。
 
-Two of the most popular multi-agent architectures are:
+两种最流行的多代理架构是：
 
-- [supervisor](#supervisor) — individual agents are coordinated by a central supervisor agent. The supervisor controls all communication flow and task delegation, making decisions about which agent to invoke based on the current context and task requirements.
-- [swarm](#swarm) — agents dynamically hand off control to one another based on their specializations. The system remembers which agent was last active, ensuring that on subsequent interactions, the conversation resumes with that agent.
+- [supervisor](#supervisor) — 单个代理由一个集中的 supervisor 代理协调。Supervisor 控制所有通信流程和任务委派，并根据当前上下文和任务要求决定调用哪个代理。
+- [swarm](#swarm) — 代理根据其专长动态地将控制权交给彼此。系统会记住哪个代理是最后活动的，以确保在后续交互中，会话能与该代理恢复。
 
 ## Supervisor
 
 ![Supervisor](./assets/supervisor.png)
 
-Use [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) library to create a supervisor multi-agent system:
+使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) 库来创建 supervisor 多代理系统：
 
 ```bash
 pip install langgraph-supervisor
@@ -86,7 +86,7 @@ for chunk in supervisor.stream(
 
 ![Swarm](./assets/swarm.png)
 
-Use [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) library to create a swarm multi-agent system:
+使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) 库来创建 swarm 多代理系统：
 
 ```bash
 pip install langgraph-swarm
@@ -145,16 +145,16 @@ for chunk in swarm.stream(
 
 ## Handoffs
 
-A common pattern in multi-agent interactions is **handoffs**, where one agent *hands off* control to another. Handoffs allow you to specify:
+多代理交互中的一个常见模式是 **handoffs**，即一个代理将控制权“交接”给另一个代理。Handoffs 允许你指定：
 
-- **destination**: target agent to navigate to
-- **payload**: information to pass to that agent
+- **destination**: 要导航到的目标代理
+- **payload**: 要传递给该代理的信息
 
-This is used both by `langgraph-supervisor` (supervisor hands off to individual agents) and `langgraph-swarm` (an individual agent can hand off to other agents).
+`langgraph-supervisor`（supervisor 交接给单个代理）和 `langgraph-swarm`（单个代理可以交接给其他代理）都使用此模式。
 
-To implement handoffs with `create_react_agent`, you need to:
+要使用 `create_react_agent` 实现 handoffs，你需要：
 
-1. Create a special tool that can transfer control to a different agent
+1. 创建一个可以转移控制权给另一个代理的特殊工具
 
     ```python
     def transfer_to_bob():
@@ -173,7 +173,7 @@ To implement handoffs with `create_react_agent`, you need to:
         )
     ```
 
-1. Create individual agents that have access to handoff tools:
+1. 创建具有 handoff 工具访问权限的单个代理：
 
     ```python
     flight_assistant = create_react_agent(
@@ -184,7 +184,7 @@ To implement handoffs with `create_react_agent`, you need to:
     )
     ```
 
-1. Define a parent graph that contains individual agents as nodes:
+1. 定义一个包含单个代理作为节点的父图：
 
     ```python
     from langgraph.graph import StateGraph, MessagesState
@@ -196,7 +196,7 @@ To implement handoffs with `create_react_agent`, you need to:
     )
     ```
 
-Putting this together, here is how you can implement a simple multi-agent system with two agents — a flight booking assistant and a hotel booking assistant:
+综上所述，你可以通过以下方式实现一个简单的多代理系统，包含两个代理——一个航班预订助手和一个酒店预订助手：
 
 ```python
 from typing import Annotated

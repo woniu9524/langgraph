@@ -1,14 +1,14 @@
-# Use threads
+# 使用线程
 
-In this guide, we will show how to create, view, and inspect [threads](../../concepts/persistence.md#threads).
+在本指南中，我们将展示如何创建、查看和检查 [线程](../../concepts/persistence.md#threads)。
 
-## Create a thread
+## 创建线程
 
-To run your graph and the state persisted, you must first create a thread.
+要运行图和持久化状态，您必须先创建一个线程。
 
-### Empty thread
+### 空线程
 
-To create a new thread, use the [LangGraph SDK](../../concepts/sdk.md) `create` method. See the [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.ThreadsClient.create) and [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#create_3) SDK reference docs for more information.
+要创建新线程，请使用 [LangGraph SDK](../../concepts/sdk.md) 的 `create` 方法。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.ThreadsClient.create) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#create_3) SDK 参考文档。
 
 === "Python"
 
@@ -52,9 +52,9 @@ Output:
       "values": {}
     }
 
-### Copy thread
+### 复制线程
 
-Alternatively, if you already have a thread in your application whose state you wish to copy, you can use the `copy` method. This will create an independent thread whose history is identical to the original thread at the time of the operation. See the [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.ThreadsClient.copy) and [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#copy) SDK reference docs for more information.
+或者，如果您在应用程序中已有想要复制状态的线程，则可以使用 `copy` 方法。这将创建一个独立线程，其历史记录在操作时与原始线程相同。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.ThreadsClient.copy) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#copy) SDK 参考文档。
 
 === "Python"
 
@@ -75,9 +75,9 @@ Alternatively, if you already have a thread in your application whose state you 
     --header 'Content-Type: application/json'
     ```
 
-### Prepopulated State
+### 预填充状态
 
-Finally, you can create a thread with an arbitrary pre-defined state by providing a list of `supersteps` into the `create` method. The `supersteps` describe a list of a sequence of state updates. For example:
+最后，您可以通过向 `create` 方法提供 `supersteps` 列表来创建具有任意预定义状态的线程。`supersteps` 描述了状态更新序列的列表。例如：
 
 === "Python"
 
@@ -229,15 +229,15 @@ Output:
         }
     }
 
-## List threads
+## 列出线程
 
 ### LangGraph SDK
 
-To list threads, use the [LangGraph SDK](../../concepts/sdk.md) `search` method. This will list the threads in the application that match the provided filters. See the [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.ThreadsClient.search) and [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#search_2) SDK reference docs for more information.
+要列出线程，请使用 [LangGraph SDK](../../concepts/sdk.md) 的 `search` 方法。这将列出应用程序中与提供的过滤器匹配的线程。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.ThreadsClient.search) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#search_2) SDK 参考文档。
 
-#### Filter by thread status
+#### 按线程状态过滤
 
-Use the `status` field to filter threads based on their status. Supported values are `idle`, `busy`, `interrupted`, and `error`. See [here](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/?h=thread+status#langgraph_sdk.auth.types.ThreadStatus) for information on each status. For example, to view `idle` threads:
+使用 `status` 字段根据线程状态过滤线程。支持的值为 `idle`、`busy`、`interrupted` 和 `error`。有关每种状态的信息，请参阅 [此处](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/?h=thread+status#langgraph_sdk.auth.types.ThreadStatus)。例如，要查看 `idle` 线程：
 
 === "Python"
 
@@ -273,9 +273,9 @@ Output:
       }
     ]
 
-#### Filter by metadata
+#### 按元数据过滤
 
-The `search` method allows you to filter on metadata:
+`search` 方法允许您按元数据进行过滤：
 
 === "Python"
 
@@ -311,25 +311,25 @@ Output:
       }
     ]
 
-#### Sorting
+#### 排序
 
-The SDK also supports sorting threads by `thread_id`, `status`, `created_at`, and `updated_at` using the `sort_by` and `sort_order` params.
+SDK 还支持使用 `sort_by` 和 `sort_order` 参数按 `thread_id`、`status`、`created_at` 和 `updated_at` 对线程进行排序。
 
 ### LangGraph Platform UI
 
-You can also view threads in a deployment via the LangGraph Platform UI.
+您也可以通过 LangGraph Platform UI 在部署中查看线程。
 
-Inside your deployment, select the "Threads" tab. This will load a table of all of the threads in your deployment.
+在您的部署中，选择 "Threads"（线程）选项卡。这将加载您部署中所有线程的表格。
 
-To filter by thread status, select a status in the top bar. To sort by a supported property, click on the arrow icon for the desired column.
+要按线程状态过滤，请选择顶部栏中的状态。要按支持的属性排序，请单击所需列的箭头图标。
 
-## Inspect threads
+## 检查线程
 
 ### LangGraph SDK
 
-#### Get Thread
+#### 获取线程
 
-To view a specific thread given its `thread_id`, use the `get` method:
+要通过 `thread_id` 查看特定线程，请使用 `get` 方法：
 
 === "Python"
 
@@ -362,9 +362,9 @@ Output:
       'config': {'configurable': {}}
     }
 
-#### Inspect Thread State
+#### 检查线程状态
 
-To view the current state of a given thread, use the `get_state` method:
+要查看给定线程的当前状态，请使用 `get_state` 方法：
 
 === "Python"
 
@@ -449,7 +449,7 @@ Output:
         "parent_checkpoint_id": "1f02f46f-7308-616c-8000-1b158a9a6955"
     }
 
-Optionally, to view the state of a thread at a given checkpoint, simply pass in the checkpoint id (or the entire checkpoint object):
+选择性地，要查看给定检查点的线程状态，只需传入检查点 ID（或整个检查点对象）：
 
 === "Python"
 
@@ -474,14 +474,14 @@ Optionally, to view the state of a thread at a given checkpoint, simply pass in 
     --header 'Content-Type: application/json'
     ```
 
-#### Inspect Full Thread History
+#### 检查完整线程历史
 
-To view a thread's history, use the `get_history` method. This returns a list of every state the thread experienced. For more information see the [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/?h=thread+status#langgraph_sdk.client.ThreadsClient.get_history) and [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#gethistory) reference docs.
+要查看线程的历史记录，请使用 `get_history` 方法。这将返回线程经历的每个状态的列表。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/?h=thread+status#langgraph_sdk.client.ThreadsClient.get_history) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#gethistory) 参考文档。
 
 ### LangGraph Platform UI
 
-You can also view threads in a deployment via the LangGraph Platform UI.
+您也可以通过 LangGraph Platform UI 在部署中查看线程。
 
-Inside your deployment, select the "Threads" tab. This will load a table of all of the threads in your deployment.
+在您的部署中，选择 "Threads"（线程）选项卡。这将加载您部署中所有线程的表格。
 
-Select a thread to inspect its current state. To view its full history and for further debugging, open the thread in [LangGraph Studio](../../concepts//langgraph_studio.md).
+选择一个线程以检查其当前状态。要查看其完整历史记录并进一步进行调试，请在 [LangGraph Studio](../../concepts//langgraph_studio.md) 中打开该线程。

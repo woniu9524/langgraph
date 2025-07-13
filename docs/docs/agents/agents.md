@@ -7,19 +7,19 @@ hide:
   - tags
 ---
 
-# LangGraph quickstart
+# LangGraph 快速入门
 
-This guide shows you how to set up and use LangGraph's **prebuilt**, **reusable** components, which are designed to help you construct agentic systems quickly and reliably.
+本指南将向您展示如何设置和使用 LangGraph 的**预构建**、**可复用**组件，这些组件旨在帮助您快速可靠地构建 Agentic 系统。
 
-## Prerequisites
+## 前提条件
 
-Before you start this tutorial, ensure you have the following:
+在开始本教程之前，请确保您已具备以下条件：
 
-- An [Anthropic](https://console.anthropic.com/settings/keys) API key 
+- Anthropic API 密钥
 
-## 1. Install dependencies
+## 1. 安装依赖
 
-If you haven't already, install LangGraph and LangChain:
+如果您尚未安装 LangGraph 和 LangChain，请安装它们：
 
 ```
 pip install -U langgraph "langchain[anthropic]"
@@ -27,39 +27,39 @@ pip install -U langgraph "langchain[anthropic]"
 
 !!! info 
 
-    LangChain is installed so the agent can call the [model](https://python.langchain.com/docs/integrations/chat/).
+    安装 LangChain 是为了让 Agent 可以调用 [模型](https://python.langchain.com/docs/integrations/chat/)。
 
-## 2. Create an agent
+## 2. 创建 Agent
 
-To create an agent, use [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent]:
+要创建 Agent，请使用 `create_react_agent`：
 
 ```python
 from langgraph.prebuilt import create_react_agent
 
 def get_weather(city: str) -> str:  # (1)!
-    """Get weather for a given city."""
+    """获取给定城市的]天气。"""
     return f"It's always sunny in {city}!"
 
 agent = create_react_agent(
     model="anthropic:claude-3-7-sonnet-latest",  # (2)!
     tools=[get_weather],  # (3)!
-    prompt="You are a helpful assistant"  # (4)!
+    prompt="你是一个乐于助人的助手"  # (4)!
 )
 
-# Run the agent
+# 运行 Agent
 agent.invoke(
     {"messages": [{"role": "user", "content": "what is the weather in sf"}]}
 )
 ```
 
-1. Define a tool for the agent to use. Tools can be defined as vanilla Python functions. For more advanced tool usage and customization, check the [tools](../how-tos/tool-calling.md) page.
-2. Provide a language model for the agent to use. To learn more about configuring language models for the agents, check the [models](./models.md) page.
-3. Provide a list of tools for the model to use.
-4. Provide a system prompt (instructions) to the language model used by the agent.
+1. 定义 Agent 可以使用的工具。工具可以定义为普通的 Python 函数。有关更高级的工具使用和自定义方法，请查看 [工具](../how-tos/tool-calling.md) 页面。
+2. 提供 Agent 使用的语言模型。要了解有关为 Agent 配置语言模型的更多信息，请查看 [模型](./models.md) 页面。
+3. 提供模型要使用的工具列表。
+4. 为 Agent 使用的语言模型提供一个系统提示（说明）。
 
-## 3. Configure an LLM
+## 3. 配置 LLM
 
-To configure an LLM with specific parameters, such as temperature, use [init_chat_model](https://python.langchain.com/api_reference/langchain/chat_models/langchain.chat_models.base.init_chat_model.html):
+要使用特定参数配置 LLM，例如 temperature，请使用 `init_chat_model`：
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -79,18 +79,18 @@ agent = create_react_agent(
 )
 ```
 
-For more information on how to configure LLMs, see [Models](./models.md).
+有关如何配置 LLM 的更多信息，请参阅 [模型](./models.md)。
 
-## 4. Add a custom prompt
+## 4. 添加自定义提示
 
-Prompts instruct the LLM how to behave. Add one of the following types of prompts:
+提示用于指示 LLM 如何表现。可以添加以下任一类型的提示：
 
-* **Static**: A string is interpreted as a **system message**.
-* **Dynamic**: A list of messages generated at **runtime**, based on input or configuration.
+*   **静态提示**：字符串被解释为**系统消息**。
+*   **动态提示**：基于输入或配置在**运行时**生成的消息列表。
 
-=== "Static prompt"
+=== "静态提示"
 
-    Define a fixed prompt string or list of messages:
+    定义一个固定的提示字符串或消息列表：
 
     ```python
     from langgraph.prebuilt import create_react_agent
@@ -98,9 +98,9 @@ Prompts instruct the LLM how to behave. Add one of the following types of prompt
     agent = create_react_agent(
         model="anthropic:claude-3-7-sonnet-latest",
         tools=[get_weather],
-        # A static prompt that never changes
+        # 一个永远不会改变的静态提示
         # highlight-next-line
-        prompt="Never answer questions about the weather."
+        prompt="永远不要回答关于天气的问题。"
     )
 
     agent.invoke(
@@ -108,9 +108,9 @@ Prompts instruct the LLM how to behave. Add one of the following types of prompt
     )
     ```
 
-=== "Dynamic prompt"
+=== "动态提示"
 
-    Define a function that returns a message list based on the agent's state and configuration:
+    定义一个函数，该函数根据 Agent 的状态和配置返回消息列表：
 
     ```python
     from langchain_core.messages import AnyMessage
@@ -121,7 +121,7 @@ Prompts instruct the LLM how to behave. Add one of the following types of prompt
     # highlight-next-line
     def prompt(state: AgentState, config: RunnableConfig) -> list[AnyMessage]:  # (1)!
         user_name = config["configurable"].get("user_name")
-        system_msg = f"You are a helpful assistant. Address the user as {user_name}."
+        system_msg = f"你是一个乐于助人的助手。请称呼用户为 {user_name}。"
         return [{"role": "system", "content": system_msg}] + state["messages"]
 
     agent = create_react_agent(
@@ -138,18 +138,18 @@ Prompts instruct the LLM how to behave. Add one of the following types of prompt
     )
     ```
 
-    1. Dynamic prompts allow including non-message [context](./context.md) when constructing an input to the LLM, such as:
+    1. 动态提示允许在构建 LLM 输入时包含非消息的[上下文](./context.md)，例如：
 
-        - Information passed at runtime, like a `user_id` or API credentials (using `config`).
-        - Internal agent state updated during a multi-step reasoning process (using `state`).
+        - 在运行时传递的信息，如 `user_id` 或 API 凭证（使用 `config`）。
+        - 在多步推理过程中更新的内部 Agent 状态（使用 `state`）。
 
-        Dynamic prompts can be defined as functions that take `state` and `config` and return a list of messages to send to the LLM.
+        动态提示可以定义为接收 `state` 和 `config` 并返回要发送到 LLM 的消息列表的函数。
 
-For more information, see [Context](./context.md).
+有关更多信息，请参阅 [上下文](./context.md)。
 
-## 5. Add memory
+## 5. 添加内存
 
-To allow multi-turn conversations with an agent, you need to enable [persistence](../concepts/persistence.md) by providing a `checkpointer` when creating an agent. At runtime, you need to provide a config containing `thread_id` — a unique identifier for the conversation (session):
+要允许与 Agent 进行多轮对话，您需要通过在创建 Agent 时提供 `checkpointer` 来启用[持久化](../concepts/persistence.md)。在运行时，您需要提供一个包含 `thread_id` 的配置——这是对话（会话）的唯一标识符：
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -165,7 +165,7 @@ agent = create_react_agent(
     checkpointer=checkpointer  # (1)!
 )
 
-# Run the agent
+# 运行 Agent
 # highlight-next-line
 config = {"configurable": {"thread_id": "1"}}
 sf_response = agent.invoke(
@@ -180,18 +180,18 @@ ny_response = agent.invoke(
 )
 ```
 
-1. `checkpointer` allows the agent to store its state at every step in the tool calling loop. This enables [short-term memory](../how-tos/memory/add-memory.md#add-short-term-memory) and [human-in-the-loop](../concepts/human_in_the_loop.md) capabilities.
-2. Pass configuration with `thread_id` to be able to resume the same conversation on future agent invocations.
+1. `checkpointer` 允许 Agent 在工具调用循环的每个步骤中存储其状态。这支持[短期记忆](../how-tos/memory/add-memory.md#add-short-term-memory)和[人工干预](../concepts/human_in_the_loop.md)功能。
+2. 传递带有 `thread_id` 的配置，以便在 Agent 的后续调用中可以继续相同的对话。
 
-When you enable the checkpointer, it stores agent state at every step in the provided checkpointer database (or in memory, if using `InMemorySaver`).
+启用 checkpointer 后，它会在提供的 checkpointer 数据库（如果在内存中使用 `InMemorySaver` 则在内存中）存储每个步骤的 Agent 状态。
 
-Note that in the above example, when the agent is invoked the second time with the same `thread_id`, the original message history from the first conversation is automatically included, together with the new user input.
+请注意，在上面的示例中，当 Agent 在第二次使用相同的 `thread_id` 调用时，第一次对话的原始消息历史记录以及新的用户输入会自动包含在内。
 
-For more information, see [Memory](../how-tos/memory/add-memory.md).
+有关更多信息，请参阅 [内存](../how-tos/memory/add-memory.md)。
 
-## 6. Configure structured output
+## 6. 配置结构化输出
 
-To produce structured responses conforming to a schema, use the `response_format` parameter. The schema can be defined with a `Pydantic` model or `TypedDict`. The result will be accessible via the `structured_response` field.
+要生成符合模式的结构化响应，请使用 `response_format` 参数。可以使用 `Pydantic` 模型或 `TypedDict` 定义模式。结果可以通过 `structured_response` 字段访问。
 
 ```python
 from pydantic import BaseModel
@@ -215,16 +215,16 @@ response = agent.invoke(
 response["structured_response"]
 ```
 
-1. When `response_format` is provided, a separate step is added at the end of the agent loop: agent message history is passed to an LLM with structured output to generate a structured response.
+1. 当提供 `response_format` 时，会在 Agent 循环末尾添加一个额外的步骤：Agent 消息历史记录会与结构化输出一起传递给 LLM，以生成结构化响应。
 
-    To provide a system prompt to this LLM, use a tuple `(prompt, schema)`, e.g., `response_format=(prompt, WeatherResponse)`.
+    要为此 LLM 提供系统提示，请使用元组 `(prompt, schema)`，例如 `response_format=(prompt, WeatherResponse)`。
 
-!!! Note "LLM post-processing"
+!!! Note "LLM 后处理"
 
-    Structured output requires an additional call to the LLM to format the response according to the schema.
+    结构化输出需要额外调用 LLM 来根据模式格式化响应。
 
-## Next steps
+## 后续步骤
 
-- [Deploy your agent locally](../tutorials/langgraph-platform/local-server.md)
-- [Learn more about prebuilt agents](../agents/overview.md)
-- [LangGraph Platform quickstart](../cloud/quick_start.md)
+- [在本地部署您的 Agent](../tutorials/langgraph-platform/local-server.md)
+- [了解更多关于预构建 Agent 的信息](../agents/overview.md)
+- [LangGraph Platform 快速入门](../cloud/quick_start.md)

@@ -5,15 +5,15 @@ search:
 
 # LangGraph SDK
 
-LangGraph Platform provides both a Python SDK for interacting with [LangGraph Server](./langgraph_server.md).
+LangGraph Platform 提供了与 [LangGraph Server](./langgraph_server.md) 交互的 Python SDK。
 
-!!! tip "Python SDK reference"
+!!! tip "Python SDK 参考"
   
-    For detailed information about the Python SDK, see [Python SDK reference docs](../cloud/reference/sdk/python_sdk_ref.md).
+    有关 Python SDK 的详细信息，请参阅 [Python SDK 参考文档](../cloud/reference/sdk/python_sdk_ref.md)。
 
-## Installation
+## 安装
 
-You can install the packages using the appropriate package manager for your language:
+您可以使用适用于您语言的相应包管理器来安装这些包：
 
 === "Python"
     ```bash
@@ -25,9 +25,9 @@ You can install the packages using the appropriate package manager for your lang
     yarn add @langchain/langgraph-sdk
     ```
 
-## Python sync vs. async
+## Python 同步 vs. 异步
 
-The Python SDK provides both synchronous (`get_sync_client`) and asynchronous (`get_client`) clients for interacting with LangGraph Server:
+Python SDK 提供了同步 (`get_sync_client`) 和异步 (`get_client`) 客户端，用于与 LangGraph Server 进行交互：
 
 === "Sync"
 
@@ -47,8 +47,8 @@ The Python SDK provides both synchronous (`get_sync_client`) and asynchronous (`
     ```
 
 
-## Learn more
+## 了解更多
 
-- [Python SDK Reference](../cloud/reference/sdk/python_sdk_ref.md)
-- [LangGraph CLI API Reference](../cloud/reference/cli.md)
-- [JS/TS SDK Reference](../cloud/reference/sdk/js_ts_sdk_ref.md)
+- [Python SDK 参考](../cloud/reference/sdk/python_sdk_ref.md)
+- [LangGraph CLI API 参考](../cloud/reference/cli.md)
+- [JS/TS SDK 参考](../cloud/reference/sdk/js_ts_sdk_ref.md)

@@ -1,39 +1,39 @@
-# How to Set Up a LangGraph Application with pyproject.toml
+# 如何使用 `pyproject.toml` 设置 LangGraph 应用
 
-A LangGraph application must be configured with a [LangGraph configuration file](../reference/cli.md#configuration-file) in order to be deployed to LangGraph Platform (or to be self-hosted). This how-to guide discusses the basic steps to setup a LangGraph application for deployment using `pyproject.toml` to define your package's dependencies.
+LangGraph 应用必须使用 [LangGraph 配置文件](../reference/cli.md#configuration-file) 进行配置，才能部署到 LangGraph 平台（或自托管）。本操作指南将介绍如何使用 `pyproject.toml` 来定义包的依赖项，从而设置用于部署的 LangGraph 应用的基本步骤。
 
-This walkthrough is based on [this repository](https://github.com/langchain-ai/langgraph-example-pyproject), which you can play around with to learn more about how to setup your LangGraph application for deployment.
+本次演练基于 [此仓库](https://github.com/langchain-ai/langgraph-example-pyproject)，您可以尝试使用它来进一步了解如何设置 LangGraph 应用以进行部署。
 
-!!! tip "Setup with requirements.txt"
-    If you prefer using `requirements.txt` for dependency management, check out [this how-to guide](./setup.md).
+!!! tip "使用 `requirements.txt` 设置"
+    如果您更倾向于使用 `requirements.txt` 来管理依赖项，请查看 [本操作指南](./setup.md)。
 
-!!! tip "Setup with a Monorepo"
-    If you are interested in deploying a graph located inside a monorepo, take a look at [this](https://github.com/langchain-ai/langgraph-example-monorepo) repository for an example of how to do so.
+!!! tip "使用 Monorepo 设置"
+    如果您有兴趣部署位于 monorepo 中的图，请查看 [此仓库](https://github.com/langchain-ai/langgraph-example-monorepo) 以了解如何操作。
 
-The final repository structure will look something like this:
+最终的仓库结构将如下所示：
 
 ```bash
 my-app/
-├── my_agent # all project code lies within here
-│   ├── utils # utilities for your graph
+├── my_agent # 所有项目代码均在此处
+│   ├── utils # 图的工具集
 │   │   ├── __init__.py
-│   │   ├── tools.py # tools for your graph
-│   │   ├── nodes.py # node functions for you graph
-│   │   └── state.py # state definition of your graph
+│   │   ├── tools.py # 图的工具
+│   │   ├── nodes.py # 图的节点函数
+│   │   └── state.py # 图的状态定义
 │   ├── __init__.py
-│   └── agent.py # code for constructing your graph
-├── .env # environment variables
-├── langgraph.json  # configuration file for LangGraph
-└── pyproject.toml # dependencies for your project
+│   └── agent.py # 构建图的代码
+├── .env # 环境变量
+├── langgraph.json  # LangGraph 的配置文件
+└── pyproject.toml # 项目的依赖项
 ```
 
-After each step, an example file directory is provided to demonstrate how code can be organized.
+在每个步骤之后，都会提供一个示例文件目录，以演示代码的组织方式。
 
-## Specify Dependencies
+## 指定依赖项
 
-Dependencies can optionally be specified in one of the following files: `pyproject.toml`, `setup.py`, or `requirements.txt`. If none of these files is created, then dependencies can be specified later in the [LangGraph configuration file](#create-langgraph-configuration-file).
+依赖项可以根据需要指定在以下任何文件中：`pyproject.toml`、`setup.py` 或 `requirements.txt`。如果未创建这些文件中的任何一个，则稍后可以在 [LangGraph 配置文件](#create-langgraph-configuration-file) 中指定依赖项。
 
-The dependencies below will be included in the image, you can also use them in your code, as long as with a compatible version range:
+以下依赖项将包含在镜像中，您也可以在代码中使用它们，只要版本范围兼容即可：
 
 ```
 langgraph>=0.3.27
@@ -53,7 +53,7 @@ structlog>=24.1.0
 cloudpickle>=3.0.0
 ```
 
-Example `pyproject.toml` file:
+示例 `pyproject.toml` 文件：
 
 ```toml
 [build-system]
@@ -79,18 +79,18 @@ dependencies = [
 packages = ["my_agent"]
 ```
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
-└── pyproject.toml   # Python packages required for your graph
+└── pyproject.toml   # 您的图所需的 Python 包
 ```
 
-## Specify Environment Variables
+## 指定环境变量
 
-Environment variables can optionally be specified in a file (e.g. `.env`). See the [Environment Variables reference](../reference/env_var.md) to configure additional variables for a deployment.
+环境变量可以根据需要指定在一个文件中（例如 `.env`）。请参阅 [环境变量参考](../reference/env_var.md) 以配置部署的其他变量。
 
-Example `.env` file:
+示例 `.env` 文件：
 
 ```
 MY_ENV_VAR_1=foo
@@ -98,19 +98,19 @@ MY_ENV_VAR_2=bar
 FIREWORKS_API_KEY=key
 ```
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
-├── .env # file with environment variables
+├── .env # 包含环境变量的文件
 └── pyproject.toml
 ```
 
-## Define Graphs
+## 定义图
 
-Implement your graphs! Graphs can be defined in a single file or multiple files. Make note of the variable names of each [CompiledStateGraph][langgraph.graph.state.CompiledStateGraph] to be included in the LangGraph application. The variable names will be used later when creating the [LangGraph configuration file](../reference/cli.md#configuration-file).
+实现您的图！图可以定义在单个文件中或多个文件中。请注意要包含在 LangGraph 应用中的每个 [CompiledStateGraph][langgraph.graph.state.CompiledStateGraph] 的变量名。这些变量名将在稍后用于创建 [LangGraph 配置文件](../reference/cli.md#configuration-file)。
 
-Example `agent.py` file, which shows how to import from other modules you define (code for the modules is not shown here, please see [this repository](https://github.com/langchain-ai/langgraph-example-pyproject) to see their implementation):
+示例 `agent.py` 文件，展示了如何从您定义的其他模块导入（模块代码未显示在此处，请参阅 [此仓库](https://github.com/langchain-ai/langgraph-example-pyproject) 查看其实现）：
 
 ```python
 # my_agent/agent.py
@@ -118,10 +118,10 @@ from typing import Literal
 from typing_extensions import TypedDict
 
 from langgraph.graph import StateGraph, END, START
-from my_agent.utils.nodes import call_model, should_continue, tool_node # import nodes
-from my_agent.utils.state import AgentState # import state
+from my_agent.utils.nodes import call_model, should_continue, tool_node # 导入节点
+from my_agent.utils.state import AgentState # 导入状态
 
-# Define the config
+# 定义配置
 class GraphConfig(TypedDict):
     model_name: Literal["anthropic", "openai"]
 
@@ -142,27 +142,27 @@ workflow.add_edge("action", "agent")
 graph = workflow.compile()
 ```
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
-├── my_agent # all project code lies within here
-│   ├── utils # utilities for your graph
+├── my_agent # 所有项目代码均在此处
+│   ├── utils # 图的工具集
 │   │   ├── __init__.py
-│   │   ├── tools.py # tools for your graph
-│   │   ├── nodes.py # node functions for you graph
-│   │   └── state.py # state definition of your graph
+│   │   ├── tools.py # 图的工具
+│   │   ├── nodes.py # 图的节点函数
+│   │   └── state.py # 图的状态定义
 │   ├── __init__.py
-│   └── agent.py # code for constructing your graph
+│   └── agent.py # 构建图的代码
 ├── .env
 └── pyproject.toml
 ```
 
-## Create LangGraph Configuration File
+## 创建 LangGraph 配置文件
 
-Create a [LangGraph configuration file](../reference/cli.md#configuration-file) called `langgraph.json`. See the [LangGraph configuration file reference](../reference/cli.md#configuration-file) for detailed explanations of each key in the JSON object of the configuration file.
+创建一个名为 `langgraph.json` 的 [LangGraph 配置文件](../reference/cli.md#configuration-file)。有关配置文件中每个键的详细解释，请参阅 [LangGraph 配置文件参考](../reference/cli.md#configuration-file)。
 
-Example `langgraph.json` file:
+示例 `langgraph.json` 文件：
 
 ```json
 {
@@ -174,28 +174,28 @@ Example `langgraph.json` file:
 }
 ```
 
-Note that the variable name of the `CompiledGraph` appears at the end of the value of each subkey in the top-level `graphs` key (i.e. `:<variable_name>`).
+请注意，`CompiledGraph` 的变量名出现在配置文件的顶级 `graphs` 键的每个子键值之后（例如 `:<variable_name>`）。
 
-!!! warning "Configuration File Location"
-    The LangGraph configuration file must be placed in a directory that is at the same level or higher than the Python files that contain compiled graphs and associated dependencies.
+!!! warning "配置文件位置"
+    LangGraph 配置文件必须放置在与包含已编译图和相关依赖项的 Python 文件相同级别或更高级别的目录中。
 
-Example file directory:
+示例文件目录：
 
 ```bash
 my-app/
-├── my_agent # all project code lies within here
-│   ├── utils # utilities for your graph
+├── my_agent # 所有项目代码均在此处
+│   ├── utils # 图的工具集
 │   │   ├── __init__.py
-│   │   ├── tools.py # tools for your graph
-│   │   ├── nodes.py # node functions for you graph
-│   │   └── state.py # state definition of your graph
+│   │   ├── tools.py # 图的工具
+│   │   ├── nodes.py # 图的节点函数
+│   │   └── state.py # 图的状态定义
 │   ├── __init__.py
-│   └── agent.py # code for constructing your graph
-├── .env # environment variables
-├── langgraph.json  # configuration file for LangGraph
-└── pyproject.toml # dependencies for your project
+│   └── agent.py # 构建图的代码
+├── .env # 环境变量
+├── langgraph.json  # LangGraph 的配置文件
+└── pyproject.toml # 项目的依赖项
 ```
 
-## Next
+## 下一步
 
-After you setup your project and place it in a GitHub repository, it's time to [deploy your app](./cloud.md).
+设置好项目并将其放置在 GitHub 仓库中后，就可以 [部署您的应用](./cloud.md) 了。

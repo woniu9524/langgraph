@@ -1,13 +1,13 @@
-# LangGraph Prebuilt
+# LangGraph 预构建
 
-This library defines high-level APIs for creating and executing LangGraph agents and tools.
+该库定义了用于创建和执行 LangGraph 代理和工具的高级 API。
 
 > [!IMPORTANT]
-> This library is meant to be bundled with `langgraph`, don't install it directly
+> 此库旨在与 `langgraph` 一起打包安装，请勿直接安装它。
 
-## Agents
+## 代理 (Agents)
 
-`langgraph-prebuilt` provides an [implementation](https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.chat_agent_executor.create_react_agent) of a tool-calling [ReAct-style](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#react-implementation) agent - `create_react_agent`:
+`langgraph-prebuilt` 提供了一个用于工具调用的 [ReAct 风格](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#react-implementation) 代理的实现 - `create_react_agent`：
 
 ```bash
 pip install langchain-anthropic
@@ -17,10 +17,10 @@ pip install langchain-anthropic
 from langchain_anthropic import ChatAnthropic
 from langgraph.prebuilt import create_react_agent
 
-# Define the tools for the agent to use
+# 定义代理要使用的工具
 def search(query: str):
-    """Call to surf the web."""
-    # This is a placeholder, but don't tell the LLM that...
+    """调用以浏览网页。"""
+    # 这是一个占位符，但不要告诉 LLM……
     if "sf" in query.lower() or "san francisco" in query.lower():
         return "It's 60 degrees and foggy."
     return "It's 90 degrees and sunny."
@@ -29,25 +29,25 @@ tools = [search]
 model = ChatAnthropic(model="claude-3-7-sonnet-latest")
 
 app = create_react_agent(model, tools)
-# run the agent
+# 运行代理
 app.invoke(
     {"messages": [{"role": "user", "content": "what is the weather in sf"}]},
 )
 ```
 
-## Tools
+## 工具 (Tools)
 
 ### ToolNode
 
-`langgraph-prebuilt` provides an [implementation](https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.tool_node.ToolNode) of a node that executes tool calls - `ToolNode`:
+`langgraph-prebuilt` 提供了一个用于执行工具调用的节点的实现 - `ToolNode`：
 
 ```python
 from langgraph.prebuilt import ToolNode
 from langchain_core.messages import AIMessage
 
 def search(query: str):
-    """Call to surf the web."""
-    # This is a placeholder, but don't tell the LLM that...
+    """调用以浏览网页。"""
+    # 这是一个占位符，但不要告诉 LLM……
     if "sf" in query.lower() or "san francisco" in query.lower():
         return "It's 60 degrees and foggy."
     return "It's 90 degrees and sunny."
@@ -55,13 +55,13 @@ def search(query: str):
 tool_node = ToolNode([search])
 tool_calls = [{"name": "search", "args": {"query": "what is the weather in sf"}, "id": "1"}]
 ai_message = AIMessage(content="", tool_calls=tool_calls)
-# execute tool call
+# 执行工具调用
 tool_node.invoke({"messages": [ai_message]})
 ```
 
 ### ValidationNode
 
-`langgraph-prebuilt` provides an [implementation](https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.tool_validator.ValidationNode) of a node that validates tool calls against a pydantic schema - `ValidationNode`:
+`langgraph-prebuilt` 提供了一个用于将工具调用与 pydantic 模式一起验证的节点的实现 - `ValidationNode`：
 
 ```python
 from pydantic import BaseModel, field_validator
@@ -86,16 +86,16 @@ validation_node.invoke({
 
 ## Agent Inbox
 
-The library contains schemas for using the [Agent Inbox](https://github.com/langchain-ai/agent-inbox) with LangGraph agents. Learn more about how to use Agent Inbox [here](https://github.com/langchain-ai/agent-inbox#interrupts).
+该库包含用于将 [Agent Inbox](https://github.com/langchain-ai/agent-inbox) 与 LangGraph 代理一起使用的模式。在此处了解有关如何使用 Agent Inbox 的更多信息 ([https://github.com/langchain-ai/agent-inbox#interrupts](https://github.com/langchain-ai/agent-inbox#interrupts))。
 
 ```python
 from langgraph.types import interrupt
 from langgraph.prebuilt.interrupt import HumanInterrupt, HumanResponse
 
 def my_graph_function():
-    # Extract the last tool call from the `messages` field in the state
+    # 从状态的 `messages` 字段中提取最后一个工具调用
     tool_call = state["messages"][-1].tool_calls[0]
-    # Create an interrupt
+    # 创建一个中断
     request: HumanInterrupt = {
         "action_request": {
             "action": tool_call['name'],
@@ -107,11 +107,11 @@ def my_graph_function():
             "allow_edit": False,
             "allow_accept": False
         },
-        "description": _generate_email_markdown(state) # Generate a detailed markdown description.
+        "description": _generate_email_markdown(state) # 生成详细的 markdown 描述。
     }
-    # Send the interrupt request inside a list, and extract the first response
+    # 将中断请求作为列表发送，并提取第一个响应
     response = interrupt([request])[0]
     if response['type'] == "response":
-        # Do something with the response
+        # 做一些与响应相关的事情
     ...
 ```

@@ -3,96 +3,96 @@ search:
   boost: 2
 ---
 
-# Deployment Options
+# 部署选项
 
-## Free deployment
+## 免费部署
 
-There are two free options for deploying LangGraph applications via the LangGraph Server:
+通过 LangGraph Server 进行 LangGraph 应用部署有两种免费选项：
 
-1. [Local](../tutorials/langgraph-platform/local-server.md): Deploy for local testing and development. 
-1. [Standalone Container (Lite)](../concepts/langgraph_standalone_container.md): A limited version of Standalone Container for deployments unlikely to see more that 1 million node executions per year and that do not need crons and other enterprise features. Standalone Container (Lite) deployment option is free with a LangSmith API key.
+1. [本地部署](../tutorials/langgraph-platform/local-server.md)：用于本地测试和开发。
+1. [独立容器（精简版）](../concepts/langgraph_standalone_container.md)：独立容器的精简版本，适用于每年节点执行次数可能不会超过 100 万次且不需要 Cron 和其他企业级功能的部署。独立容器（精简版）部署选项免费提供，需提供 LangSmith API 密钥。
 
-## Production deployment
+## 生产部署
 
-There are 4 main options for deploying with the [LangGraph Platform](langgraph_platform.md):
+通过 [LangGraph Platform](langgraph_platform.md) 进行部署有 4 种主要选项：
 
 1. [Cloud SaaS](#cloud-saas)
 
-1. [Self-Hosted Data Plane](#self-hosted-data-plane)
+1. [自托管数据平面](#self-hosted-data-plane)
 
-1. [Self-Hosted Control Plane](#self-hosted-control-plane)
+1. [自托管控制平面](#self-hosted-control-plane)
 
-1. [Standalone Container](#standalone-container)
+1. [独立容器](#standalone-container)
 
 
-A quick comparison:
+快速对比：
 
-|                      | **Cloud SaaS** | **Self-Hosted Data Plane** | **Self-Hosted Control Plane** | **Standalone Container** |
+|                      | **Cloud SaaS** | **自托管数据平面** | **自托管控制平面** | **独立容器** |
 |----------------------|----------------|----------------------------|-------------------------------|--------------------------|
-| **[Control plane UI/API](../concepts/langgraph_control_plane.md)** | Yes | Yes | Yes | No |
-| **CI/CD** | Managed internally by platform | Managed externally by you | Managed externally by you | Managed externally by you |
-| **Data/compute residency** | LangChain's cloud | Your cloud | Your cloud | Your cloud |
-| **LangSmith compatibility** | Trace to LangSmith SaaS | Trace to LangSmith SaaS | Trace to Self-Hosted LangSmith | Optional tracing |
-| **[Server version compatibility](../concepts/langgraph_server.md#server-versions)** | Enterprise | Enterprise | Enterprise | Lite, Enterprise |
-| **[Pricing](https://www.langchain.com/pricing-langgraph-platform)** | Plus | Enterprise | Enterprise | Developer |
+| **[控制平面 UI/API](../concepts/langgraph_control_plane.md)** | 是 | 是 | 是 | 否 |
+| **CI/CD** | 由平台内部管理 | 由您外部管理 | 由您外部管理 | 由您外部管理 |
+| **数据/计算驻留** | LangChain 的云 | 您的云 | 您的云 | 您的云 |
+| **LangSmith 兼容性** | 追踪到 LangSmith SaaS | 追踪到 LangSmith SaaS | 追踪到自托管 LangSmith | 可选追踪 |
+| **[服务器版本兼容性](../concepts/langgraph_server.md#server-versions)** | 企业版 | 企业版 | 企业版 | 精简版、企业版 |
+| **[定价](https://www.langchain.com/pricing-langgraph-platform)** | Plus | 企业版 | 企业版 | 开发者版 |
 
 ## Cloud SaaS
 
-The [Cloud SaaS](./langgraph_cloud.md) deployment option is a fully managed model for deployment where we manage the [control plane](./langgraph_control_plane.md) and [data plane](./langgraph_data_plane.md) in our cloud. This option provides a simple way to deploy and manage your LangGraph Servers.
+[Cloud SaaS](./langgraph_cloud.md) 部署选项是一种完全托管的部署模式，我们在云端管理 [控制平面](./langgraph_control_plane.md) 和 [数据平面](./langgraph_data_plane.md)。此选项提供了一种简单的方式来部署和管理您的 LangGraph Server。
 
-Connect your GitHub repositories to the platform and deploy your LangGraph Servers from the [control plane UI](./langgraph_control_plane.md#control-plane-ui). The build process (i.e. CI/CD) is managed internally by the platform.
+将您的 GitHub 存储库连接到平台，并从 [控制平面 UI](./langgraph_control_plane.md#control-plane-ui) 部署您的 LangGraph Server。构建过程（即 CI/CD）由平台内部管理。
 
-For more information, please see:
+更多信息，请参阅：
 
-* [Cloud SaaS Conceptual Guide](./langgraph_cloud.md)
-* [How to deploy to Cloud SaaS](../cloud/deployment/cloud.md)
+* [Cloud SaaS 概念指南](./langgraph_cloud.md)
+* [如何部署到 Cloud SaaS](../cloud/deployment/cloud.md)
 
-## Self-Hosted Data Plane
+## 自托管数据平面
 
-!!! info "Important"
-    The Self-Hosted Data Plane deployment option requires an [Enterprise](../concepts/plans.md) plan.
+!!! info "重要提示"
+    自托管数据平面部署选项需要 [企业版](../concepts/plans.md) 计划。
 
-The [Self-Hosted Data Plane](./langgraph_self_hosted_data_plane.md) deployment option is a "hybrid" model for deployment where we manage the [control plane](./langgraph_control_plane.md) in our cloud and you manage the [data plane](./langgraph_data_plane.md) in your cloud. This option provides a way to securely manage your data plane infrastructure, while offloading control plane management to us.
+[自托管数据平面](./langgraph_self_hosted_data_plane.md) 部署选项是一种“混合”部署模式，我们在云端管理 [控制平面](./langgraph_control_plane.md)，您在自己的云中管理 [数据平面](./langgraph_data_plane.md)。此选项提供了一种安全管理数据平面基础设施的方式，同时将控制平面管理外包给我们。
 
-Build a Docker image using the [LangGraph CLI](./langgraph_cli.md) and deploy your LangGraph Server from the [control plane UI](./langgraph_control_plane.md#control-plane-ui).
+使用 [LangGraph CLI](./langgraph_cli.md) 构建 Docker 镜像，并从 [控制平面 UI](./langgraph_control_plane.md#control-plane-ui) 部署您的 LangGraph Server。
 
-Supported Compute Platforms: [Kubernetes](https://kubernetes.io/), [Amazon ECS](https://aws.amazon.com/ecs/) (coming soon!)
+支持的计算平台：[Kubernetes](https://kubernetes.io/)、[Amazon ECS](https://aws.amazon.com/ecs/)（即将推出！）
 
-For more information, please see:
+更多信息，请参阅：
 
-* [Self-Hosted Data Plane Conceptual Guide](./langgraph_self_hosted_data_plane.md)
-* [How to deploy the Self-Hosted Data Plane](../cloud/deployment/self_hosted_data_plane.md)
+* [自托管数据平面概念指南](./langgraph_self_hosted_data_plane.md)
+* [如何部署自托管数据平面](../cloud/deployment/self_hosted_data_plane.md)
 
-## Self-Hosted Control Plane
+## 自托管控制平面
 
-!!! info "Important"
-    The Self-Hosted Control Plane deployment option requires an [Enterprise](../concepts/plans.md) plan.
+!!! info "重要提示"
+    自托管控制平面部署选项需要 [企业版](../concepts/plans.md) 计划。
 
-The [Self-Hosted Control Plane](./langgraph_self_hosted_control_plane.md) deployment option is a fully self-hosted model for deployment where you manage the [control plane](./langgraph_control_plane.md) and [data plane](./langgraph_data_plane.md) in your cloud. This option gives you full control and responsibility of the control plane and data plane infrastructure.
+[自托管控制平面](./langgraph_self_hosted_control_plane.md) 部署选项是一种完全自托管的部署模式，您在自己的云中管理 [控制平面](./langgraph_control_plane.md) 和 [数据平面](./langgraph_data_plane.md)。此选项让您完全掌控并负责控制平面和数据平面基础设施。
 
-Build a Docker image using the [LangGraph CLI](./langgraph_cli.md) and deploy your LangGraph Server from the [control plane UI](./langgraph_control_plane.md#control-plane-ui).
+使用 [LangGraph CLI](./langgraph_cli.md) 构建 Docker 镜像，并从 [控制平面 UI](./langgraph_control_plane.md#control-plane-ui) 部署您的 LangGraph Server。
 
-Supported Compute Platforms: [Kubernetes](https://kubernetes.io/)
+支持的计算平台：[Kubernetes](https://kubernetes.io/)
 
-For more information, please see:
+更多信息，请参阅：
 
-* [Self-Hosted Control Plane Conceptual Guide](./langgraph_self_hosted_control_plane.md)
-* [How to deploy the Self-Hosted Control Plane](../cloud/deployment/self_hosted_control_plane.md)
+* [自托管控制平面概念指南](./langgraph_self_hosted_control_plane.md)
+* [如何部署自托管控制平面](../cloud/deployment/self_hosted_control_plane.md)
 
-## Standalone Container
+## 独立容器
 
-The [Standalone Container](./langgraph_standalone_container.md) deployment option is the least restrictive model for deployment. Deploy standalone instances of a LangGraph Server in your cloud, using any of the [available](./plans.md) license options.
+[独立容器](./langgraph_standalone_container.md) 部署选项是最不具限制性的部署模式。在您的云中部署 LangGraph Server 的独立实例，使用任何 [可用](./plans.md) 的许可证选项。
 
-Build a Docker image using the [LangGraph CLI](./langgraph_cli.md) and deploy your LangGraph Server using the container deployment tooling of your choice. Images can be deployed to any compute platform.
+使用 [LangGraph CLI](./langgraph_cli.md) 构建 Docker 镜像，并使用您选择的容器部署工具部署您的 LangGraph Server。镜像可以部署到任何计算平台。
 
-For more information, please see:
+更多信息，请参阅：
 
-* [Standalone Container Conceptual Guide](./langgraph_standalone_container.md)
-* [How to deploy a Standalone Container](../cloud/deployment/standalone_container.md)
+* [独立容器概念指南](./langgraph_standalone_container.md)
+* [如何部署独立容器](../cloud/deployment/standalone_container.md)
 
-## Related
+## 相关
 
-For more information, please see:
+更多信息，请参阅：
 
-* [LangGraph Platform plans](./plans.md)
-* [LangGraph Platform pricing](https://www.langchain.com/langgraph-platform-pricing)
+* [LangGraph Platform 计划](./plans.md)
+* [LangGraph Platform 定价](https://www.langchain.com/langgraph-platform-pricing)

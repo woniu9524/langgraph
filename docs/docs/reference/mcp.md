@@ -1,4 +1,4 @@
-# LangChain Model Context Protocol (MCP) Adapters
+# LangChain Model Context Protocol (MCP) 适配器
 
 ::: langchain_mcp_adapters.client
     options:

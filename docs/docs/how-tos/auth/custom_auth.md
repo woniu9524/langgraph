@@ -1,20 +1,20 @@
-# Add custom authentication
+# 添加自定义身份验证
 
-This guide shows how to add custom authentication to your LangGraph Platform application. This guide applies to both LangGraph Platform and self-hosted deployments. It does not apply to isolated usage of the LangGraph open source library in your own custom server.
+本指南将介绍如何为 LangGraph Platform 应用程序添加自定义身份验证。本指南适用于 LangGraph Platform 和自托管部署。它不适用于您自己自定义服务器中 LangGraph 开源库的独立使用。
 
 !!! note
 
-    Custom auth is supported for all **managed LangGraph Platform** deployments, as well as **Enterprise** self-hosted plans. It is not supported for **Lite** self-hosted plans.
+    自定义身份验证支持所有**托管的 LangGraph Platform** 部署以及**企业版**的自托管计划。它不支持**精简版**的自托管计划。
 
-## Add custom authentication to your deployment
+## 为您的部署添加自定义身份验证
 
-To leverage custom authentication and access user-level metadata in your deployments, set up custom authentication to automatically populate the `config["configurable"]["langgraph_auth_user"]` object through a custom authentication handler. You can then access this object in your graph with the `langgraph_auth_user` key to [allow an agent to perform authenticated actions on behalf of the user](#enable-agent-authentication).
+要利用自定义身份验证并在您的部署中访问用户级别的元数据，请设置自定义身份验证，通过自定义身份验证处理程序自动填充 `config["configurable"]["langgraph_auth_user"]` 对象。然后，您可以使用 `langgraph_auth_user` 键在图中访问此对象，以[允许代理代表用户执行身份验证操作](#enable-agent-authentication)。
 
-1. Implement authentication:
+1. 实现身份验证：
 
     !!! note
 
-        Without a custom `@auth.authenticate` handler, LangGraph sees only the API-key owner (usually the developer), so requests aren’t scoped to individual end-users. To propagate custom tokens, you must implement your own handler.
+        如果没有自定义的 `@auth.authenticate` 处理程序，LangGraph 只会看到 API 密钥的所有者（通常是开发者），因此请求不会按个体最终用户进行范围界定。要传播自定义令牌，您必须实现自己的处理程序。
 
     ```python
     from langgraph_sdk import Auth
@@ -23,30 +23,30 @@ To leverage custom authentication and access user-level metadata in your deploym
     auth = Auth()
 
     def is_valid_key(api_key: str) -> bool:
-        is_valid = # your API key validation logic
+        is_valid = # 您的 API 密钥验证逻辑
         return is_valid
 
     @auth.authenticate # (1)!
     async def authenticate(headers: dict) -> Auth.types.MinimalUserDict:
         api_key = headers.get("x-api-key")
         if not api_key or not is_valid_key(api_key):
-            raise Auth.exceptions.HTTPException(status_code=401, detail="Invalid API key")
+            raise Auth.exceptions.HTTPException(status_code=401, detail="无效的 API 密钥")
         
-        # Fetch user-specific tokens from your secret store  
+        # 从您的密钥存储中获取用户特定令牌  
         user_tokens = await fetch_user_tokens(api_key)
 
         return { # (2)!
-            "identity": api_key,  #  fetch user ID from LangSmith 
+            "identity": api_key,  # 从 LangSmith 获取用户 ID 
             "github_token" : user_tokens.github_token
             "jira_token" : user_tokens.jira_token
-            # ... custom fields/secrets here
+            # ... 自定义字段/密钥在这里
         }
     ```
 
-    1. This handler receives the request (headers, etc.), validates the user, and returns a dictionary with at least an identity field.
-    2. You can add any custom fields you want (e.g., OAuth tokens, roles, org IDs, etc.).
+    1. 此处理程序接收请求（标题、等），验证用户，并返回一个至少包含身份字段的字典。
+    2. 您可以根据需要添加任何自定义字段（例如，OAuth 令牌、角色、组织 ID 等）。
 
-2. In your `langgraph.json`, add the path to your auth file:
+2. 在您的 `langgraph.json` 中，添加您的身份验证文件的路径：
 
     ```json hl_lines="7-9"
     {
@@ -61,14 +61,14 @@ To leverage custom authentication and access user-level metadata in your deploym
     }
     ```
 
-3. Once you've set up authentication in your server, requests must include the required authorization information based on your chosen scheme. Assuming you are using JWT token authentication, you could access your deployments using any of the following methods:
+3. 在服务器中设置身份验证后，请求必须根据您选择的方案包含所需的授权信息。假设您正在使用 JWT 令牌身份验证，您可以通过以下任何方法访问您的部署：
 
-    === "Python Client"
+    === "Python 客户端"
 
         ```python
         from langgraph_sdk import get_client
 
-        my_token = "your-token" # In practice, you would generate a signed token with your auth provider
+        my_token = "your-token" # 实际中，您将生成一个已签名的令牌，包含您的身份验证提供商
         client = get_client(
             url="http://localhost:2024",
             headers={"Authorization": f"Bearer {my_token}"}
@@ -81,7 +81,7 @@ To leverage custom authentication and access user-level metadata in your deploym
         ```python
         from langgraph.pregel.remote import RemoteGraph
         
-        my_token = "your-token" # In practice, you would generate a signed token with your auth provider
+        my_token = "your-token" # 实际中，您将生成一个已签名的令牌，包含您的身份验证提供商
         remote_graph = RemoteGraph(
             "agent",
             url="http://localhost:2024",
@@ -90,12 +90,12 @@ To leverage custom authentication and access user-level metadata in your deploym
         threads = await remote_graph.ainvoke(...)
         ```
 
-    === "JavaScript Client"
+    === "JavaScript 客户端"
 
         ```javascript
         import { Client } from "@langchain/langgraph-sdk";
 
-        const my_token = "your-token"; // In practice, you would generate a signed token with your auth provider
+        const my_token = "your-token"; // 实际中，您将生成一个已签名的令牌，包含您的身份验证提供商
         const client = new Client({
         apiUrl: "http://localhost:2024",
         defaultHeaders: { Authorization: `Bearer ${my_token}` },
@@ -108,7 +108,7 @@ To leverage custom authentication and access user-level metadata in your deploym
         ```javascript
         import { RemoteGraph } from "@langchain/langgraph/remote";
 
-        const my_token = "your-token"; // In practice, you would generate a signed token with your auth provider
+        const my_token = "your-token"; // 实际中，您将生成一个已签名的令牌，包含您的身份验证提供商
         const remoteGraph = new RemoteGraph({
         graphId: "agent",
         url: "http://localhost:2024",
@@ -123,25 +123,25 @@ To leverage custom authentication and access user-level metadata in your deploym
         curl -H "Authorization: Bearer ${your-token}" http://localhost:2024/threads
         ```
 
-## Enable agent authentication
+## 启用代理身份验证
 
-After [authentication](#add-custom-authentication-to-your-deployment), the platform creates a special configuration object (`config`) that is passed to LangGraph Platform deployment. This object contains information about the current user, including any custom fields you return from your `@auth.authenticate` handler.
+在进行[身份验证](#add-custom-authentication-to-your-deployment)后，平台会创建一个特殊的配置对象 (`config`) 并将其传递给 LangGraph Platform 部署。此对象包含有关当前用户的信息，包括您从 `@auth.authenticate` 处理程序返回的任何自定义字段。
 
-To allow an agent to perform authenticated actions on behalf of the user, access this object in your graph with the `langgraph_auth_user` key:
+要允许代理代表用户执行身份验证操作，请在图中访问此对象，使用 `langgraph_auth_user` 键：
 
 ```python
 def my_node(state, config):
     user_config = config["configurable"].get("langgraph_auth_user")
-    # token was resolved during the @auth.authenticate function
+    # token 在 @auth.authenticate 函数期间已解析
     token = user_config.get("github_token","") 
     ...
 ```
 
 !!! note
-    Fetch user credentials from a secure secret store. Storing secrets in graph state is not recommended.
+    从安全的密钥存储中获取用户凭据。不建议将密钥存储在图状态中。
 
-## Learn more
+## 了解更多
 
-* [Authentication & Access Control](../../concepts/auth.md)
+* [身份验证与访问控制](../../concepts/auth.md)
 * [LangGraph Platform](../../concepts/langgraph_platform.md)
-* [Setting up custom authentication tutorial](../../tutorials/auth/getting_started.md)
+* [设置自定义身份验证教程](../../tutorials/auth/getting_started.md)

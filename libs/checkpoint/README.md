@@ -1,47 +1,47 @@
 # LangGraph Checkpoint
 
-This library defines the base interface for LangGraph checkpointers. Checkpointers provide a persistence layer for LangGraph. They allow you to interact with and manage the graph's state. When you use a graph with a checkpointer, the checkpointer saves a _checkpoint_ of the graph state at every superstep, enabling several powerful capabilities like human-in-the-loop, "memory" between interactions and more.
+本库定义了 LangGraph Checkpointer 的基础接口。Checkpointer 为 LangGraph 提供了持久化层，允许您与图的状态进行交互和管理。当您使用 checkpointer 来运行图时，checkpointer 会在每个 superstep 保存图状态的 _checkpoint_，从而实现多种强大功能，如 human-in-the-loop、交互之间的“记忆”等。
 
-## Key concepts
+## 核心概念
 
 ### Checkpoint
 
-Checkpoint is a snapshot of the graph state at a given point in time. Checkpoint tuple refers to an object containing checkpoint and the associated config, metadata and pending writes.
+Checkpoint 是在给定时间点的图状态快照。Checkpoint tuple 指的是一个包含 checkpoint 及相关配置、元数据和待定写入的对象。
 
 ### Thread
 
-Threads enable the checkpointing of multiple different runs, making them essential for multi-tenant chat applications and other scenarios where maintaining separate states is necessary. A thread is a unique ID assigned to a series of checkpoints saved by a checkpointer. When using a checkpointer, you must specify a `thread_id` and optionally `checkpoint_id` when running the graph.
+Threads 支持多个不同运行的 checkpoint，这对于多租户聊天应用程序和其他需要维护独立状态的场景至关重要。Thread 是分配给 checkpointer 保存的一系列 checkpoint 的唯一 ID。使用 checkpointer 时，您必须指定 `thread_id`，并且可以选择性地指定 `checkpoint_id` 来运行图。
 
-- `thread_id` is simply the ID of a thread. This is always required.
-- `checkpoint_id` can optionally be passed. This identifier refers to a specific checkpoint within a thread. This can be used to kick off a run of a graph from some point halfway through a thread.
+- `thread_id` 仅是 thread 的 ID。此项始终是必需的。
+- `checkpoint_id` 可以选填。此标识符引用 thread 内的特定 checkpoint。可以使用它从 thread 中途的某个点开始运行图。
 
-You must pass these when invoking the graph as part of the configurable part of the config, e.g.
+在调用图时，您必须将这些作为配置的可配置部分进行传递，例如：
 
 ```python
-{"configurable": {"thread_id": "1"}}  # valid config
-{"configurable": {"thread_id": "1", "checkpoint_id": "0c62ca34-ac19-445d-bbb0-5b4984975b2a"}}  # also valid config
+{"configurable": {"thread_id": "1"}}  # 有效配置
+{"configurable": {"thread_id": "1", "checkpoint_id": "0c62ca34-ac19-445d-bbb0-5b4984975b2a"}}  # 也有效配置
 ```
 
 ### Serde
 
-`langgraph_checkpoint` also defines protocol for serialization/deserialization (serde) and provides an default implementation (`langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer`) that handles a wide variety of types, including LangChain and LangGraph primitives, datetimes, enums and more.
+`langgraph_checkpoint` 还定义了序列化/反序列化 (serde) 协议，并提供了一个默认实现 (`langgraph.checkpoint.serde.jsonplus.JsonPlusSerializer`)，该实现能够处理多种类型，包括 LangChain 和 LangGraph 的原始类型、日期时间、枚举等。
 
 ### Pending writes
 
-When a graph node fails mid-execution at a given superstep, LangGraph stores pending checkpoint writes from any other nodes that completed successfully at that superstep, so that whenever we resume graph execution from that superstep we don't re-run the successful nodes.
+当图节点在给定 superstep 的执行过程中失败时，LangGraph 会存储该 superstep 中其他成功完成的节点产生的待定 checkpoint 写入，以便在从该 superstep 恢复图执行时，不会重新运行已成功的节点。
 
-## Interface
+## 接口
 
-Each checkpointer should conform to `langgraph.checkpoint.base.BaseCheckpointSaver` interface and must implement the following methods:
+每个 checkpointer 都应符合 `langgraph.checkpoint.base.BaseCheckpointSaver` 接口，并且必须实现以下方法：
 
-- `.put` - Store a checkpoint with its configuration and metadata.
-- `.put_writes` - Store intermediate writes linked to a checkpoint (i.e. pending writes).
-- `.get_tuple` - Fetch a checkpoint tuple using for a given configuration (`thread_id` and `thread_ts`).
-- `.list` - List checkpoints that match a given configuration and filter criteria.
+- `.put` - 存储带有其配置和元数据的 checkpoint。
+- `.put_writes` - 存储与 checkpoint 关联的中间写入（即待定写入）。
+- `.get_tuple` - 使用给定的配置（`thread_id` 和 `thread_ts`）获取 checkpoint tuple。
+- `.list` - 列出与给定配置和过滤器条件匹配的 checkpoints。
 
-If the checkpointer will be used with asynchronous graph execution (i.e. executing the graph via `.ainvoke`, `.astream`, `.abatch`), checkpointer must implement asynchronous versions of the above methods (`.aput`, `.aput_writes`, `.aget_tuple`, `.alist`).
+如果 checkpointer 将与异步图执行一起使用（即通过 `.ainvoke`、`.astream`、`.abatch` 执行图），则 checkpointer 必须实现上述方法的异步版本（`.aput`、`.aput_writes`、`.aget_tuple`、`.alist`）。
 
-## Usage
+## 用法
 
 ```python
 from langgraph.checkpoint.memory import MemorySaver
@@ -75,12 +75,12 @@ checkpoint = {
     },
 }
 
-# store checkpoint
+# 存储 checkpoint
 checkpointer.put(write_config, checkpoint, {}, {})
 
-# load checkpoint
+# 加载 checkpoint
 checkpointer.get(read_config)
 
-# list checkpoints
+# 列出 checkpoints
 list(checkpointer.list(read_config))
 ```

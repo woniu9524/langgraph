@@ -7,20 +7,20 @@ hide:
   - tags
 ---
 
-# Running agents
+# 运行 Agent
 
 
-Agents support both synchronous and asynchronous execution using either `.invoke()` / `await .ainvoke()` for full responses, or `.stream()` / `.astream()` for **incremental** [streaming](../how-tos/streaming.md) output. This section explains how to provide input, interpret output, enable streaming, and control execution limits.
+Agent 支持使用 `.invoke()` / `await .ainvoke()` 同步或异步执行以获取完整响应，或使用 `.stream()` / `.astream()` 获取**增量** [流式](../how-tos/streaming.md)输出。本节将介绍如何提供输入、解析输出、启用流式输出以及控制执行限制。
 
 
-## Basic usage
+## 基本用法
 
-Agents can be executed in two primary modes:
+Agent 可以通过两种主要模式执行：
 
-- **Synchronous** using `.invoke()` or `.stream()`
-- **Asynchronous** using `await .ainvoke()` or `async for` with `.astream()`
+- **同步** 使用 `.invoke()` 或 `.stream()`
+- **异步** 使用 `await .ainvoke()` 或 `async for` 与 `.astream()`
 
-=== "Sync invocation"
+=== "同步调用"
     ```python
     from langgraph.prebuilt import create_react_agent
 
@@ -30,7 +30,7 @@ Agents can be executed in two primary modes:
     response = agent.invoke({"messages": [{"role": "user", "content": "what is the weather in sf"}]})
     ```
 
-=== "Async invocation"
+=== "异步调用"
     ```python
     from langgraph.prebuilt import create_react_agent
 
@@ -39,55 +39,53 @@ Agents can be executed in two primary modes:
     response = await agent.ainvoke({"messages": [{"role": "user", "content": "what is the weather in sf"}]})
     ```
 
-## Inputs and outputs
+## 输入和输出
 
-Agents use a language model that expects a list of `messages` as an input. Therefore, agent inputs and outputs are stored as a list of `messages` under the `messages` key in the agent [state](../concepts/low_level.md#working-with-messages-in-graph-state).
+Agent 使用需要 `messages` 列表作为输入的语言模型。因此，Agent 的输入和输出存储在 Agent [状态](../concepts/low_level.md#working-with-messages-in-graph-state)的 `messages` 键下的消息列表中。
 
-## Input format
+## 输入格式
 
-Agent input must be a dictionary with a `messages` key. Supported formats are:
+Agent 输入必须是一个带有 `messages` 键的字典。支持的格式如下：
 
-| Format             | Example                                                                                                                       |
+| 格式             | 示例                                                                                                                       |
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| String             | `{"messages": "Hello"}`  — Interpreted as a [HumanMessage](https://python.langchain.com/docs/concepts/messages/#humanmessage) |
-| Message dictionary | `{"messages": {"role": "user", "content": "Hello"}}`                                                                          |
-| List of messages   | `{"messages": [{"role": "user", "content": "Hello"}]}`                                                                        |
-| With custom state  | `{"messages": [{"role": "user", "content": "Hello"}], "user_name": "Alice"}` — If using a custom `state_schema`               |
+| 字符串             | `{"messages": "Hello"}`  — 被解释为 [HumanMessage](https://python.langchain.com/docs/concepts/messages/#humanmessage) |
+| 消息字典           | `{"messages": {"role": "user", "content": "Hello"}}`                                                                          |
+| 消息列表           | `{"messages": [{"role": "user", "content": "Hello"}]}`                                                                        |
+| 自定义状态         | `{"messages": [{"role": "user", "content": "Hello"}], "user_name": "Alice"}` — 如果使用自定义 `state_schema`               |
 
-Messages are automatically converted into LangChain's internal message format. You can read
-more about [LangChain messages](https://python.langchain.com/docs/concepts/messages/#langchain-messages) in the LangChain documentation.
+消息会自动转换为 LangChain 的内部消息格式。您可以在 LangChain 文档中详细了解 [LangChain 消息](https://python.langchain.com/docs/concepts/messages/#langchain-messages)。
 
-!!! tip "Using custom agent state"
+!!! tip "使用自定义 Agent 状态"
 
-    You can provide additional fields defined in your agent’s state schema directly in the input dictionary. This allows dynamic behavior based on runtime data or prior tool outputs.  
-    See the [context guide](./context.md) for full details.
+    您可以直接在输入字典中提供 Agent 状态模式中定义的附加字段。这允许基于运行时数据或先前工具输出来实现动态行为。
+    有关完整详细信息，请参阅 [上下文指南](./context.md)。
 
 !!! note
 
-    A string input for `messages` is converted to a [HumanMessage](https://python.langchain.com/docs/concepts/messages/#humanmessage). This behavior differs from the `prompt` parameter in `create_react_agent`, which is interpreted as a [SystemMessage](https://python.langchain.com/docs/concepts/messages/#systemmessage) when passed as a string.
+    `messages` 的字符串输入会被转换为 [HumanMessage](https://python.langchain.com/docs/concepts/messages/#humanmessage)。此行为与 `create_react_agent` 中的 `prompt` 参数不同，后者在作为字符串传递时被解释为 [SystemMessage](https://python.langchain.com/docs/concepts/messages/#systemmessage)。
 
+## 输出格式
 
-## Output format
+Agent 输出是一个包含以下内容的字典：
 
-Agent output is a dictionary containing:
+- `messages`: 执行期间交换的所有消息列表（用户输入、助手回复、工具调用）。
+- 可选地，`structured_response`，如果配置了 [结构化输出](./agents.md#6-configure-structured-output)。
+- 如果使用自定义 `state_schema`，与您定义的字段对应的附加键也可能出现在输出中。这些可以包含来自工具执行或提示逻辑的更新状态值。
 
-- `messages`: A list of all messages exchanged during execution (user input, assistant replies, tool invocations).
-- Optionally, `structured_response` if [structured output](./agents.md#6-configure-structured-output) is configured.
-- If using a custom `state_schema`, additional keys corresponding to your defined fields may also be present in the output. These can hold updated state values from tool execution or prompt logic.
+有关使用自定义状态模式和访问上下文的更多详细信息，请参阅 [上下文指南](./context.md)。
 
-See the [context guide](./context.md) for more details on working with custom state schemas and accessing context.
+## 流式输出
 
-## Streaming output
+Agent 支持流式响应，以实现更具响应性的应用程序。这包括：
 
-Agents support streaming responses for more responsive applications. This includes:
+- 每个步骤后的**进度更新**
+- 生成时的**LLM 令牌**
+- 执行期间的**自定义工具消息**
 
-- **Progress updates** after each step
-- **LLM tokens** as they're generated
-- **Custom tool messages** during execution
+流式输出在同步和异步模式下均可用：
 
-Streaming is available in both sync and async modes:
-
-=== "Sync streaming"
+=== "同步流式输出"
 
     ```python
     for chunk in agent.stream(
@@ -97,7 +95,7 @@ Streaming is available in both sync and async modes:
         print(chunk)
     ```
 
-=== "Async streaming"
+=== "异步流式输出"
 
     ```python
     async for chunk in agent.astream(
@@ -109,13 +107,13 @@ Streaming is available in both sync and async modes:
 
 !!! tip
 
-    For full details, see the [streaming guide](../how-tos/streaming.md).
+    有关完整详细信息，请参阅 [流式输出指南](../how-tos/streaming.md)。
 
-## Max iterations
+## 最大迭代次数
 
-To control agent execution and avoid infinite loops, set a recursion limit. This defines the maximum number of steps the agent can take before raising a `GraphRecursionError`. You can configure `recursion_limit` at runtime or when defining agent via `.with_config()`:
+为了控制 Agent 的执行并避免无限循环，请设置递归限制。这定义了 Agent 在引发 `GraphRecursionError` 之前可以执行的最大步骤数。您可以在运行时或通过 `.with_config()` 定义 Agent 时配置 `recursion_limit`：
 
-=== "Runtime"
+=== "运行时"
 
     ```python
     from langgraph.errors import GraphRecursionError
@@ -163,6 +161,6 @@ To control agent execution and avoid infinite loops, set a recursion limit. This
         print("Agent stopped due to max iterations.")
     ```
 
-## Additional Resources
+## 附加资源
 
-* [Async programming in LangChain](https://python.langchain.com/docs/concepts/async)
+* [LangChain 中的异步编程](https://python.langchain.com/docs/concepts/async)

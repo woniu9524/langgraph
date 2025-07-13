@@ -7,9 +7,9 @@ hide:
   - tags
 ---
 
-# Evals
+# 评估
 
-To evaluate your agent's performance you can use `LangSmith` [evaluations](https://docs.smith.langchain.com/evaluation). You would need to first define an evaluator function to judge the results from an agent, such as final outputs or trajectory. Depending on your evaluation technique, this may or may not involve a reference output:
+要评估代理的性能，您可以使用 `LangSmith` 的 [评估](https://docs.smith.langchain.com/evaluation)。您需要先定义一个评估函数来判断代理的结果，例如最终输出或轨迹。根据您的评估技术，这可能涉及参考输出，也可能不涉及：
 
 ```python
 def evaluator(*, outputs: dict, reference_outputs: dict):
@@ -20,15 +20,15 @@ def evaluator(*, outputs: dict, reference_outputs: dict):
     return {"key": "evaluator_score", "score": score}
 ```
 
-To get started, you can use prebuilt evaluators from `AgentEvals` package:
+要开始使用，您可以从 `AgentEvals` 包中预置评估器：
 
 ```bash
 pip install -U agentevals
 ```
 
-## Create evaluator
+## 创建评估器
 
-A common way to evaluate agent performance is by comparing its trajectory (the order in which it calls its tools) against a reference trajectory:
+评估代理性能的一种常见方法是将其轨迹（调用工具的顺序）与参考轨迹进行比较：
 
 ```python
 import json
@@ -80,14 +80,13 @@ result = evaluator(
 )
 ```
 
-1. Specify how the trajectories will be compared. `superset` will accept output trajectory as valid if it's a superset of the reference one. Other options include: [strict](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#strict-match), [unordered](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#unordered-match) and [subset](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#subset-and-superset-match)
+1. 指定轨迹将如何进行比较。如果输出轨迹是参考轨迹的超集，则 `superset` 会接受它作为有效。其他选项包括：[strict](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#strict-match)、[unordered](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#unordered-match) 和 [subset](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#subset-and-superset-match)。
 
+下一步，了解更多关于如何[自定义轨迹匹配评估器](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#agent-trajectory-match)。
 
-As a next step, learn more about how to [customize trajectory match evaluator](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#agent-trajectory-match).
+### LLM 作为评判者
 
-### LLM-as-a-judge
-
-You can use LLM-as-a-judge evaluator that uses an LLM to compare the trajectory against the reference outputs and output a score:
+您可以使用 LLM 作为评判者来评估，它使用 LLM 将轨迹与参考输出进行比较并输出得分：
 
 ```python
 import json
@@ -103,12 +102,12 @@ evaluator = create_trajectory_llm_as_judge(
 )
 ```
 
-## Run evaluator
+## 运行评估器
 
-To run an evaluator, you will first need to create a [LangSmith dataset](https://docs.smith.langchain.com/evaluation/concepts#datasets). To use the prebuilt AgentEvals evaluators, you will need a dataset with the following schema:
+要运行评估器，您首先需要创建一个 [LangSmith 数据集](https://docs.smith.langchain.com/evaluation/concepts#datasets)。要使用预置的 AgentEvals 评估器，您需要一个具有以下架构的数据集：
 
-- **input**: `{"messages": [...]}` input messages to call the agent with.
-- **output**: `{"messages": [...]}` expected message history in the agent output. For trajectory evaluation, you can choose to keep only assistant messages.
+- **input**: `{"messages": [...]}` 用于调用代理的输入消息。
+- **output**: `{"messages": [...]}` 代理输出中预期的消息历史记录。对于轨迹评估，您可以选择只保留助手消息。
 
 ```python
 from langsmith import Client

@@ -3,38 +3,38 @@ search:
   boost: 2
 ---
 
-# Scalability & Resilience
+# 可伸缩性与弹性
 
-LangGraph Platform is designed to scale horizontally with your workload. Each instance of the service is stateless, and keeps no resources in memory. The service is designed to gracefully handle new instances being added or removed, including hard shutdown cases.
+LangGraph Platform 的设计可随您的工作负载水平扩展。该服务的每个实例都是无状态的，不将任何资源保留在内存中。该服务设计用于优雅地处理新增或移除的实例，包括硬关闭情况。
 
-## Server scalability
+## 服务器可伸缩性
 
-As you add more instances to a service, they will share the HTTP load as long as an appropriate load balancer mechanism is placed in front of them. In most deployment modalities we configure a load balancer for the service automatically. In the “self-hosted without control plane” modality it’s your responsibility to add a load balancer. Since the instances are stateless any load balancing strategy will work, no session stickiness is needed, or recommended. Any instance of the server can communicate with any queue instance (through Redis PubSub), meaning that requests to cancel or stream an in-progress run can be handled by any arbitrary instance.
+当您向服务添加更多实例时，只要在其前面放置了适当的负载均衡机制，它们就会共享 HTTP 负载。在大多数部署模式下，我们会自动为服务配置负载均衡器。在“无控制平面的自托管”模式下，您有责任添加负载均衡器。由于实例是无状态的，任何负载均衡策略都将有效，不需要会话粘性，也不推荐。服务器的任何实例都可以与任何队列实例通信（通过 Redis PubSub），这意味着取消或流式传输正在进行的运行的请求可以由任何任意实例处理。
 
-## Queue scalability
+## 队列可伸缩性
 
-As you add more instances to a service, they will increase run throughput linearly, as each instance is configured to handle a set number of concurrent runs (by default 10). Each attempt for each run will be handled by a single instance, with exactly-once semantics enforced through Postgres’s MVCC model (refer to section below for crash resilience details). Attempts that fail due to transient database errors are retried up to 3 times. We do not make use of long-lived transactions or locks, this enables us to make more efficient use of Postgres resources.
+当您向服务添加更多实例时，它们将线性增加运行吞吐量，因为每个实例都配置为处理一定数量的并发运行（默认为 10）。每次运行的每次尝试都将由单个实例处理，通过 Postgres 的 MVCC模型强制执行精确一次语义（有关崩溃弹性的详细信息，请参阅下节）。由于暂时性数据库错误而失败的尝试最多重试 3 次。我们不使用长事务或锁，这使我们能够更有效地利用 Postgres 资源。
 
-## Resilience
+## 弹性
 
-While a run is being handled by a queue instance, a periodic heartbeat timestamp will be recorded in Redis by that queue worker.
+当运行由队列实例处理时，将由该队列工作程序在 Redis 中记录一个定期的心跳时间戳。
 
-When a graceful shutdown request is received (SIGINT) an instance enters shutdown mode, which
+当收到优雅关闭请求（SIGINT）时，实例将进入关闭模式，该模式：
 
-- stops accepting new HTTP requests
-- gives any in-progress runs a limited number of seconds to finish (if not finished it will be put back in the queue)
-- stops the instance from picking up more runs from the queue
+- 停止接受新的 HTTP 请求
+- 为任何正在进行的运行提供有限的时间来完成（如果未完成，则将其放回队列）
+- 阻止实例从队列中拾取更多运行
 
-If a hard shutdown occurs due to a server crash or an infrastructure failure, any runs that were in progress will be picked up by an internal sweeper task that looks for in-progress runs that have breached their heartbeat window. The sweeper runs every 2 minutes and will put the runs back in the queue for another instance to pick them up.
+如果由于服务器崩溃或基础架构故障而发生硬关闭，任何正在进行的运行都将被内部清理任务拾取，该任务会查找已超出其心跳窗口的正在进行的运行。清理器每 2 分钟运行一次，并将运行放回队列中供另一个实例拾取。
 
-## Postgres resilience
+## Postgres 弹性
 
-For deployment modalities where we manage the Postgres database, we have periodic backups and continuously replicated standby replicas for automatic failover. This Postgres configuration is available in the [Cloud SaaS deployment option](../concepts/langgraph_cloud.md) for [`Production` deployment types](../concepts/langgraph_control_plane.md#deployment-types) only.
+对于我们管理 Postgres 数据库的部署模式，我们有定期备份和持续复制的备用副本以实现自动故障转移。此 Postgres 配置仅在 [`Production` 部署类型](../concepts/langgraph_control_plane.md#deployment-types) 的 [Cloud SaaS 部署选项](../concepts/langgraph_cloud.md) 中可用。
 
-All communication with Postgres implements retries for retry-able errors. If Postgres is momentarily unavailable, such as during a database restart, most/all traffic should continue to succeed. Prolonged failure of Postgres will render the LangGraph Server unavailable.
+所有与 Postgres 的通信均实现重试可重试错误的功能。如果 Postgres 暂时不可用，例如在数据库重启期间，大多数/所有流量应继续成功。Postgres 的长期故障将导致 LangGraph Server 不可用。
 
-## Redis resilience
+## Redis 弹性
 
-All data that requires durable storage is stored in Postgres, not Redis. Redis is used only for ephemeral metadata, and communication between instances. Therefore we place no durability requirements on Redis.
+所有需要持久存储的数据存储在 Postgres 中，而不是 Redis。Redis 仅用于临时元数据以及实例之间的通信。因此，我们不对 Redis 提出持久性要求。
 
-All communication with Redis implements retries for retry-able errors. If Redis is momentarily unavailable, such as during a database restart, most/all traffic should continue to succeed. Prolonged failure of Redis will render the LangGraph Server unavailable.
+所有与 Redis 的通信均实现重试可重试错误的功能。如果 Redis 暂时不可用，例如在数据库重启期间，大多数/所有流量应继续成功。Redis 的长期故障将导致 LangGraph Server 不可用。

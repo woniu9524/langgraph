@@ -1,30 +1,30 @@
-# New LangGraph.js Project
+# 新建 LangGraph.js 项目
 
 [![CI](https://github.com/langchain-ai/new-langgraphjs-project/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/langchain-ai/new-langgraphjs-project/actions/workflows/unit-tests.yml)
 [![Integration Tests](https://github.com/langchain-ai/new-langgraphjs-project/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/langchain-ai/new-langgraphjs-project/actions/workflows/integration-tests.yml)
-[![Open in - LangGraph Studio](https://img.shields.io/badge/Open_in-LangGraph_Studio-00324d.svg?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4NS4zMzMiIGhlaWdodD0iODUuMzMzIiB2ZXJzaW9uPSIxLjAiIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZD0iTTEzIDcuOGMtNi4zIDMuMS03LjEgNi4zLTYuOCAyNS43LjQgMjQuNi4zIDI0LjUgMjUuOSAyNC41QzU3LjUgNTggNTggNTcuNSA1OCAzMi4zIDU4IDcuMyA1Ni43IDYgMzIgNmMtMTIuOCAwLTE2LjEuMy0xOSAxLjhtMzcuNiAxNi42YzIuOCAyLjggMy40IDQuMiAzLjQgNy42cy0uNiA0LjgtMy40IDcuNkw0Ny4yIDQzSDE2LjhsLTMuNC0zLjRjLTQuOC00LjgtNC44LTEwLjQgMC0xNS4ybDMuNC0zLjRoMzAuNHoiLz48cGF0aCBkPSJNMTguOSAyNS42Yy0xLjEgMS4zLTEgMS43LjQgMi41LjkuNiAxLjcgMS44IDEuNyAyLjcgMCAxIC43IDIuOCAxLjYgNC4xIDEuNCAxLjkgMS40IDIuNS4zIDMuMi0xIC42LS42LjkgMS40LjkgMS41IDAgMi43LS41IDIuNy0xIDAtLjYgMS4xLS44IDIuNi0uNGwyLjYuNy0xLjgtMi45Yy01LjktOS4zLTkuNC0xMi4zLTExLjUtOS44TTM5IDI2YzAgMS4xLS45IDIuNS0yIDMuMi0yLjQgMS41LTIuNiAzLjQtLjUgNC4yLjguMyAyIDEuNyAyLjUgMy4xLjYgMS41IDEuNCAyLjMgMiAyIDEuNS0uOSAxLjItMy41LS40LTMuNS0yLjEgMC0yLjgtMi44LS44LTMuMyAxLjYtLjQgMS42LS41IDAtLjYtMS4xLS4xLTEuNS0uNi0xLjItMS42LjctMS43IDMuMy0yLjEgMy41LS41LjEuNS4yIDEuNi4zIDIuMiAwIC43LjkgMS40IDEuOSAxLjYgMi4xLjQgMi4zLTIuMy4yLTMuMi0uOC0uMy0yLTEuNy0yLjUtMy4xLTEuMS0zLTMtMy4zLTMtLjUiLz48L3N2Zz4=)](https://langgraph-studio.vercel.app/templates/open?githubUrl=https://github.com/langchain-ai/new-langgraphjs-project)
+[![Open in - LangGraph Studio](https://img.shields.io/badge/Open_in-LangGraph_Studio-00324d.svg?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4NS4zMzMi<bos>85.MzMzIiB2ZXJzaW9uPSIxLjAiIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZD0iTTEzIDcuOGMtNi4zIDMuMS03LjEgNi4zLTYuOCAyNS43LjQgMjQuNi4zIDI0LjUgMjUuOSAyNC41QzU3LjUgNTggNTggNTcuNSA1OCAzMi4zIDU4IDcuMyA1Ni43IDYgMzIgNmMtMTIuOCAwLTE2LjEuMy0xOSAxLjhtMzcuNiAxNi42YzIuOCAyLjggMy40IDQuMiAzLjQgNy42cy0uNiA0LjgtMy40IDcuNkw0Ny4yIDQzSDE2LjhsLTMuNC0zLjRjLTQuOC00LjgtNC44LTEwLjQgMC0xNS4yIDMuNC0zLjRoMzAuNHoiLz48cGF0aCBkPSJNMTguOSAyNS42Yy0xLjEgMS4zLTEgMS43LjQgMi41LjkuNiAxLjcgMS44IDEuNyAyLjcgMCAxIC43IDIuOCAxLjYgNC4xIDEuNCAxLjkgMS40IDIuNS4zIDMuMi0xIC42LS42LjkgMS40LjkgMS41IDAgMi43LS41IDIuNy0xIDAtLjYgMS4xLS44IDIuNi0uNGwyLjYuNy0xLjgtMi45Yy01LjktOS4zLTkuNC0xMi4zLTExLjUtOS44TTM5IDI2YzAgMS4xLS45IDIuNS0yIDMuMi0yLjQgMS41LTIuNiAzLjQtLjUgNC4yLjguMyAyIDEuNyAyLjUgMy4xLjYgMS41IDEuNCAyLjMgMiAyIDEuNS0uOSAxLjItMy41LS40LTMuNS0yLjEgMC0yLjgtMi44LS44LTMuMyAxLjYtLjQgMS42LS41IDAtLjYtMS4xLS4xLTEuNS0uNi0xLjItMS42LjctMS43IDMuMy0yLjEgMy41LS41LjEuNS4yIDEuNi4zIDIuMiAwIC43LjkgMS40IDEuOSAxLjYgMi4xLjQgMi4zLTIuMy4yLTMuMi0uOC0uMy0yLTEuNy0yLjUtMy4xLTEuMS0zLTMtMy4zLTMtLjUiLz48L3N2Zz4=)](https://langgraph-studio.vercel.app/templates/open?githubUrl=https://github.com/langchain-ai/new-langgraphjs-project)
 
-This template demonstrates a simple chatbot implemented using [LangGraph.js](https://github.com/langchain-ai/langgraphjs), designed for [LangGraph Studio](https://github.com/langchain-ai/langgraph-studio). The chatbot maintains persistent chat memory, allowing for coherent conversations across multiple interactions.
+此模板演示了一个使用 [LangGraph.js](https://github.com/langchain-ai/langgraphjs) 实现的简单聊天机器人，专为 [LangGraph Studio](https://github.com/langchain-ai/langgraph-studio) 设计。该聊天机器人维护持久的聊天记忆，从而可以进行连贯的多轮对话。
 
-![Graph view in LangGraph studio UI](./static/studio.png)
+![LangGraph studio UI 中的图形视图](./static/studio.png)
 
-The core logic, defined in `src/agent/graph.ts`, showcases a straightforward chatbot that responds to user queries while maintaining context from previous messages.
+核心逻辑定义在 `src/agent/graph.ts` 文件中，展示了一个简单的聊天机器人，它在响应用户查询的同时，还能保持先前消息的上下文。
 
-## What it does
+## 功能介绍
 
-The simple chatbot:
+这个简单的聊天机器人：
 
-1. Takes a user **message** as input
-2. Maintains a history of the conversation
-3. Returns a placeholder response, updating the conversation history
+1.  接收用户的**消息**作为输入
+2.  维护对话历史记录
+3.  返回一个占位符响应，并更新对话历史
 
-This template provides a foundation that can be easily customized and extended to create more complex conversational agents.
+此模板提供了一个基础，可以轻松进行自定义和扩展，以创建更复杂的对话式代理。
 
-## Getting Started
+## 入门
 
-Assuming you have already [installed LangGraph Studio](https://github.com/langchain-ai/langgraph-studio?tab=readme-ov-file#download), to set up:
+假设您已经[安装了 LangGraph Studio](https://github.com/langchain-ai/langgraph-studio?tab=readme-ov-file#download)，请按照以下步骤进行设置：
 
-1. Create a `.env` file. This template does not require any environment variables by default, but you will likely want to add some when customizing.
+1.  创建一个 `.env` 文件。此模板默认不要求任何环境变量，但您在自定义时很可能会添加一些。
 
 ```bash
 cp .env.example .env
@@ -38,33 +38,33 @@ Setup instruction auto-generated by `langgraph template lock`. DO NOT EDIT MANUA
 End setup instructions
 -->
 
-2. Open the folder in LangGraph Studio!
-3. Customize the code as needed.
+2.  在 LangGraph Studio 中打开此文件夹！
+3.  根据需要自定义代码。
 
-## How to customize
+## 如何自定义
 
-1. **Add an LLM call**: You can select and install a chat model wrapper from [the LangChain.js ecosystem](https://js.langchain.com/docs/integrations/chat/), or use LangGraph.js without LangChain.js.
-2. **Extend the graph**: The core logic of the chatbot is defined in [graph.ts](./src/agent/graph.ts). You can modify this file to add new nodes, edges, or change the flow of the conversation.
+1.  **添加 LLM 调用**：您可以从 [LangChain.js 生态系统](https://js.langchain.com/docs/integrations/chat/) 中选择并安装聊天模型封装器，或者在不使用 LangChain.js 的情况下使用 LangGraph.js。
+2.  **扩展图谱**：聊天机器人的核心逻辑在 [graph.ts](./src/agent/graph.ts) 文件中定义。您可以修改此文件以添加新节点、边或更改对话流程。
 
-You can also extend this template by:
+您还可以通过以下方式扩展此模板：
 
-- Adding [custom tools or functions](https://js.langchain.com/docs/how_to/tool_calling) to enhance the chatbot's capabilities.
-- Implementing additional logic for handling specific types of user queries or tasks.
-- Add retrieval-augmented generation (RAG) capabilities by integrating [external APIs or databases](https://langchain-ai.github.io/langgraphjs/tutorials/rag/langgraph_agentic_rag/) to provide more customized responses.
+-   添加[自定义工具或函数](https://js.langchain.com/docs/how_to/tool_calling)来增强聊天机器人的功能。
+-   实现额外的逻辑来处理特定类型的用户查询或任务。
+-   通过集成[外部 API 或数据库](https://langchain-ai.github.io/langgraphjs/tutorials/rag/langgraph_agentic_rag/)来添加检索增强生成（RAG）功能，以提供更具定制化的响应。
 
-## Development
+## 开发
 
-While iterating on your graph, you can edit past state and rerun your app from previous states to debug specific nodes. Local changes will be automatically applied via hot reload. Try experimenting with:
+在迭代您的图谱时，您可以编辑先前的状态并从先前状态重新运行应用程序以调试特定节点。本地更改将通过热重载自动应用。尝试试验以下内容：
 
-- Modifying the system prompt to give your chatbot a unique personality.
-- Adding new nodes to the graph for more complex conversation flows.
-- Implementing conditional logic to handle different types of user inputs.
+-   修改系统提示，为您的聊天机器人赋予独特的个性。
+-   为图谱添加新节点以实现更复杂的对话流程。
+-   实现条件逻辑来处理不同类型的用户输入。
 
-Follow-up requests will be appended to the same thread. You can create an entirely new thread, clearing previous history, using the `+` button in the top right.
+后续请求将被追加到同一线程。您可以使用右上角的 `+` 按钮创建一个全新的线程，清除先前的历史记录。
 
-For more advanced features and examples, refer to the [LangGraph.js documentation](https://github.com/langchain-ai/langgraphjs). These resources can help you adapt this template for your specific use case and build more sophisticated conversational agents.
+有关更高级的功能和示例，请参阅 [LangGraph.js 文档](https://github.com/langchain-ai/langgraphjs)。这些资源可以帮助您为特定用例调整此模板，并构建更复杂的对话式代理。
 
-LangGraph Studio also integrates with [LangSmith](https://smith.langchain.com/) for more in-depth tracing and collaboration with teammates, allowing you to analyze and optimize your chatbot's performance.
+LangGraph Studio 还集成了 [LangSmith](https://smith.langchain.com/)，用于更深入的跟踪和与队友的协作，让您能够分析和优化聊天机器人的性能。
 
 <!--
 Configuration auto-generated by `langgraph template lock`. DO NOT EDIT MANUALLY.

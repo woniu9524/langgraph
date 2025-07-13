@@ -1,20 +1,20 @@
-# How to add TTLs to your LangGraph application
+# 为 LangGraph 应用添加 TTL
 
-!!! tip "Prerequisites"
+!!! tip "先决条件"
 
-    This guide assumes familiarity with the [LangGraph Platform](../../concepts/langgraph_platform.md), [Persistence](../../concepts/persistence.md), and [Cross-thread persistence](../../concepts/persistence.md#memory-store) concepts.
+    本指南假定您熟悉 [LangGraph 平台](../../concepts/langgraph_platform.md)、[持久化](../../concepts/persistence.md)和[跨线程持久化](../../concepts/persistence.md#memory-store)概念。
 
-???+ note "LangGraph platform only"
+???+ note "仅限 LangGraph 平台"
     
-    TTLs are only supported for LangGraph platform deployments. This guide does not apply to LangGraph OSS.
+    TTL 仅支持 LangGraph 平台部署。本指南不适用于 LangGraph OSS。
 
-The LangGraph Platform persists both [checkpoints](../../concepts/persistence.md#checkpoints) (thread state) and [cross-thread memories](../../concepts/persistence.md#memory-store) (store items). Configure Time-to-Live (TTL) policies in `langgraph.json` to automatically manage the lifecycle of this data, preventing indefinite accumulation.
+LangGraph 平台会持久化[检查点](../../concepts/persistence.md#checkpoints)（线程状态）和[跨线程内存](../../concepts/persistence.md#memory-store)（存储项）。在 `langgraph.json` 中配置生存时间 (TTL) 策略，以自动管理这些数据的生命周期，防止无限期累积。
 
-## Configuring Checkpoint TTL
+## 配置检查点 TTL
 
-Checkpoints capture the state of conversation threads. Setting a TTL ensures old checkpoints and threads are automatically deleted.
+检查点捕获对话线程的状态。设置 TTL 可确保旧检查点和线程被自动删除。
 
-Add a `checkpointer.ttl` configuration to your `langgraph.json` file:
+在 `langgraph.json` 文件中添加 `checkpointer.ttl` 配置：
 
 ```json
 {
@@ -32,15 +32,15 @@ Add a `checkpointer.ttl` configuration to your `langgraph.json` file:
 }
 ```
 
-*   `strategy`: Specifies the action taken on expiration. Currently, only `"delete"` is supported, which deletes all checkpoints in the thread upon expiration.
-*   `sweep_interval_minutes`: Defines how often, in minutes, the system checks for expired checkpoints.
-*   `default_ttl`: Sets the default lifespan of checkpoints in minutes (e.g., 43200 minutes = 30 days).
+*   `strategy`: 指定过期时采取的操作。目前仅支持 `"delete"`，它会在过期时删除线程中的所有检查点。
+*   `sweep_interval_minutes`: 定义系统检查过期检查点的频率（以分钟为单位）。
+*   `default_ttl`: 设置检查点的默认生存时间（以分钟为单位）（例如，43200 分钟 = 30 天）。
 
-## Configuring Store Item TTL
+## 配置存储项 TTL
 
-Store items allow cross-thread data persistence. Configuring TTL for store items helps manage memory by removing stale data.
+存储项支持跨线程数据持久化。为存储项配置 TTL 有助于通过删除过时数据来管理内存。
 
-Add a `store.ttl` configuration to your `langgraph.json` file:
+在 `langgraph.json` 文件中添加 `store.ttl` 配置：
 
 ```json
 {
@@ -58,13 +58,13 @@ Add a `store.ttl` configuration to your `langgraph.json` file:
 }
 ```
 
-*   `refresh_on_read`: (Optional, default `true`) If `true`, accessing an item via `get` or `search` resets its expiration timer. If `false`, TTL only refreshes on `put`.
-*   `sweep_interval_minutes`: (Optional) Defines how often, in minutes, the system checks for expired items. If omitted, no sweeping occurs.
-*   `default_ttl`: (Optional) Sets the default lifespan of store items in minutes (e.g., 10080 minutes = 7 days). If omitted, items do not expire by default.
+*   `refresh_on_read`:（可选，默认为 `true`）如果为 `true`，通过 `get` 或 `search` 访问项会重置其过期计时器。如果为 `false`，TTL 仅在 `put` 时刷新。
+*   `sweep_interval_minutes`:（可选）定义系统检查过期项的频率（以分钟为单位）。如果省略，则不执行扫描。
+*   `default_ttl`:（可选）设置存储项的默认生存时间（以分钟为单位）（例如，10080 分钟 = 7 天）。如果省略，则项默认不会过期。
 
-## Combining TTL Configurations
+## 合并 TTL 配置
 
-You can configure TTLs for both checkpoints and store items in the same `langgraph.json` file to set different policies for each data type. Here is an example:
+您可以在同一个 `langgraph.json` 文件中为检查点和存储项配置 TTL，为每种数据类型设置不同的策略。以下是一个示例：
 
 ```json
 {
@@ -89,14 +89,13 @@ You can configure TTLs for both checkpoints and store items in the same `langgra
 }
 ```
 
-## Runtime Overrides
+## 运行时覆盖
 
-The default `store.ttl` settings from `langgraph.json` can be overridden at runtime by providing specific TTL values in SDK method calls like `get`, `put`, and `search`.
+可以通过在 `get`、`put` 和 `search` 等 SDK 方法调用中提供特定的 TTL 值，来覆盖 `langgraph.json` 中的默认 `store.ttl` 设置。
 
-## Deployment Process
+## 部署流程
 
-After configuring TTLs in `langgraph.json`, deploy or restart your LangGraph application for the changes to take effect. Use `langgraph dev` for local development or `langgraph up` for Docker deployment.
+在 `langgraph.json` 中配置 TTL 后，请部署或重新启动您的 LangGraph 应用程序以使更改生效。使用 `langgraph dev` 进行本地开发或使用 `langgraph up` 进行 Docker 部署。
 
 
-See the [langgraph.json CLI reference][configuration-file] for more details on the other configurable options.
-
+有关其他可配置选项的更多详细信息，请参阅 [langgraph.json CLI 参考][configuration-file]。

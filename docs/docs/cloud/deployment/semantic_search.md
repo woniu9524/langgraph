@@ -1,16 +1,16 @@
-# How to add semantic search to your LangGraph deployment
+# 为您的 LangGraph 部署添加语义搜索
 
-This guide explains how to add semantic search to your LangGraph deployment's cross-thread [store](../../concepts/persistence.md#memory-store), so that your agent can search for memories and other documents by semantic similarity.
+本指南将介绍如何为您的 LangGraph 部署的跨线程 [store](../../concepts/persistence.md#memory-store) 添加语义搜索，以便您的代理可以通过语义相似性搜索记忆和其他文档。
 
-## Prerequisites
+## 前提条件
 
-- A LangGraph deployment (see [how to deploy](setup_pyproject.md))
-- API keys for your embedding provider (in this case, OpenAI)
-- `langchain >= 0.3.8` (if you specify using the string format below)
+- LangGraph 部署（请参阅 [如何部署](setup_pyproject.md)）
+- 您的 embedding 提供商的 API 密钥（本例中为 OpenAI）
+- `langchain >= 0.3.8`（如果您使用下面指定的字符串格式）
 
-## Steps
+## 步骤
 
-1. Update your `langgraph.json` configuration file to include the store configuration:
+1. 更新您的 `langgraph.json` 配置文件，以包含 store 配置：
 
 ```json
 {
@@ -25,48 +25,48 @@ This guide explains how to add semantic search to your LangGraph deployment's cr
 }
 ```
 
-This configuration:
+此配置：
 
-- Uses OpenAI's text-embedding-3-small model for generating embeddings
-- Sets the embedding dimension to 1536 (matching the model's output)
-- Indexes all fields in your stored data (`["$"]` means index everything, or specify specific fields like `["text", "metadata.title"]`)
+- 使用 OpenAI 的 text-embedding-3-small 模型生成 embeddings
+- 将 embedding 维度设置为 1536（与模型的输出匹配）
+- 索引您存储数据中的所有字段（`["$"]` 表示索引所有字段，或指定特定字段，如 `["text", "metadata.title"]`）
 
-2. To use the string embedding format above, make sure your dependencies include `langchain >= 0.3.8`:
+2. 要使用上面的字符串 embedding 格式，请确保您的依赖项包含 `langchain >= 0.3.8`：
 
 ```toml
-# In pyproject.toml
+# 在 pyproject.toml 中
 [project]
 dependencies = [
     "langchain>=0.3.8"
 ]
 ```
 
-Or if using requirements.txt:
+或者如果使用 requirements.txt：
 
 ```
 langchain>=0.3.8
 ```
 
-## Usage
+## 使用方法
 
-Once configured, you can use semantic search in your LangGraph nodes. The store requires a namespace tuple to organize memories:
+配置完成后，您可以在 LangGraph 节点中使用语义搜索。store 需要一个命名空间元组来组织记忆：
 
 ```python
 def search_memory(state: State, *, store: BaseStore):
-    # Search the store using semantic similarity
-    # The namespace tuple helps organize different types of memories
-    # e.g., ("user_facts", "preferences") or ("conversation", "summaries")
+    # 使用语义相似性搜索 store
+    # 命名空间元组有助于组织不同类型的记忆
+    # 例如，("user_facts", "preferences") 或 ("conversation", "summaries")
     results = store.search(
-        namespace=("memory", "facts"),  # Organize memories by type
-        query="your search query",
-        limit=3  # number of results to return
+        namespace=("memory", "facts"),  # 按类型组织记忆
+        query="您的搜索查询",
+        limit=3  # 要返回的结果数
     )
     return results
 ```
 
-## Custom Embeddings
+## 自定义 Embeddings
 
-If you want to use custom embeddings, you can pass a path to a custom embedding function:
+如果您想使用自定义 embeddings，您可以传递一个自定义 embedding 函数的路径：
 
 ```json
 {
@@ -81,7 +81,7 @@ If you want to use custom embeddings, you can pass a path to a custom embedding 
 }
 ```
 
-The deployment will look for the function in the specified path. The function must be async and accept a list of strings:
+部署将在此指定路径中查找函数。该函数必须是异步的，并接受字符串列表：
 
 ```python
 # path/to/embedding_function.py
@@ -90,10 +90,10 @@ from openai import AsyncOpenAI
 client = AsyncOpenAI()
 
 async def aembed_texts(texts: list[str]) -> list[list[float]]:
-    """Custom embedding function that must:
-    1. Be async
-    2. Accept a list of strings
-    3. Return a list of float arrays (embeddings)
+    """自定义 embedding 函数必须：
+    1. 是异步的
+    2. 接受字符串列表
+    3. 返回 float 数组列表（embeddings）
     """
     response = await client.embeddings.create(
         model="text-embedding-3-small",
@@ -102,9 +102,9 @@ async def aembed_texts(texts: list[str]) -> list[list[float]]:
     return [e.embedding for e in response.data]
 ```
 
-## Querying via the API
+## 通过 API 查询
 
-You can also query the store using the LangGraph SDK. Since the SDK uses async operations:
+您也可以使用 LangGraph SDK 查询 store。由于 SDK 使用异步操作：
 
 ```python
 from langgraph_sdk import get_client
@@ -113,11 +113,11 @@ async def search_store():
     client = get_client()
     results = await client.store.search_items(
         ("memory", "facts"),
-        query="your search query",
-        limit=3  # number of results to return
+        query="您的搜索查询",
+        limit=3  # 要返回的结果数
     )
     return results
 
-# Use in an async context
+# 在异步上下文中调用
 results = await search_store()
 ```

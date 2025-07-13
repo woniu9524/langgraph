@@ -1,10 +1,10 @@
-# Stateless Runs
+# 无状态运行
 
-Most of the time, you provide a `thread_id` to your client when you run your graph in order to keep track of prior runs through the persistent state implemented in LangGraph Platform. However, if you don't need to persist the runs you don't need to use the built in persistent state and can create stateless runs.
+大多数情况下，您会在运行图时向客户端提供 `thread_id`，以便通过 LangGraph Platform 中实现的持久化状态来跟踪之前的运行。然而，如果您不需要持久化运行，则无需使用内置的持久化状态，而是可以创建无状态运行。
 
-## Setup
+## 设置
 
-First, let's setup our client:
+首先，我们来设置客户端：
 
 === "Python"
 
@@ -12,9 +12,9 @@ First, let's setup our client:
     from langgraph_sdk import get_client
 
     client = get_client(url=<DEPLOYMENT_URL>)
-    # Using the graph deployed with the name "agent"
+    # 使用名为 "agent" 的已部署图
     assistant_id = "agent"
-    # create thread
+    # 创建 thread
     thread = await client.threads.create()
     ```
 
@@ -24,9 +24,9 @@ First, let's setup our client:
     import { Client } from "@langchain/langgraph-sdk";
 
     const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
-    // Using the graph deployed with the name "agent"
+    // 使用名为 "agent" 的已部署图
     const assistantId = "agent";
-    // create thread
+    // 创建 thread
     const thread = await client.threads.create();
     ```
 
@@ -46,9 +46,9 @@ First, let's setup our client:
         --data '{}'
     ```
 
-## Stateless streaming
+## 无状态流式传输
 
-We can stream the results of a stateless run in an almost identical fashion to how we stream from a run with the state attribute, but instead of passing a value to the `thread_id` parameter, we pass `None`:
+我们可以以几乎与流式传输有状态运行相同的方式流式传输无状态运行的结果，但不是将值传递给 `thread_id` 参数，而是传递 `None`：
 
 === "Python"
 
@@ -60,7 +60,7 @@ We can stream the results of a stateless run in an almost identical fashion to h
     }
 
     async for chunk in client.runs.stream(
-        # Don't pass in a thread_id and the stream will be stateless
+        # 不传入 thread_id，流将是无状态的
         None,
         assistant_id,
         input=input,
@@ -80,7 +80,7 @@ We can stream the results of a stateless run in an almost identical fashion to h
     };
 
     const streamResponse = client.runs.stream(
-      // Don't pass in a thread_id and the stream will be stateless
+      // 不传入 thread_id，流将是无状态的
       null,
       assistantId,
       {
@@ -110,13 +110,13 @@ We can stream the results of a stateless run in an almost identical fashion to h
         }" | jq -c 'select(.data and (.data | has("run_id") | not)) | .data'
     ```
 
-Output:
+输出：
 
     {'agent': {'messages': [{'content': "Hello Bagatur! It's nice to meet you. Thank you for introducing yourself and sharing your age. Is there anything specific you'd like to know or discuss? I'm here to help with any questions or topics you're interested in.", 'additional_kwargs': {}, 'response_metadata': {}, 'type': 'ai', 'name': None, 'id': 'run-489ec573-1645-4ce2-a3b8-91b391d50a71', 'example': False, 'tool_calls': [], 'invalid_tool_calls': [], 'usage_metadata': None}]}}
 
-## Waiting for stateless results
+## 等待无状态结果
 
-In addition to streaming, you can also wait for a stateless result by using the `.wait` function like follows:
+除了流式传输之外，您还可以使用 `.wait` 函数来等待无状态结果，如下所示：
 
 === "Python"
 
@@ -151,7 +151,7 @@ In addition to streaming, you can also wait for a stateless result by using the 
         }'
     ```
 
-Output:
+输出：
 
     {
         'messages': [

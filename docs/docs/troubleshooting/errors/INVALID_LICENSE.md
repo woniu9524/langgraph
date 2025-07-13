@@ -1,49 +1,48 @@
-# INVALID_LICENSE
+# 无效许可证
 
-This error is raised when license verification fails while attempting to start a self-hosted LangGraph Platform server. This error is specific to the LangGraph Platform and is not related to the open source libraries.
+当尝试启动自托管的 LangGraph Platform 服务器时，许可证验证失败会引发此错误。此错误特定于 LangGraph Platform，与开源库无关。
 
-## When This Occurs
+## 发生情况
 
-This error occurs when running a self-hosted deployment of LangGraph Platform without a valid enterprise license or API key.
+在运行自托管的 LangGraph Platform 部署而没有有效企业许可证或 API 密钥时，会出现此错误。
 
-## Troubleshooting
+## 故障排除
 
-### Confirm deployment type
+### 确认部署类型
 
-First, confirm the desired mode of deployment.
+首先，确认所需的部署模式。
 
-#### For Local Development
+#### 用于本地开发
 
-If you're just developing locally, you can use the lightweight in-memory server by running `langgraph dev`.
-See the [local server](../../tutorials/langgraph-platform/local-server.md) docs for more information.
+如果您仅在本地进行开发，可以通过运行 `langgraph dev` 来使用轻量级的内存服务器。
+有关更多信息，请参阅[本地服务器](../../tutorials/langgraph-platform/local-server.md)文档。
 
-#### For Managed LangGraph Platform
+#### 用于托管的 LangGraph Platform
 
-If you would like a fast managed environment, consider the [Cloud SaaS](../../concepts/langgraph_cloud.md) deployment option. This requires no additional license key.
+如果您需要一个快速的托管环境，请考虑使用[云 SaaS](../../concepts/langgraph_cloud.md) 部署选项。这不需要额外的许可证密钥。
 
-#### For Standalone Container (Lite)
+#### 用于独立容器（Lite）
 
-If your deployment is unlikely to see more than 1 million node executions per year and don't need Crons and other enterprise features, consider the [Standalone Container](../../concepts/deployment_options.md) deployment option.
+如果您的部署每年节点执行次数可能不会超过 100 万次，并且不需要 Crons 和其他企业功能，请考虑[独立容器](../../concepts/deployment_options.md)部署选项。
 
-You can deploy with Standalone Container by setting a valid `LANGSMITH_API_KEY` in your environment (e.g., in the `.env` file referenced by `langgraph.json`) and building a Docker image. The API key must be associated with an account on a **Plus** plan or greater.
+您可以通过在环境中（例如，在 `langgraph.json` 引用的 `.env` 文件中）设置有效的 `LANGSMITH_API_KEY` 并构建 Docker 镜像来部署独立容器。API 密钥必须与**Plus**或更高计划的账户相关联。
 
-#### For Standalone Container (Enterprise)
+#### 用于独立容器（Enterprise）
 
-For full self-hosting, set the `LANGGRAPH_CLOUD_LICENSE_KEY` environment variable. If you are interested in an enterprise license key, please contact the LangChain support team.
+要进行完全自托管，请设置 `LANGGRAPH_CLOUD_LICENSE_KEY` 环境变量。如果您对企业许可证密钥感兴趣，请联系 LangChain 支持团队。
 
-For more information on deployment options and their features, see the [Deployment Options](../../concepts/deployment_options.md) documentation.
+有关部署选项及其功能的更多信息，请参阅[部署选项](../../concepts/deployment_options.md)文档。
 
+### 确认凭据
 
-### Confirm credentials
+如果您已确认要自托管 LangGraph Platform，请验证您的凭据。
 
-If you have confirmed that you would like to self-host LangGraph Platform, please verify your credentials.
+#### 用于独立容器（Lite）
 
-#### For Standalone Container (Lite)
+1. 确认您已在部署环境或 `.env` 文件中提供了有效的 `LANGSMITH_API_KEY` 环境变量。
+2. 确认提供的 API 密钥与**Plus**或**Enterprise**计划（或同等计划）的账户相关联。
 
-1. Confirm that you have provided a working `LANGSMITH_API_KEY` environment variable in your deployment environment or `.env` file
-2. Confirm the provided API key is associated with an account on a **Plus** or **Enterprise** plan (or equivalent)
+#### 用于独立容器（Enterprise）
 
-#### For Standalone Container (Enterprise)
-
-1. Confirm that you have provided a working `LANGGRAPH_CLOUD_LICENSE_KEY` environment variable in your deployment environment or `.env` file
-2. Confirm the key is still valid and has not surpassed its expiration date
+1. 确认您已在部署环境或 `.env` 文件中提供了有效的 `LANGGRAPH_CLOUD_LICENSE_KEY` 环境变量。
+2. 确认密钥仍然有效，并且未超过其到期日期。

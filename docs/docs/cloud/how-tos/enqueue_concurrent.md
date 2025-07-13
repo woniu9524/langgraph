@@ -1,12 +1,12 @@
 # Enqueue
 
-This guide assumes knowledge of what double-texting is, which you can learn about in the [double-texting conceptual guide](../../concepts/double_texting.md).
+本指南假定您了解双重文本的概念，您可以在[双重文本概念指南](../../concepts/double_texting.md)中进行了解。
 
-The guide covers the `enqueue` option for double texting, which adds the interruptions to a queue and executes them in the order they are received by the client. Below is a quick example of using the `enqueue` option.
+本指南涵盖了双重文本的 `enqueue` 选项，该选项将中断添加到队列中，并按照客户端接收的顺序执行它们。以下是使用 `enqueue` 选项的快速示例。
 
 ## Setup
 
-First, we will define a quick helper function for printing out JS and CURL model outputs (you can skip this if using Python):
+首先，我们将定义一个快速的辅助函数来打印 JS 和 CURL 的模型输出（如果使用 Python，可以跳过此部分）：
 
 === "Javascript"
 
@@ -45,7 +45,7 @@ First, we will define a quick helper function for printing out JS and CURL model
     }
     ```
 
-Then, let's import our required packages and instantiate our client, assistant, and thread.
+然后，让我们导入所需的包并实例化我们的客户端、助手和线程。
 
 === "Python"
 
@@ -85,7 +85,7 @@ Then, let's import our required packages and instantiate our client, assistant, 
 
 ## Create runs
 
-Now let's start two runs, with the second interrupting the first one with a multitask strategy of "enqueue":
+现在让我们开始两个运行，第二个运行将使用“enqueue”的多任务策略来中断第一个运行：
 
 === "Python"
 
@@ -141,7 +141,7 @@ Now let's start two runs, with the second interrupting the first one with a mult
 
 ## View run results
 
-Verify that the thread has data from both runs:
+验证线程是否包含两个运行的数据：
 
 === "Python"
 
@@ -252,4 +252,3 @@ Output:
     Friday: Partly cloudy, high of 87°F (31°C)
     
     So New York City is experiencing beautiful sunny weather with seasonably warm temperatures in the mid-to-upper 80s Fahrenheit (around 30°C). Humidity is moderate in the 60% range. Overall, ideal late spring/early summer conditions for being outdoors in the city over the next several days.
-

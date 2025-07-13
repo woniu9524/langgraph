@@ -1,14 +1,14 @@
-# Use webhooks
+# 使用 Webhook
 
-When working with LangGraph Platform, you may want to use webhooks to receive updates after an API call completes. Webhooks are useful for triggering actions in your service once a run has finished processing. To implement this, you need to expose an endpoint that can accept `POST` requests and pass this endpoint as a `webhook` parameter in your API request.
+在使用 LangGraph Platform 时，您可能希望接收 API 调用完成后的更新，这时就可以使用 Webhook。Webhook 可用于在某个运行（run）处理完成后触发您的服务中的操作。要实现此功能，您需要公开一个可以接受 `POST` 请求的端点，并将该端点作为 `webhook` 参数传递给您的 API 请求。
 
-Currently, the SDK does not provide built-in support for defining webhook endpoints, but you can specify them manually using API requests.
+目前，SDK 不提供内置的 Webhook 端点定义支持，但您可以通过 API 请求手动指定它们。
 
-## Supported endpoints
+## 支持的端点
 
-The following API endpoints accept a `webhook` parameter:
+以下 API 端点接受 `webhook` 参数：
 
-| Operation            | HTTP Method | Endpoint                          |
+| Operation            | HTTP 方法 | 端点                          |
 |----------------------|-------------|-----------------------------------|
 | Create Run           | `POST`      | `/thread/{thread_id}/runs`        |
 | Create Thread Cron   | `POST`      | `/thread/{thread_id}/runs/crons`  |
@@ -18,11 +18,11 @@ The following API endpoints accept a `webhook` parameter:
 | Stream Run Stateless | `POST`      | `/runs/stream`                    |
 | Wait Run Stateless   | `POST`      | `/runs/wait`                      |
 
-In this guide, we’ll show how to trigger a webhook after streaming a run.
+在本指南中，我们将演示如何在使用流式传输 run 时触发 Webhook。
 
-## Set up your assistant and thread
+## 设置您的助手和线程
 
-Before making API calls, set up your assistant and thread.
+在进行 API 调用之前，请先设置您的助手和线程。
 
 === "Python"
 
@@ -59,7 +59,7 @@ Before making API calls, set up your assistant and thread.
         --data '{}'
     ```
 
-Example response:
+示例响应：
 
 ```json
 {
@@ -73,11 +73,11 @@ Example response:
 }
 ```
 
-## Use a webhook with a graph run
+## 将 Webhook 与 Graph 运行结合使用
 
-To use a webhook, specify the `webhook` parameter in your API request. When the run completes, LangGraph Platform sends a `POST` request to the specified webhook URL.
+要使用 Webhook，请在您的 API 请求中指定 `webhook` 参数。当运行完成后，LangGraph Platform 会向指定的 Webhook URL 发送一个 `POST` 请求。
 
-For example, if your server listens for webhook events at `https://my-server.app/my-webhook-endpoint`, include this in your request:
+例如，如果您的服务器监听的 Webhook 事件端点是 `https://my-server.app/my-webhook-endpoint`，请在请求中包含此项：
 
 === "Python"
 
@@ -109,7 +109,7 @@ For example, if your server listens for webhook events at `https://my-server.app
     );
 
     for await (const chunk of streamResponse) {
-      // Handle stream output
+      // 处理流输出
     }
     ```
 
@@ -126,25 +126,25 @@ For example, if your server listens for webhook events at `https://my-server.app
         }'
     ```
 
-## Webhook payload
+## Webhook 负载
 
-LangGraph Platform sends webhook notifications in the format of a [Run](../../concepts/assistants.md#execution). See the [API Reference](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref.html#model/run) for details. The request payload includes run input, configuration, and other metadata in the `kwargs` field.
+LangGraph Platform 以 [Run](../../concepts/assistants.md#execution) 的格式发送 Webhook 通知。有关详细信息，请参阅 [API 参考](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref.html#model/run)。请求负载在 `kwargs ` 字段中包含运行输入、配置和其他元数据。
 
-## Secure webhooks
+## 安全地使用 Webhook
 
-To ensure only authorized requests hit your webhook endpoint, consider adding a security token as a query parameter:
+为确保只有授权请求才能命中您的 Webhook 端点，请考虑添加一个安全令牌作为查询参数：
 
 ```
 https://my-server.app/my-webhook-endpoint?token=YOUR_SECRET_TOKEN
 ```
 
-Your server should extract and validate this token before processing requests.
+您的服务器应在处理请求之前提取并验证此令牌。
 
-## Test webhooks
+## 测试 Webhook
 
-You can test your webhook using online services like:
+您可以使用在线服务测试您的 Webhook，例如：
 
-- **[Beeceptor](https://beeceptor.com/)** – Quickly create a test endpoint and inspect incoming webhook payloads.
-- **[Webhook.site](https://webhook.site/)** – View, debug, and log incoming webhook requests in real time.
+- **[Beeceptor](https://beeceptor.com/)** – 快速创建测试端点并检查传入的 Webhook 负载。
+- **[Webhook.site](https://webhook.site/)** – 实时查看、调试和记录传入的 Webhook 请求。
 
-These tools help you verify that LangGraph Platform is correctly triggering and sending webhooks to your service.
+这些工具可帮助您验证 LangGraph Platform 是否正确触发并向您的服务发送 Webhook。

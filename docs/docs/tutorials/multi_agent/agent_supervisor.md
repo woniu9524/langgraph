@@ -1,19 +1,19 @@
-# Multi-agent supervisor
+# 多代理主管
 
-[**Supervisor**](../../concepts/multi_agent.md#supervisor) is a multi-agent architecture where **specialized** agents are coordinated by a central **supervisor agent**. The supervisor agent controls all communication flow and task delegation, making decisions about which agent to invoke based on the current context and task requirements.
+[**主管**](../../concepts/multi_agent.md#supervisor) 是一种多代理架构，其中**专业**代理由一个中央**主管代理**进行协调。主管代理控制所有通信流程和任务委派，根据当前上下文和任务要求决定调用哪个代理。
 
-In this tutorial, you will build a supervisor system with two agents — a research and a math expert. By the end of the tutorial you will:
+在本教程中，您将构建一个包含两个代理——研究专家和数学专家——的主管系统。在本教程结束时，您将：
 
-1. Build specialized research and math agents
-2. Build a supervisor for orchestrating them with the prebuilt [`langgraph-supervisor`](https://langchain-ai.github.io/langgraph/agents/multi-agent/#supervisor)
-3. Build a supervisor from scratch
-4. Implement advanced task delegation
+1. 构建专业的研究和数学代理
+2. 使用预构建的 [`langgraph-supervisor`](https://langchain-ai.github.io/langgraph/agents/multi-agent/#supervisor) 构建一个用于编排它们的主管
+3. 从头开始构建一个主管
+4. 实现高级任务委派
 
 ![diagram](assets/diagram.png)
 
-## Setup
+## 设置
 
-First, let's install required packages and set our API keys
+首先，我们安装所需的包并设置我们的 API 密钥
 
 ```python
 %%capture --no-stderr
@@ -35,18 +35,18 @@ _set_if_undefined("TAVILY_API_KEY")
 ```
 
 !!! tip
-    Sign up for LangSmith to quickly spot issues and improve the performance of your LangGraph projects. [LangSmith](https://docs.smith.langchain.com) lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph.
+    注册 LangSmith，以便快速发现问题并提高 LangGraph 项目的性能。[LangSmith](https://docs.smith.langchain.com) 允许您使用追踪数据来调试、测试和监控您使用 LangGraph 构建的 LLM 应用。
 
-## 1. Create worker agents
+## 1. 创建工作代理
 
-First, let's create our specialized worker agents — research agent and math agent:
+首先，我们创建专业的 worker 代理——研究代理和数学代理：
 
-* Research agent will have access to a web search tool using [Tavily API](https://tavily.com/)
-* Math agent will have access to simple math tools (`add`, `multiply`, `divide`)
+* 研究代理将通过 [Tavily API](https://tavily.com/) 访问网络搜索工具
+* 数学代理将访问简单的数学工具（`add`、`multiply`、`divide`）
 
-### Research agent
+### 研究代理
 
-For web search, we will use `TavilySearch` tool from `langchain-tavily`:
+对于网络搜索，我们将使用 `langchain-tavily` 中的 `TavilySearch` 工具：
 
 ```python
 from langchain_tavily import TavilySearch
@@ -57,12 +57,12 @@ web_search_results = web_search.invoke("who is the mayor of NYC?")
 print(web_search_results["results"][0]["content"])
 ```
 
-**Output:**
+**输出：**
 ```
 Find events, attractions, deals, and more at nyctourism.com Skip Main Navigation Menu The Official Website of the City of New York Text Size Powered by Translate SearchSearch Primary Navigation The official website of NYC Home NYC Resources NYC311 Office of the Mayor Events Connect Jobs Search Office of the Mayor | Mayor's Bio | City of New York Secondary Navigation MayorBiographyNewsOfficials Eric L. Adams 110th Mayor of New York City Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. He gave voice to a diverse coalition of working families in all five boroughs and is leading the fight to bring back New York City's economy, reduce inequality, improve public safety, and build a stronger, healthier city that delivers for all New Yorkers. As the representative of one of the nation's largest counties, Eric fought tirelessly to grow the local economy, invest in schools, reduce inequality, improve public safety, and advocate for smart policies and better government that delivers for all New Yorkers.
 ```
 
-To create individual worker agents, we will use LangGraph's prebuilt [agent](../../agents/agents.md).
+要创建单独的工作代理，我们将使用 LangGraph 的预构建代理 [`agent`](../../agents/agents.md)。
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -81,9 +81,9 @@ research_agent = create_react_agent(
 )
 ```
 
-Let's [run the agent](../../agents/run_agents.md) to verify that it behaves as expected. 
+让我们 [运行代理](../../agents/run_agents.md) 来验证其行为是否符合预期。
 
-!!! note "We'll use `pretty_print_messages` helper to render the streamed agent outputs nicely"
+!!! note "我们将使用 `pretty_print_messages` 辅助函数来漂亮地渲染流式代理输出"
 
     ```python
     from langchain_core.messages import convert_to_messages
@@ -180,7 +180,7 @@ for chunk in research_agent.stream(
     pretty_print_messages(chunk)
 ```
 
-**Output:**
+**输出：**
 ```
 Update from node agent:
 
@@ -192,7 +192,6 @@ Tool Calls:
  Call ID: call_U748rQhQXT36sjhbkYLSXQtJ
   Args:
     query: current mayor of New York City
-    search_depth: basic
 
 
 Update from node tools:
@@ -204,9 +203,9 @@ Name: tavily_search
 {"query": "current mayor of New York City", "follow_up_questions": null, "answer": null, "images": [], "results": [{"title": "List of mayors of New York City - Wikipedia", "url": "https://en.wikipedia.org/wiki/List_of_mayors_of_New_York_City", "content": "The mayor of New York City is the chief executive of the Government of New York City, as stipulated by New York City's charter.The current officeholder, the 110th in the sequence of regular mayors, is Eric Adams, a member of the Democratic Party.. During the Dutch colonial period from 1624 to 1664, New Amsterdam was governed by the Director of Netherland.", "score": 0.9039154, "raw_content": null}, {"title": "Office of the Mayor | Mayor's Bio | City of New York - NYC.gov", "url": "https://www.nyc.gov/office-of-the-mayor/bio.page", "content": "Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. He gave voice to a diverse coalition of working families in all five boroughs and is leading the fight to bring back New York City's economy, reduce inequality, improve", "score": 0.8405867, "raw_content": null}, {"title": "Eric Adams - Wikipedia", "url": "https://en.wikipedia.org/wiki/Eric_Adams", "content": "Eric Leroy Adams (born September 1, 1960) is an American politician and former police officer who has served as the 110th mayor of New York City since 2022. Adams was an officer in the New York City Transit Police and then the New York City Police Department (```
 ```
 
-### Math agent
+### 数学代理
 
-For math agent tools we will use [vanilla Python functions](../../how-tos/tool-calling.md#define-a-tool):
+对于数学代理工具，我们将使用 [原生 Python 函数](../../how-tos/tool-calling.md#define-a-tool)：
 
 ```python
 def add(a: float, b: float):
@@ -238,7 +237,7 @@ math_agent = create_react_agent(
 )
 ```
 
-Let's run the math agent:
+让我们运行数学代理：
 
 ```python
 for chunk in math_agent.stream(
@@ -247,7 +246,7 @@ for chunk in math_agent.stream(
     pretty_print_messages(chunk)
 ```
 
-**Output:**
+**输出：**
 ```
 Update from node agent:
 
@@ -304,9 +303,9 @@ Name: math_agent
 
 ```
 
-## 2. Create supervisor with `langgraph-supervisor`
+## 2. 使用 `langgraph-supervisor` 创建主管
 
-To implement out multi-agent system, we will use [`create_supervisor`][langgraph_supervisor.supervisor.create_supervisor] from the prebuilt `langgraph-supervisor` library:
+要实现我们的多代理系统，我们将使用 `langgraph-supervisor` 库中的 [`create_supervisor`][langgraph_supervisor.supervisor.create_supervisor]：
 
 ```python
 from langgraph_supervisor import create_supervisor
@@ -335,12 +334,12 @@ display(Image(supervisor.get_graph().draw_mermaid_png()))
 
 ![Graph](assets/output.png)
 
-**Note:** When you run this code, it will generate and display a visual representation of the supervisor graph showing the flow between the supervisor and worker agents.
+**注意：** 运行此代码时，它将生成并显示主管图的视觉表示，显示主管和工作代理之间的流程。
 
-Let's now run it with a query that requires both agents:
+现在让我们用需要两个代理的查询来运行它：
 
-* research agent will look up the necessary GDP information
-* math agent will perform division to find the percentage of NY state GDP, as requested
+* 研究代理将查找必要的 GDP 信息
+* 数学代理将执行除法以查找纽约州 GDP 的百分比，如下所述
 
 ```python
 for chunk in supervisor.stream(
@@ -358,7 +357,7 @@ for chunk in supervisor.stream(
 final_message_history = chunk["supervisor"]["messages"]
 ```
 
-**Output:**
+**输出：**
 ```
 Update from node supervisor:
 
@@ -407,22 +406,22 @@ In 2024, the US GDP was $29.18 trillion and New York State's GDP was $2.297 tril
 
 ```
 
-## 3. Create supervisor from scratch
+## 3. 从头开始构建主管
 
-Let's now implement this same multi-agent system from scratch. We will need to:
+现在，让我们从头开始实现相同的多代理系统。我们将需要：
 
-1. [Set up how the supervisor communicates](#set-up-agent-communication) with individual agents
-2. [Create the supervisor agent](#create-supervisor-agent)
-3. Combine supervisor and worker agents into a [single multi-agent graph](#create-multi-agent-graph).
+1. [设置主管如何与单个代理通信](#set-up-agent-communication)
+2. [创建主管代理](#create-supervisor-agent)
+3. 将主管和工作代理合并为[单个多代理图](#create-multi-agent-graph)。
 
-### Set up agent communication
+### 设置代理通信
 
-We will need to define a way for the supervisor agent to communicate with the worker agents. A common way to implement this in multi-agent architectures is using **handoffs**, where one agent *hands off* control to another. Handoffs allow you to specify:
+我们需要定义一种主管代理与工作代理通信的方式。在多代理体系结构中实现此目的的一种常见方法是使用**交接 (handoffs)**，其中一个代理将控制权“交接”给另一个代理。交接允许您指定：
 
-- **destination**: target agent to transfer to
-- **payload**: information to pass to that agent
+- **destination**：要传输到的目标代理
+- **payload**：要传递给该代理的信息
 
-We will implement handoffs via **handoff tools** and give these tools to the supervisor agent: when the supervisor calls these tools, it will hand off control to a worker agent, passing the full message history to that agent.
+我们将通过**交接工具**实现交接，并将这些工具提供给主管代理：当主管调用这些工具时，它将把控制权交接给工作代理，并将完整的消息历史传递给该代理。
 
 ```python
 from typing import Annotated
@@ -472,13 +471,13 @@ assign_to_math_agent = create_handoff_tool(
 )
 ```
 
-1. Name of the agent or node to hand off to.
-2. Take the agent's messages and add them to the parent's state as part of the handoff. The next agent will see the parent state.
-3. Indicate to LangGraph that we need to navigate to agent node in a **parent** multi-agent graph.
+1. 要交接的代理或节点的名称。
+2. 获取代理的消息，并将它们作为交接的一部分添加到父级的状态中。下一个代理将看到父级状态。
+3. 指示 LangGraph 我们需要在**父级**多代理图中导航到代理节点。
 
-### Create supervisor agent
+### 创建主管代理
 
-Then, let's create the supervisor agent with the handoff tools we just defined. We will use the prebuilt [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent]:
+然后，我们使用刚刚定义的交接工具创建主管代理。我们将使用预构建的 [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent]：
 
 ```python
 supervisor_agent = create_react_agent(
@@ -495,9 +494,9 @@ supervisor_agent = create_react_agent(
 )
 ```
 
-### Create multi-agent graph
+### 创建多代理图
 
-Putting this all together, let's create a graph for our overall multi-agent system. We will add the supervisor and the individual agents as subgraph [nodes](../../concepts/low_level.md#nodes).
+将所有这些放在一起，让我们为整个多代理系统创建一个图。我们将主管和单个代理添加为子图[节点](../../concepts/low_level.md#nodes)。
 
 ```python
 from langgraph.graph import END
@@ -517,7 +516,7 @@ supervisor = (
 )
 ```
 
-Notice that we've added explicit [edges](../../concepts/low_level.md#edges) from worker agents back to the supervisor — this means that they are guaranteed to return control back to the supervisor. If you want the agents to respond directly to the user (i.e., turn the system into a router, you can remove these edges).
+请注意，我们已将工作代理与主管之间添加了显式的[边](../../concepts/low_level.md#edges)—这意味着它们保证将控制权交还给主管。如果您希望代理直接回复用户（即，将系统变成一个路由器，您可以删除这些边）。
 
 ```python
 from IPython.display import display, Image
@@ -527,9 +526,9 @@ display(Image(supervisor.get_graph().draw_mermaid_png()))
 
 ![Graph](assets/multi-output.png)
 
-**Note:** When you run this code, it will generate and display a visual representation of the multi-agent supervisor graph showing the flow between the supervisor and worker agents.
+**注意：** 运行此代码时，它将生成并显示多代理主管图的视觉表示，显示主管和工作代理之间的流程。
 
-With the multi-agent graph created, let's now run it!
+创建多代理图后，现在运行它！
 
 ```python
 for chunk in supervisor.stream(
@@ -547,7 +546,7 @@ for chunk in supervisor.stream(
 final_message_history = chunk["supervisor"]["messages"]
 ```
 
-**Output:**
+**输出：**
 ```
 Update from node supervisor:
 
@@ -562,77 +561,6 @@ Update from node research_agent:
 
 
 ================================== Ai Message ==================================
-Name: research_agent
-
-- US GDP in 2024 is projected to be about $28.18 trillion USD (Statista; CBO projection).
-- New York State's nominal GDP for 2024 is estimated at approximately $2.16 trillion USD (various economic reports).
-- New York State's share of US GDP in 2024 is roughly 7.7%.
-
-Sources:
-- https://www.statista.com/statistics/216985/forecast-of-us-gross-domestic-product/
-- https://nyassembly.gov/Reports/WAM/2025economic_revenue/2025_report.pdf?v=1740533306
-
-
-Update from node supervisor:
-
-
-================================= Tool Message ==================================
-Name: transfer_to_math_agent
-
-Successfully transferred to math_agent
-
-
-Update from node math_agent:
-
-
-================================== Ai Message ==================================
-Name: math_agent
-
-US GDP in 2024: $28.18 trillion
-New York State GDP in 2024: $2.16 trillion
-Percentage of US GDP from New York State: 7.67%
-
-
-Update from node supervisor:
-
-
-================================== Ai Message ==================================
-Name: supervisor
-
-Here are your results:
-
-- 2024 US GDP (projected): $28.18 trillion USD
-- 2024 New York State GDP (estimated): $2.16 trillion USD
-- New York State's share of US GDP: approximately 7.7%
-
-If you need the calculation steps or sources, let me know!
-
-
-```
-
-Let's examine the full resulting message history:
-
-```python
-for message in final_message_history:
-    message.pretty_print()
-```
-
-**Output:**
-```
-================================ Human Message ==================================
-
-find US and New York state GDP in 2024. what % of US GDP was New York state?
-================================== Ai Message ===================================
-Name: supervisor
-Tool Calls:
-  transfer_to_research_agent (call_KlGgvF5ahlAbjX8d2kHFjsC3)
- Call ID: call_KlGgvF5ahlAbjX8d2kHFjsC3
-  Args:
-================================= Tool Message ==================================
-Name: transfer_to_research_agent
-
-Successfully transferred to research_agent
-================================== Ai Message ===================================
 Name: research_agent
 Tool Calls:
   tavily_search (call_ZOaTVUA6DKrOjWQldLhtrsO2)
@@ -652,10 +580,10 @@ Name: tavily_search
 ```
 
 !!! important
-    You can see that the supervisor system appends **all** of the individual agent messages (i.e., their internal tool-calling loop) to the full message history. This means that on every supervisor turn, supervisor agent sees this full history. If you want more control over:
+    您可以看到，主管系统附加了所有单个代理的消息（即它们的内部工具调用循环）到完整的消息历史中。这意味着在每个主管回合中，主管代理都会看到完整的历史记录。如果您想要更多地控制：
 
-    * **how inputs are passed to agents**: you can use LangGraph [`Send()`][langgraph.types.Send] primitive to directly send data to the worker agents during the handoff. See the [task delegation](#4-create-delegation-tasks) example below
-    * **how agent outputs are added**: you can control how much of the agent's internal message history is added to the overall supervisor message history by wrapping the agent in a separate node function:
+    * **如何将输入传递给代理**：您可以使用 LangGraph [`Send()`][langgraph.types.Send] 原语在交接过程中直接将数据发送到工作代理。请参阅下面的[任务委派](#4-create-delegation-tasks)示例
+    * **如何添加代理输出**：您可以通过将代理包装到单独的节点函数中来控制添加到整体主管消息历史中的代理内部消息历史的数量：
 
         ```python
         def call_research_agent(state):
@@ -666,9 +594,9 @@ Name: tavily_search
             return {"messages": response["messages"][-1]}
         ```
 
-## 4. Create delegation tasks
+## 4. 创建委派任务
 
-So far the individual agents relied on **interpreting full message history** to determine their tasks. An alternative approach is to ask the supervisor to **formulate a task explicitly**. We can do so by adding a `task_description` parameter to the `handoff_tool` function.
+到目前为止，单个代理依赖于**解释完整的消息历史**来确定它们的任务。另一种方法是要求主管**明确制定任务**。为此，我们可以向 `handoff_tool` 函数添加 `task_description` 参数。
 
 ```python
 from langgraph.types import Send
@@ -742,9 +670,9 @@ supervisor_with_description = (
 ```
 
 !!! note
-    We're using [`Send()`][langgraph.types.Send] primitive in the `handoff_tool`. This means that instead of receiving the full `supervisor` graph state as input, each worker agent only sees the contents of the `Send` payload. In this example, we're sending the task description as a single "human" message.
+    我们正在 [`Send()`][langgraph.types.Send] 原语中使用 `handoff_tool`。这意味着每个工作代理不再接收完整的 `supervisor` 图状态作为输入，而是仅接收 `Send` 载荷的内容。在此示例中，我们将任务描述作为单个“人类”消息发送。
 
-Let's now running it with the same input query:
+让我们现在使用相同的输入查询运行它：
 
 ```python
 for chunk in supervisor_with_description.stream(
@@ -761,7 +689,7 @@ for chunk in supervisor_with_description.stream(
     pretty_print_messages(chunk, last_message=True)
 ```
 
-**Output:**
+**输出：**
 ```
 Update from subgraph supervisor:
 
@@ -809,4 +737,4 @@ Update from subgraph research_agent:
 	Name: tavily_search
 	
 	{"query": "2024 United States GDP value from a reputable source", "follow_up_questions": null, "answer": null, "images": [], "results": [{"url": "https://www.focus-economics.com/countries/united-states/", "title": "United States Economy Overview - Focus Economics", "content": "The United States' Macroeconomic Analysis:\n------------------------------------------\n\n**Nominal GDP of USD 29,185 billion in 2024.**\n\n**Nominal GDP of USD 29,179 billion in 2024.**\n\n**GDP per capita of USD 86,635 compared to the global average of USD 10,589.**\n\n**GDP per capita of USD 86,652 compared to the global average of USD 10,589.**\n\n**Average real GDP growth of 2.5% over the last decade.**\n\n**Average real GDP growth of ```
-``` 
+```

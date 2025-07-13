@@ -1,11 +1,11 @@
-# Additional resources
+# 附加资源
 
-This section contains additional resources for LangGraph.
+本节包含 LangGraph 的附加资源。
 
-- [Community agents](../agents/prebuilt.md): A collection of prebuilt libraries that you can use in your LangGraph applications.
-- [LangGraph Academy](https://academy.langchain.com/courses/intro-to-langgraph): A collection of courses that teach you how to use LangGraph.
-- [Case studies](../adopters.md): A collection of case studies that show how LangGraph is used in production.
-- [FAQ](../concepts/faq.md): A collection of frequently asked questions about LangGraph.
-- [llms.txt](../llms-txt-overview.md): A list of documentation files in the `llms.txt` format that allow LLMs and agents to access our documentation.
-- [LangChain Forum](https://forum.langchain.com/): A place to ask questions and get help from other LangGraph users.
-- [Troubleshooting](../troubleshooting/errors/index.md): A collection of troubleshooting guides for common issues.
+- [社区代理](../agents/prebuilt.md)：一个可以在你的 LangGraph 应用中使用的预构建库集合。
+- [LangGraph Academy](https://academy.langchain.com/courses/intro-to-langgraph)：一套教你如何使用 LangGraph 的课程。
+- [案例研究](../adopters.md)：一系列展示 LangGraph 在生产中如何使用的案例研究。
+- [常见问题解答](../concepts/faq.md)：关于 LangGraph 的常见问题集合。
+- [llms.txt](../llms-txt-overview.md)：以 `llms.txt` 格式的文档文件列表，允许 LLM 和代理访问我们的文档。
+- [LangChain 论坛](https://forum.langchain.com/)：一个可以提问并从其他 LangGraph 用户那里获得帮助的地方。
+- [故障排除](../troubleshooting/errors/index.md)：常见问题的故障排除指南集合。
