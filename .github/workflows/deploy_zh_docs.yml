@@ -1,0 +1,155 @@
+name: Deploy Chinese Docs
+
+on:
+  push:
+    branches:
+      - translate/zh
+  pull_request:
+    branches:
+      - translate/zh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-zh"
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: docs
+
+jobs:
+  get-changed-files:
+    runs-on: ubuntu-latest
+    outputs:
+      changed-files: ${{ steps.changed-files.outputs.added_modified }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get changed files
+        id: changed-files
+        uses: Ana06/get-changed-files@v2.3.0
+        with:
+          filter: "docs/docs/**"
+
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITHUB_TOKEN: ${{ secrets.MKDOCS_GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-suffix: "docs-zh"
+
+      - name: Install dependencies
+        run: |
+          yarn
+          uv sync --all-groups
+          # we run this installation only for internal PRs
+          # as GITHUB_TOKEN is not available for PRs from outside contributors
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            uv run pip install "git+https://${GITHUB_TOKEN}@github.com/langchain-ai/mkdocs-material-insiders.git"
+          fi
+
+      - name: Run unit tests
+        run: make tests
+
+      - name: Lint Docs
+        run: make lint-docs
+
+      - name: Build llms-text
+        run: make llms-text
+
+      - name: Build site
+        run: |
+          # Set language to Chinese for this deployment
+          export LANG=zh
+          # If this is translate/zh branch, then we want to download stats
+          if [ "${{ github.ref }}" == "refs/heads/translate/zh" ]; then
+            DOWNLOAD_STATS=true make build-docs
+          else
+            make build-docs
+          fi
+        env:
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.MKDOCS_GIT_COMMITTERS_APIKEY }}
+          OPENAI_API_KEY: sf-proj-1234567890 # fake placeholder, shouldn't actually be used
+          ANTHROPIC_API_KEY: sk-ant-api03-1234567890 # fake placeholder, shouldn't actually be used
+
+      - name: Check links in notebooks
+        env:
+          LANGCHAIN_API_KEY: test
+        if: github.event_name == 'schedule'
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "Running link check on all HTML files matching notebooks in docs directory..."
+            uv run pytest -v \
+              --check-links-ignore "https://(api|web|docs)\.smith\.langchain\.com/.*" \
+              --check-links-ignore "https://academy\.langchain\.com/.*" \
+              --check-links-ignore "https://x.com/.*" \
+              --check-links-ignore "https://twitter.com/.*" \
+              --check-links-ignore "https://github\.com/.*" \
+              --check-links-ignore "http://localhost:8123/.*" \
+              --check-links-ignore "http://localhost:2024.*" \
+              --check-links-ignore "http://127.0.0.1:.*" \
+              --check-links-ignore "/.*\.(ipynb|html)$" \
+              --check-links-ignore "https://python\.langchain\.com/.*" \
+              --check-links-ignore "https://openai\.com/.*" \
+              --check-links-ignore "https://www\.uber\.com/.*" \
+              --check-links-ignore "https://pepy\.tech/.*" \
+              --check-links-ignore "docs/docs/static/wordmark_*" \
+              --check-links $(find site -name "index.html" | grep -v 'storm/index.html')
+              
+          else
+            echo "Fetching changes from origin/translate/zh..."
+            git fetch origin translate/zh
+            echo "Checking for changed notebook files..."
+            CHANGED_FILES=$(git diff --name-only --diff-filter=d origin/translate/zh | grep 'docs/docs/.*\.ipynb$' | grep -v 'storm.ipynb' | sed -E 's|^docs/docs/|site/|; s/\.ipynb$/\/index.html/' || true)
+            echo "Changed files: ${CHANGED_FILES}"
+            if [ -n "${CHANGED_FILES}" ]; then
+              echo "Running link check on HTML files matching changed notebook files..."
+              uv run pytest -v \
+                --check-links-ignore "https://(api|web|docs)\.smith\.langchain\.com/.*" \
+                --check-links-ignore "https://academy\.langchain\.com/.*" \
+                --check-links-ignore "http://localhost:8123/.*" \
+                --check-links-ignore "http://localhost:2024.*" \
+                --check-links-ignore "http://127.0.0.1:.*" \
+                --check-links-ignore "https://x.com/.*" \
+                --check-links-ignore "https://twitter.com/.*" \
+                --check-links-ignore "https://github\.com/.*" \
+                --check-links-ignore "/.*\.(ipynb|html)$" \
+                --check-links-ignore "docs/docs/static/wordmark_*" \
+                --check-links ${CHANGED_FILES} \
+                || ([ $? = 5 ] && exit 0 || exit $?)
+            else
+              echo "No notebook files changed."
+            fi
+          fi
+
+      - name: Configure GitHub Pages
+        if: github.ref == 'refs/heads/translate/zh'
+        uses: actions/configure-pages@v5
+        with:
+          # 使用 /zh 路径来区分中文文档
+          static_site_generator: jekyll
+          path: ./docs/site/
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/site/
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/translate/zh'
+        id: deployment
+        uses: actions/deploy-pages@v4 
