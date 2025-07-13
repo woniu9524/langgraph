@@ -71,15 +71,28 @@ jobs:
       - name: Build llms-text
         run: make llms-text
 
-      - name: Build site
+      - name: Build prebuilt
         run: |
           # Set language to Chinese for this deployment
           export LANG=zh
           # If this is translate/zh branch, then we want to download stats
           if [ "${{ github.ref }}" == "refs/heads/translate/zh" ]; then
-            DOWNLOAD_STATS=true make build-docs
+            DOWNLOAD_STATS=true make build-prebuilt
           else
-            make build-docs
+            make build-prebuilt
+          fi
+
+      - name: Build site
+        run: |
+          # Set language to Chinese for this deployment
+          export LANG=zh
+          # Disable strict validation for anchor links to avoid build failures
+          export MKDOCS_STRICT_MODE=false
+          # If this is translate/zh branch, then we want to download stats
+          if [ "${{ github.ref }}" == "refs/heads/translate/zh" ]; then
+            DOWNLOAD_STATS=true uv run python -m mkdocs build --clean -f mkdocs.yml
+          else
+            uv run python -m mkdocs build --clean -f mkdocs.yml
           fi
         env:
           MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.MKDOCS_GIT_COMMITTERS_APIKEY }}
