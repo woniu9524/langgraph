@@ -1,27 +1,28 @@
 # 构建多代理系统
 
-单个代理在需要专精于多个领域或管理许多工具时可能会遇到困难。为解决此问题，您可以将代理分解为更小、独立的代理，并将它们组合成一个[多代理系统](../concepts/multi_agent.md)。
+单个代理可能难以应对需要专精多个领域或管理多种工具的情况。为了解决这个问题，你可以将代理分解成更小、独立的单元，并将它们组合成一个[多代理系统](../concepts/multi_agent.md)。
 
-在多代理系统中，代理之间需要相互通信。它们通过[交接（handoffs）](#handoffs)进行通信——这是一种描述将控制权移交给哪个代理以及要发送到该代理的负载（payload）的原语。
+在多代理系统中，代理之间需要进行通信。它们通过[交接](#handoffs)来实现这一点——这是一种描述应将控制权交接给哪个代理以及发送什么载荷（payload）给该代理的原语（primitive）。
 
 本指南涵盖以下内容：
 
-* 实现代理间的[交接（handoffs）](#handoffs)
-* 使用交接（handoffs）和预构建的[代理](../agents/agents.md)来[构建自定义多代理系统](#build-a-multi-agent-system)
+*   在代理之间实现[交接](#handoffs)
+*   使用交接和预构建的[代理](../agents/agents.md)来[构建自定义多代理系统](#build-a-multi-agent-system)
 
-要开始构建多代理系统，请查看 LangGraph 提供的两个最流行的多代理架构的[预构建实现](#prebuilt-implementations)——[监督者（supervisor）](../agents/multi-agent.md#supervisor)和[蜂群（swarm）](../agents/multi-agent.md#swarm)。
+要开始构建多代理系统，请查看 LangGraph 中最流行的两种多代理架构的[预构建实现](#prebuilt-implementations)——[Supervisor](../agents/multi-agent.md#supervisor) 和 [Swarm](../agents/multi-agent.md#swarm)。
 
-## 交接（Handoffs）
+## 交接 (Handoffs)
 
-要设置多代理系统中的代理之间的通信，您可以使用[**交接（handoffs）**](../concepts/multi_agent.md#handoffs)——一种代理*交接*控制权给另一个代理的模式。交接允许您指定：
+要设置多代理系统中代理之间的通信，你可以使用[**交接**](../concepts/multi_agent.md#handoffs)——这是一种一个代理*将*控制权*交接*给另一个代理的模式。交接允许你指定：
 
-- **目标（destination）**：要导航到的目标代理（例如，LangGraph 中要去的节点名称）
-- **负载（payload）**：要传递给该代理的信息（例如，状态更新）
+-   **目标 (destination)**：要导航到的目标代理（例如，要去的 LangGraph 节点的名称）。
+-   **载荷 (payload)**：要传递给该代理的信息（例如，状态更新）。
 
-### 创建交接（Handoffs）
+### 创建交接
 
-要实现交接，您可以从代理节点或工具返回`Command`对象：
+要实现交接，你可以从代理节点或工具中返回 `Command` 对象：
 
+:::python
 ```python
 from typing import Annotated
 from langchain_core.tools import tool, InjectedToolCallId
@@ -46,53 +47,137 @@ def create_handoff_tool(*, agent_name: str, description: str | None = None):
             "name": name,
             "tool_call_id": tool_call_id,
         }
-        return Command( # (2)!
+        return Command(  # (2)!
             # highlight-next-line
-            goto=agent_name, # (3)!
+            goto=agent_name,  # (3)!
             # highlight-next-line
-            update={"messages": state["messages"] + [tool_message]}, # (4)!
+            update={"messages": state["messages"] + [tool_message]},  # (4)!
             # highlight-next-line
-            graph=Command.PARENT, # (5)!
+            graph=Command.PARENT,  # (5)!
         )
     return handoff_tool
 ```
 
-1. 使用 [InjectedState][langgraph.prebuilt.InjectedState] 注释访问调用交接工具的代理的[状态（state）](../concepts/low_level.md#state)。
-2. `Command` 原语允许将状态更新和节点转换作为单个操作进行指定，这对于实现交接非常有用。
-3. 要交接到的代理或节点的名称。
-4. 获取代理的消息并将其作为交接的一部分**添加到**父级的**状态（state）**中。下一个代理将看到父级状态。
-5. 指示 LangGraph 我们需要导航到**父级**多代理图中的代理节点。
+1.  使用 @[InjectedState] 注解访问调用交接工具的代理的[状态](../concepts/low_level.md#state)。
+2.  `Command` 原语允许将状态更新和节点转换作为一个操作来指定，这对于实现交接非常有用。
+3.  要交接到的*)代理*或*节点*的名称。
+4.  将代理的消息*添加*到*父级*的*状态*中，作为交接的一部分。下一个代理将看到父级状态。
+5.  指示 LangGraph 我们需要导航到一个*父级*多代理图中的代理节点。
 
 !!! tip
 
-    如果您想使用返回 `Command` 的工具，您可以要么使用预构建的 [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent] / [`ToolNode`][langgraph.prebuilt.tool_node.ToolNode] 组件，要么实现自己的工具执行节点，该节点收集工具返回的 `Command` 对象并返回一个列表，例如：
-
+    如果你想使用返回 `Command` 的工具，你可以使用预构建的 @[`create_react_agent`][create_react_agent] / @[`ToolNode`][ToolNode] 组件，或者实现你自己的工具执行节点，该节点收集工具返回的 `Command` 对象并返回一个列表，例如：
+    
     ```python
     def call_tools(state):
         ...
         commands = [tools_by_name[tool_call["name"]].invoke(tool_call) for tool_call in tool_calls]
         return commands
     ```
+:::
+
+:::js
+```typescript
+import { tool } from "@langchain/core/tools";
+import { Command, MessagesZodState } from "@langchain/langgraph";
+import { z } from "zod";
+
+function createHandoffTool({
+  agentName,
+  description,
+}: {
+  agentName: string;
+  description?: string;
+}) {
+  const name = `transfer_to_${agentName}`;
+  const toolDescription = description || `Transfer to ${agentName}`;
+
+  return tool(
+    async (_, config) => {
+      // (1)!
+      const state = config.state;
+      const toolCallId = config.toolCall.id;
+
+      const toolMessage = {
+        role: "tool" as const,
+        content: `Successfully transferred to ${agentName}`,
+        name: name,
+        tool_call_id: toolCallId,
+      };
+
+      return new Command({
+        // (3)!
+        goto: agentName,
+        // (4)!
+        update: { messages: [...state.messages, toolMessage] },
+        // (5)!
+        graph: Command.PARENT,
+      });
+    },
+    {
+      name,
+      description: toolDescription,
+      schema: z.object({}),
+    }
+  );
+}
+```
+
+1.  通过 `config` 参数访问调用交接工具的代理的[状态](../concepts/low_level.md#state)。
+2.  `Command` 原语允许将状态更新和节点转换作为一个操作来指定，这对于实现交接非常有用。
+3.  要交接到的*)代理*或*节点*的名称。
+4.  将代理的消息*与*父级*的状态*合并，作为交接的一部分。下一个代理将看到父级状态。
+5.  指示 LangGraph 我们需要导航到一个*父级*多代理图中的代理节点。
+
+!!! tip
+
+    如果你想使用返回 `Command` 的工具，你可以使用预构建的 @[`create_react_agent`][create_react_agent] / @[`ToolNode`][ToolNode] 组件，或者实现你自己的工具执行节点，该节点收集工具返回的 `Command` 对象并返回一个列表，例如：
+    
+    ```typescript
+    const callTools = async (state) => {
+      // ...
+      const commands = await Promise.all(
+        toolCalls.map(toolCall => toolsByName[toolCall.name].invoke(toolCall))
+      );
+      return commands;
+    };
+    ```
+:::
 
 !!! Important
 
     此交接实现假定：
+    
+    -   每个代理都将多代理系统中的*整体消息历史*（跨所有代理）作为其输入。如果你想要更多地控制代理输入，请参阅[本节](#control-agent-inputs)。
+    -   每个代理都将其内部消息历史输出到多代理系统的*整体消息历史*中。如果你想要更多地控制*如何添加代理输出*，请将代理包装在一个单独的节点函数中：
 
-      - 每个代理在多代理系统中都接收整体消息历史（跨所有代理）作为其输入。如果您想更精确地控制代理输入，请参阅[此部分](#control-agent-inputs)
-      - 每个代理将其内部消息历史输出到多代理系统的整体消息历史中。如果您想更精确地控制**如何添加代理输出**，请将代理包装在一个单独的节点函数中：
+      :::python
+      ```python
+      def call_hotel_assistant(state):
+          # 返回代理的最终响应，
+          # 排除内部思考过程
+          response = hotel_assistant.invoke(state)
+          # highlight-next-line
+          return {"messages": response["messages"][-1]}
+      ```
+      :::
 
-        ```python
-        def call_hotel_assistant(state):
-            # 返回代理的最终响应，
-            # 排除内部思考过程
-            response = hotel_assistant.invoke(state)
-            # highlight-next-line
-            return {"messages": response["messages"][-1]}
-        ```
+      :::js
+      ```typescript
+      const callHotelAssistant = async (state) => {
+        // 返回代理的最终响应，
+        // 排除内部思考过程
+        const response = await hotelAssistant.invoke(state);
+        // highlight-next-line
+        return { messages: [response.messages.at(-1)] };
+      };
+      ```
+      :::
 
-### 控制代理输入
+### 控制代理输入 (Control agent inputs)
 
-您可以使用 [`Send()`][langgraph.types.Send] 原语在交接过程中将数据直接发送到工作代理。例如，您可以要求调用代理为下一个代理填充任务描述：
+:::python
+你可以使用 @[`Send()`][Send] 原语在交接过程中直接将数据发送给工作代理。例如，你可以要求调用代理为下一个代理填写任务描述：
 
 ```python
 
@@ -129,13 +214,71 @@ def create_task_description_handoff_tool(
 
     return handoff_tool
 ```
+:::
 
-请参阅多代理[监督者（supervisor）](../tutorials/multi_agent/agent_supervisor.md#4-create-delegation-tasks)示例，了解使用交接中的 [`Send()`][langgraph.types.Send] 的完整示例。
+:::js
+你可以使用 @[`Send()`][Send] 原语在交接过程中直接将数据发送给工作代理。例如，你可以要求调用代理为下一个代理填写任务描述：
+
+```typescript
+import { tool } from "@langchain/core/tools";
+import { Command, Send, MessagesZodState } from "@langchain/langgraph";
+import { z } from "zod";
+
+function createTaskDescriptionHandoffTool({
+  agentName,
+  description,
+}: {
+  agentName: string;
+  description?: string;
+}) {
+  const name = `transfer_to_${agentName}`;
+  const toolDescription = description || `Ask ${agentName} for help.`;
+
+  return tool(
+    async (
+      { taskDescription },
+      config
+    ) => {
+      const state = config.state;
+      
+      const taskDescriptionMessage = {
+        role: "user" as const,
+        content: taskDescription,
+      };
+      const agentInput = {
+        ...state,
+        messages: [taskDescriptionMessage],
+      };
+      
+      return new Command({
+        // highlight-next-line
+        goto: [new Send(agentName, agentInput)],
+        graph: Command.PARENT,
+      });
+    },
+    {
+      name,
+      description: toolDescription,
+      schema: z.object({
+        taskDescription: z
+          .string()
+          .describe(
+            "Description of what the next agent should do, including all of the relevant context."
+          ),
+      }),
+    }
+  );
+}
+```
+:::
+
+参阅多代理[Supervisor](../tutorials/multi_agent/agent_supervisor.md#4-create-delegation-tasks) 示例，了解使用 @[`Send()`][Send] 进行交接的完整示例。
 
 ## 构建多代理系统
 
-您可以在使用 LangGraph 构建的任何代理中使用交接。我们建议使用预构建的[代理](../agents/overview.md)或[`ToolNode`](./tool-calling.md#toolnode)，因为它们原生支持返回 `Command` 的交接工具。以下是一个如何使用交接实现预订旅行的多代理系统的示例：
+你可以在使用 LangGraph 构建的任何代理中使用交接。我们建议使用预构建的[代理](../agents/overview.md)或[`ToolNode`](./tool-calling.md#toolnode)，因为它们原生支持返回 `Command` 的交接工具。下面是一个关于如何使用交接实现预订旅行的多代理系统的示例：
 
+:::python
 ```python
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph import StateGraph, START, MessagesState
@@ -176,9 +319,65 @@ multi_agent_graph = (
     .compile()
 )
 ```
+:::
 
-??? example "完整示例：预订旅行的多代理系统"
+:::js
+```typescript
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { StateGraph, START, MessagesZodState } from "@langchain/langgraph";
+import { z } from "zod";
 
+function createHandoffTool({
+  agentName,
+  description,
+}: {
+  agentName: string;
+  description?: string;
+}) {
+  // same implementation as above
+  // ...
+  return new Command(/* ... */);
+}
+
+// Handoffs
+const transferToHotelAssistant = createHandoffTool({
+  agentName: "hotel_assistant",
+});
+const transferToFlightAssistant = createHandoffTool({
+  agentName: "flight_assistant",
+});
+
+// Define agents
+const flightAssistant = createReactAgent({
+  llm: model,
+  // highlight-next-line
+  tools: [/* ... */, transferToHotelAssistant],
+  // highlight-next-line
+  name: "flight_assistant",
+});
+
+const hotelAssistant = createReactAgent({
+  llm: model,
+  // highlight-next-line
+  tools: [/* ... */, transferToFlightAssistant],
+  // highlight-next-line
+  name: "hotel_assistant",
+});
+
+// Define multi-agent graph
+const multiAgentGraph = new StateGraph(MessagesZodState)
+  // highlight-next-line
+  .addNode("flight_assistant", flightAssistant)
+  // highlight-next-line
+  .addNode("hotel_assistant", hotelAssistant)
+  .addEdge(START, "flight_assistant")
+  .compile();
+```
+:::
+
+??? example "Full example: Multi-agent system for booking travel"
+
+    :::python
     ```python
     from typing import Annotated
     from langchain_core.messages import convert_to_messages
@@ -246,13 +445,13 @@ multi_agent_graph = (
                 "name": name,
                 "tool_call_id": tool_call_id,
             }
-            return Command( # (2)!
+            return Command(  # (2)!
                 # highlight-next-line
-                goto=agent_name, # (3)!
+                goto=agent_name,  # (3)!
                 # highlight-next-line
-                update={"messages": state["messages"] + [tool_message]}, # (4)!
+                update={"messages": state["messages"] + [tool_message]},  # (4)!
                 # highlight-next-line
-                graph=Command.PARENT, # (5)!
+                graph=Command.PARENT,  # (5)!
             )
         return handoff_tool
     
@@ -320,19 +519,195 @@ multi_agent_graph = (
 
     1. Access agent's state
     2. The `Command` primitive allows specifying a state update and a node transition as a single operation, making it useful for implementing handoffs.
-    3. الاسم للوكيل أو العقدة التي سيتم تسليمها إليها.
-    4. 获取代理的消息并将其**添加**到父级的**状态（state）**中作为交接的一部分。下一个代理将看到父级状态。
-    5. 指示 LangGraph 我们需要导航到**父级**多代理图中的代理节点。
+    3. Name of the agent or node to hand off to.
+    4. Take the agent's messages and **add** them to the parent's **state** as part of the handoff. The next agent will see the parent state.
+    5. Indicate to LangGraph that we need to navigate to agent node in a **parent** multi-agent graph.
+    :::
 
-## 多轮对话
+    :::js
+    ```typescript
+    import { tool } from "@langchain/core/tools";
+    import { createReactAgent } from "@langchain/langgraph/prebuilt";
+    import { StateGraph, START, MessagesZodState, Command } from "@langchain/langgraph";
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import { isBaseMessage } from "@langchain/core/messages";
+    import { z } from "zod";
 
-用户可能希望与一个或多个代理进行*多轮对话*。要构建能够处理此问题的系统，您可以创建一个使用[`interrupt`][langgraph.types.interrupt] 来收集用户输入并路由回*活动*代理的节点。
+    // We'll use a helper to render the streamed agent outputs nicely
+    const prettyPrintMessages = (update: Record<string, any>) => {
+      // Handle tuple case with namespace
+      if (Array.isArray(update)) {
+        const [ns, updateData] = update;
+        // Skip parent graph updates in the printouts
+        if (ns.length === 0) {
+          return;
+        }
 
-然后，可以将代理实现为图中执行代理步骤并确定下一步操作的节点：
+        const graphId = ns[ns.length - 1].split(":")[0];
+        console.log(`Update from subgraph ${graphId}:\n`);
+        update = updateData;
+      }
 
-1. **等待用户输入**以继续对话，或者
-2. **通过交接（handoff）路由到另一个代理**（或返回到自身，例如在循环中）
+      for (const [nodeName, updateValue] of Object.entries(update)) {
+        console.log(`Update from node ${nodeName}:\n`);
 
+        const messages = updateValue.messages || [];
+        for (const message of messages) {
+          if (isBaseMessage(message)) {
+            const textContent =
+              typeof message.content === "string"
+                ? message.content
+                : JSON.stringify(message.content);
+            console.log(`${message.getType()}: ${textContent}`);
+          }
+        }
+        console.log("\n");
+      }
+    };
+
+    function createHandoffTool({
+      agentName,
+      description,
+    }: {
+      agentName: string;
+      description?: string;
+    }) {
+      const name = `transfer_to_${agentName}`;
+      const toolDescription = description || `Transfer to ${agentName}`;
+
+      return tool(
+        async (_, config) => {
+          // highlight-next-line
+          const state = config.state; // (1)!
+          const toolCallId = config.toolCall.id;
+
+          const toolMessage = {
+            role: "tool" as const,
+            content: `Successfully transferred to ${agentName}`,
+            name: name,
+            tool_call_id: toolCallId,
+          };
+
+          return new Command({
+            // highlight-next-line
+            goto: agentName, // (3)!
+            // highlight-next-line
+            update: { messages: [...state.messages, toolMessage] }, // (4)!
+            // highlight-next-line
+            graph: Command.PARENT, // (5)!
+          });
+        },
+        {
+          name,
+          description: toolDescription,
+          schema: z.object({}),
+        }
+      );
+    }
+
+    // Handoffs
+    const transferToHotelAssistant = createHandoffTool({
+      agentName: "hotel_assistant",
+      description: "Transfer user to the hotel-booking assistant.",
+    });
+
+    const transferToFlightAssistant = createHandoffTool({
+      agentName: "flight_assistant",
+      description: "Transfer user to the flight-booking assistant.",
+    });
+
+    // Simple agent tools
+    const bookHotel = tool(
+      async ({ hotelName }) => {
+        return `Successfully booked a stay at ${hotelName}.`;
+      },
+      {
+        name: "book_hotel",
+        description: "Book a hotel",
+        schema: z.object({
+          hotelName: z.string(),
+        }),
+      }
+    );
+
+    const bookFlight = tool(
+      async ({ fromAirport, toAirport }) => {
+        return `Successfully booked a flight from ${fromAirport} to ${toAirport}.`;
+      },
+      {
+        name: "book_flight",
+        description: "Book a flight",
+        schema: z.object({
+          fromAirport: z.string(),
+          toAirport: z.string(),
+        }),
+      }
+    );
+
+    const model = new ChatAnthropic({
+      model: "claude-3-5-sonnet-latest",
+    });
+
+    // Define agents
+    const flightAssistant = createReactAgent({
+      llm: model,
+      // highlight-next-line
+      tools: [bookFlight, transferToHotelAssistant],
+      // highlight-next-line
+      name: "flight_assistant",
+    });
+
+    const hotelAssistant = createReactAgent({
+      llm: model,
+      // highlight-next-line
+      tools: [bookHotel, transferToFlightAssistant],
+      // highlight-next-line
+      name: "hotel_assistant",
+    });
+
+    // Define multi-agent graph
+    const multiAgentGraph = new StateGraph(MessagesZodState)
+      .addNode("flight_assistant", flightAssistant)
+      .addNode("hotel_assistant", hotelAssistant)
+      .addEdge(START, "flight_assistant")
+      .compile();
+
+    // Run the multi-agent graph
+    const stream = await multiAgentGraph.stream(
+      {
+        messages: [
+          {
+            role: "user",
+            content: "book a flight from BOS to JFK and a stay at McKittrick Hotel",
+          },
+        ],
+      },
+      // highlight-next-line
+      { subgraphs: true }
+    );
+
+    for await (const chunk of stream) {
+      prettyPrintMessages(chunk);
+    }
+    ```
+
+    1. Access agent's state
+    2. The `Command` primitive allows specifying a state update and a node transition as a single operation, making it useful for implementing handoffs.
+    3. Name of the agent or node to hand off to.
+    4. Take the agent's messages and **add** them to the parent's **state** as part of the handoff. The next agent will see the parent state.
+    5. Indicate to LangGraph that we need to navigate to agent node in a **parent** multi-agent graph.
+    :::
+
+## 多轮对话 (Multi-turn conversation)
+
+用户可能希望与一个或多个代理进行*多轮对话*。要构建一个能够处理这种情况的系统，你可以创建一个使用 @[`interrupt`][interrupt] 来收集用户输入并路由回*活动*代理的节点。
+
+代理可以实现为图中的节点，该图执行代理步骤并决定下一步操作：
+
+1.  **等待用户输入**以继续对话，或
+2.  通过[交接](#handoffs)**路由到另一个代理**（或返回到自身，例如在循环中）。
+
+:::python
 ```python
 def human(state) -> Command[Literal["agent", "another_agent"]]:
     """A node for collecting user input."""
@@ -360,22 +735,61 @@ def agent(state) -> Command[Literal["agent", "another_agent", "human"]]:
     else:
         return Command(goto="human") # Go to human node
 ```
+:::
 
-??? example "完整示例：旅行推荐多代理系统"
+:::js
+```typescript
+import { interrupt, Command } from "@langchain/langgraph";
 
-    在此示例中，我们将构建一个可以经由交接相互通信的旅行助手代理团队。
+function human(state: MessagesState): Command {
+  const userInput: string = interrupt("Ready for user input.");
 
-    我们将创建 2 个代理：
+  // Determine the active agent
+  const activeAgent = /* ... */;
 
-    * travel_advisor：可以帮助进行旅行目的地推荐。可以向 hotel_advisor 求助。
-    * hotel_advisor：可以帮助进行酒店推荐。可以向 travel_advisor 求助。
+  return new Command({
+    update: {
+      messages: [{
+        role: "human",
+        content: userInput,
+      }]
+    },
+    goto: activeAgent,
+  });
+}
 
+function agent(state: MessagesState): Command {
+  // The condition for routing/halting can be anything, e.g. LLM tool call / structured output, etc.
+  const goto = getNextAgent(/* ... */); // 'agent' / 'anotherAgent'
+
+  if (goto) {
+    return new Command({
+      goto,
+      update: { myStateKey: "myStateValue" }
+    });
+  }
+
+  return new Command({ goto: "human" });
+}
+```
+:::
+
+??? example "Full example: multi-agent system for travel recommendations"
+
+    In this example, we will build a team of travel assistant agents that can communicate with each other via handoffs.
+    
+    We will create 2 agents:
+    
+    * travel_advisor: can help with travel destination recommendations. Can ask hotel_advisor for help.
+    * hotel_advisor: can help with hotel recommendations. Can ask travel_advisor for help.
+
+    :::python
     ```python
     from langchain_anthropic import ChatAnthropic
     from langgraph.graph import MessagesState, StateGraph, START
     from langgraph.prebuilt import create_react_agent, InjectedState
     from langgraph.types import Command, interrupt
-    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.checkpoint.memory import InMemorySaver
     
     
     model = ChatAnthropic(model="claude-3-5-sonnet-latest")
@@ -467,7 +881,7 @@ def agent(state) -> Command[Literal["agent", "another_agent", "human"]]:
     builder.add_edge(START, "travel_advisor")
     
     
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
     graph = builder.compile(checkpointer=checkpointer)
     ```
     
@@ -571,10 +985,266 @@ def agent(state) -> Command[Literal["agent", "another_agent", "human"]]:
     
     Would you like more specific information about any of these activities or would you like to know about other options in the area?
     ```
+    :::
 
-## 预构建实现
+    :::js
+    ```typescript
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import { StateGraph, START, MessagesZodState, Command, interrupt, MemorySaver } from "@langchain/langgraph";
+    import { createReactAgent } from "@langchain/langgraph/prebuilt";
+    import { tool } from "@langchain/core/tools";
+    import { z } from "zod";
 
-LangGraph 提供了两个最受欢迎的多代理架构的预构建实现：
+    const model = new ChatAnthropic({ model: "claude-3-5-sonnet-latest" });
 
-- [监督者（supervisor）](../agents/multi-agent.md#supervisor) — 单个代理由一个中央监督者代理协调。监督者控制所有通信流和任务委派，根据当前上下文和任务要求决定调用哪个代理。您可以使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) 库来创建监督者多代理系统。
-- [蜂群（swarm）](../agents/multi-agent.md#supervisor) — 代理根据其专业领域动态地将控制权交接给彼此。系统会记住最后活动的代理，确保在后续交互中，对话能继续与该代理进行。您可以使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) 库来创建蜂群多代理系统。
+    const MultiAgentState = MessagesZodState.extend({
+      lastActiveAgent: z.string().optional(),
+    });
+
+    // Define travel advisor tools
+    const getTravelRecommendations = tool(
+      async () => {
+        // Placeholder implementation
+        return "Based on current trends, I recommend visiting Japan, Portugal, or New Zealand.";
+      },
+      {
+        name: "get_travel_recommendations",
+        description: "Get current travel destination recommendations",
+        schema: z.object({}),
+      }
+    );
+
+    const makeHandoffTool = (agentName: string) => {
+      return tool(
+        async (_, config) => {
+          const state = config.state;
+          const toolCallId = config.toolCall.id;
+
+          const toolMessage = {
+            role: "tool" as const,
+            content: `Successfully transferred to ${agentName}`,
+            name: `transfer_to_${agentName}`,
+            tool_call_id: toolCallId,
+          };
+
+          return new Command({
+            goto: agentName,
+            update: { messages: [...state.messages, toolMessage] },
+            graph: Command.PARENT,
+          });
+        },
+        {
+          name: `transfer_to_${agentName}`,
+          description: `Transfer to ${agentName}`,
+          schema: z.object({}),
+        }
+      );
+    };
+
+    const travelAdvisorTools = [
+      getTravelRecommendations,
+      makeHandoffTool("hotel_advisor"),
+    ];
+
+    const travelAdvisor = createReactAgent({
+      llm: model,
+      tools: travelAdvisorTools,
+      prompt: [
+        "You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). ",
+        "If you need hotel recommendations, ask 'hotel_advisor' for help. ",
+        "You MUST include human-readable response before transferring to another agent."
+      ].join("")
+    });
+
+    const callTravelAdvisor = async (
+      state: z.infer<typeof MultiAgentState>
+    ): Promise<Command> => {
+      const response = await travelAdvisor.invoke(state);
+      const update = { ...response, lastActiveAgent: "travel_advisor" };
+      return new Command({ update, goto: "human" });
+    };
+
+    // Define hotel advisor tools
+    const getHotelRecommendations = tool(
+      async () => {
+        // Placeholder implementation
+        return "I recommend the Ritz-Carlton for luxury stays or boutique hotels for unique experiences.";
+      },
+      {
+        name: "get_hotel_recommendations",
+        description: "Get hotel recommendations for destinations",
+        schema: z.object({}),
+      }
+    );
+
+    const hotelAdvisorTools = [
+      getHotelRecommendations,
+      makeHandoffTool("travel_advisor"),
+    ];
+
+    const hotelAdvisor = createReactAgent({
+      llm: model,
+      tools: hotelAdvisorTools,
+      prompt: [
+        "You are a hotel expert that can provide hotel recommendations for a given destination. ",
+        "If you need help picking travel destinations, ask 'travel_advisor' for help.",
+        "You MUST include human-readable response before transferring to another agent."
+      ].join("")
+    });
+
+    const callHotelAdvisor = async (
+      state: z.infer<typeof MultiAgentState>
+    ): Promise<Command> => {
+      const response = await hotelAdvisor.invoke(state);
+      const update = { ...response, lastActiveAgent: "hotel_advisor" };
+      return new Command({ update, goto: "human" });
+    };
+
+    const humanNode = async (
+      state: z.infer<typeof MultiAgentState>
+    ): Promise<Command> => {
+      const userInput: string = interrupt("Ready for user input.");
+      const activeAgent = state.lastActiveAgent || "travel_advisor";
+
+      return new Command({
+        update: {
+          messages: [
+            {
+              role: "human",
+              content: userInput,
+            }
+          ]
+        },
+        goto: activeAgent,
+      });
+    };
+
+    const builder = new StateGraph(MultiAgentState)
+      .addNode("travel_advisor", callTravelAdvisor)
+      .addNode("hotel_advisor", callHotelAdvisor)
+      .addNode("human", humanNode)
+      .addEdge(START, "travel_advisor");
+
+    const checkpointer = new MemorySaver();
+    const graph = builder.compile({ checkpointer });
+    ```
+    
+    Let's test a multi turn conversation with this application.
+
+    ```typescript
+    import { v4 as uuidv4 } from "uuid";
+    import { Command } from "@langchain/langgraph";
+
+    const threadConfig = { configurable: { thread_id: uuidv4() } };
+
+    const inputs = [
+      // 1st round of conversation
+      {
+        messages: [
+          { role: "user", content: "i wanna go somewhere warm in the caribbean" }
+        ]
+      },
+      // Since we're using `interrupt`, we'll need to resume using the Command primitive.
+      // 2nd round of conversation
+      new Command({
+        resume: "could you recommend a nice hotel in one of the areas and tell me which area it is."
+      }),
+      // 3rd round of conversation
+      new Command({
+        resume: "i like the first one. could you recommend something to do near the hotel?"
+      }),
+    ];
+
+    for (const [idx, userInput] of inputs.entries()) {
+      console.log();
+      console.log(`--- Conversation Turn ${idx + 1} ---`);
+      console.log();
+      console.log(`User: ${JSON.stringify(userInput)}`);
+      console.log();
+      
+      for await (const update of await graph.stream(
+        userInput,
+        { ...threadConfig, streamMode: "updates" }
+      )) {
+        for (const [nodeId, value] of Object.entries(update)) {
+          if (value?.messages?.length) {
+            const lastMessage = value.messages.at(-1);
+            if (lastMessage?.getType?.() === "ai") {
+              console.log(`${nodeId}: ${lastMessage.content}`);
+            }
+          }
+        }
+      }
+    }
+    ```
+    
+    ```
+    --- Conversation Turn 1 ---
+    
+    User: {"messages":[{"role":"user","content":"i wanna go somewhere warm in the caribbean"}]}
+    
+    travel_advisor: Based on the recommendations, Aruba would be an excellent choice for your Caribbean getaway! Aruba is known as "One Happy Island" and offers:
+    - Year-round warm weather with consistent temperatures around 82°F (28°C)
+    - Beautiful white sand beaches like Eagle Beach and Palm Beach
+    - Clear turquoise waters perfect for swimming and snorkeling
+    - Minimal rainfall and location outside the hurricane belt
+    - A blend of Caribbean and Dutch culture
+    - Great dining options and nightlife
+    - Various water sports and activities
+    
+    Would you like me to get some specific hotel recommendations in Aruba for your stay? I can transfer you to our hotel advisor who can help with accommodations.
+    
+    --- Conversation Turn 2 ---
+    
+    User: Command { resume: 'could you recommend a nice hotel in one of the areas and tell me which area it is.' }
+    
+    hotel_advisor: Based on the recommendations, I can suggest two excellent options:
+    
+    1. The Ritz-Carlton, Aruba - Located in Palm Beach
+    - This luxury resort is situated in the vibrant Palm Beach area
+    - Known for its exceptional service and amenities
+    - Perfect if you want to be close to dining, shopping, and entertainment
+    - Features multiple restaurants, a casino, and a world-class spa
+    - Located on a pristine stretch of Palm Beach
+    
+    2. Bucuti & Tara Beach Resort - Located in Eagle Beach
+    - An adults-only boutique resort on Eagle Beach
+    - Known for being more intimate and peaceful
+    - Award-winning for its sustainability practices
+    - Perfect for a romantic getaway or peaceful vacation
+    - Located on one of the most beautiful beaches in the Caribbean
+    
+    Would you like more specific information about either of these properties or their locations?
+    
+    --- Conversation Turn 3 ---
+    
+    User: Command { resume: 'i like the first one. could you recommend something to do near the hotel?' }
+    
+    travel_advisor: Near the Ritz-Carlton in Palm Beach, here are some highly recommended activities:
+    
+    1. Visit the Palm Beach Plaza Mall - Just a short walk from the hotel, featuring shopping, dining, and entertainment
+    2. Try your luck at the Stellaris Casino - It's right in the Ritz-Carlton
+    3. Take a sunset sailing cruise - Many depart from the nearby pier
+    4. Visit the California Lighthouse - A scenic landmark just north of Palm Beach
+    5. Enjoy water sports at Palm Beach:
+       - Jet skiing
+       - Parasailing
+       - Snorkeling
+       - Stand-up paddleboarding
+    
+    Would you like more specific information about any of these activities or would you like to know about other options in the area?
+    :::
+
+## 预构建实现 (Prebuilt implementations)
+
+LangGraph 提供了两种最流行的多代理架构的预构建实现：
+
+:::python
+- [Supervisor](../agents/multi-agent.md#supervisor) — 个体代理由一个中心 Supervisor 代理协调。Supervisor 控制所有通信流程和任务委托，并根据当前上下文和任务要求来决定调用哪个代理。你可以使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) 库来创建 Supervisor 多代理系统。
+- [Swarm](../agents/multi-agent.md#supervisor) — 代理根据其专业化动态地将控制权互相交接。系统会记住上次活动的代理，确保在后续交互中，对话能与该代理继续。你可以使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) 库来创建 Swarm 多代理系统。
+:::
+
+:::js
+- [Supervisor](../agents/multi-agent.md#supervisor) — 个体代理由一个中心 Supervisor 代理协调。Supervisor 控制所有通信流程和任务委托，并根据当前上下文和任务要求来决定调用哪个代理。你可以使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-js) 库来创建 Supervisor 多代理系统。
+- [Swarm](../agents/multi-agent.md#supervisor) — 代理根据其专业化动态地将控制权互相交接。系统会记住上次活动的代理，确保在后续交互中，对话能与该代理继续。你可以使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-js) 库来创建 Swarm 多代理系统。
+:::

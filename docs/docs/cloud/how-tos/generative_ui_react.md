@@ -1,22 +1,22 @@
 # 使用 LangGraph 实现生成式用户界面
 
-!!! info "前提条件"
+!!! info "先决条件"
 
     - [LangGraph Platform](../../concepts/langgraph_platform.md)
     - [LangGraph Server](../../concepts/langgraph_server.md)
     - [`useStream()` React Hook](./use_stream_react.md)
 
-生成式用户界面（Generative UI）使代理能够超越文本，生成丰富的用户界面。这使得创建更具交互性和上下文感知能力的应用成为可能，其中用户界面可以根据对话流程和 AI 响应进行调整。
+生成式用户界面 (Generative UI) 允许代理超越文本，生成丰富的用户界面。这使得创建更具交互性和上下文感知能力的应用成为可能，其中 UI 会根据对话流程和 AI 响应进行调整。
 
-![Generative UI Sample](./img/generative_ui_sample.jpg)
+![Generation UI Sample](./img/generative_ui_sample.jpg)
 
-LangGraph Platform 支持将您的 React 组件与图代码共置。这使您能够专注于为图构建特定的 UI 组件，同时轻松接入现有的聊天界面，如 [Agent Chat](https://agentchat.vercel.app)，并在真正需要时才加载代码。
+LangGraph Platform 支持将你的 React 组件与图代码共置。这使你能够专注于为你的图构建特定的 UI 组件，同时可以轻松地集成到现有的聊天界面（如 [Agent Chat](https://agentchat.vercel.app)）并在实际需要时才加载代码。
 
 ## 教程
 
 ### 1. 定义和配置 UI 组件
 
-首先，创建您的第一个 UI 组件。对于每个组件，您需要提供一个唯一的标识符，该标识符将用于在您的图代码中引用该组件。
+首先，创建你的第一个 UI 组件。你需要为每个组件提供一个唯一的标识符，该标识符将用于在你的图代码中引用该组件。
 
 ```tsx title="src/agent/ui.tsx"
 const WeatherComponent = (props: { city: string }) => {
@@ -28,25 +28,41 @@ export default {
 };
 ```
 
-接下来，在您的 `langgraph.json` 配置中定义您的 UI 组件：
+接下来，在你的 `langgraph.json` 配置文件中定义你的 UI 组件：
 
-```json
-{
-  "node_version": "20",
-  "graphs": {
-    "agent": "./src/agent/index.ts:graph"
-  },
-  "ui": {
-    "agent": "./src/agent/ui.tsx"
-  }
-}
-```
+=== "Python agent"
 
-`ui` 部分指向将由图使用的 UI 组件。默认情况下，我们建议使用与图名称相同的键，但您可以根据需要拆分组件，有关详细信息请参见 [自定义 UI 组件的命名空间](#customise-the-namespace-of-ui-components)。
+    ```json title="langgraph.json"
+    {
+      "node_version": "20",
+      "graphs": {
+        "agent": "./src/agent.py:graph"
+      },
+      "ui": {
+        "agent": "./src/agent/ui.tsx"
+      }
+    }
+    ```
 
-LangGraph Platform 将自动打包您的 UI 组件代码和样式，并将它们作为外部资源提供，这些资源可以被 `LoadExternalComponent` 组件加载。某些依赖项（如 `react` 和 `react-dom`）将自动从包中排除。
+=== "JS agent"
 
-CSS 和 Tailwind 4.x 也开箱即用支持，因此您可以自由地在 UI 组件中使用 Tailwind 类以及 `shadcn/ui`。
+    ```json title="langgraph.json"
+    {
+      "node_version": "20",
+      "graphs": {
+        "agent": "./src/agent/index.ts:graph"
+      },
+      "ui": {
+        "agent": "./src/agent/ui.tsx"
+      }
+    }
+    ```
+
+`ui` 部分指向将由图使用的 UI 组件。默认情况下，我们建议使用与图名称相同的键，但你可以根据需要拆分组件，有关更多详细信息，请参阅 [自定义 UI 组件的命名空间](#customise-the-namespace-of-ui-components)。
+
+LangGraph Platform 将自动打包你的 UI 组件代码和样式，并将它们作为外部资源提供，`LoadExternalComponent` 组件可以加载这些资源。像 `react` 和 `react-dom` 这样的某些依赖项将自动从包中排除。
+
+CSS 和 Tailwind 4.x 也被原生支持，因此你可以自由地在 UI 组件中使用 Tailwind 类和 `shadcn/ui`。
 
 === "`src/agent/ui.tsx`"
 
@@ -68,7 +84,7 @@ CSS 和 Tailwind 4.x 也开箱即用支持，因此您可以自由地在 UI 组�
     @import "tailwindcss";
     ```
 
-### 2. 在图表中发送 UI 组件
+### 2. 在你的图表中发送 UI 组件
 
 === "Python"
 
@@ -117,7 +133,7 @@ CSS 和 Tailwind 4.x 也开箱即用支持，因此您可以自由地在 UI 组�
 
 === "JS"
 
-    使用 `typedUi` 工具从节点中发出 UI 元素：
+    使用 `typedUi` 工具从你的代理节点发出 UI 元素：
 
     ```typescript title="src/agent/index.ts"
     import {
@@ -145,9 +161,9 @@ CSS 和 Tailwind 4.x 也开箱即用支持，因此您可以自由地在 UI 组�
 
     export const graph = new StateGraph(AgentState)
       .addNode("weather", async (state, config) => {
-        // 提供组件映射的类型以确保
-        // `ui.push()` 调用的类型安全，以及
-        // 将消息推送到 `ui` 并同时发送自定义事件。
+        // Provide the type of the component map to ensure
+        // type safety of `ui.push()` calls as well as
+        // pushing the messages to the `ui` and sending a custom event as well.
         const ui = typedUi<typeof ComponentMap>(config);
 
         const weather = await new ChatOpenAI({ model: "gpt-4o-mini" })
@@ -170,9 +186,9 @@ CSS 和 Tailwind 4.x 也开箱即用支持，因此您可以自由地在 UI 组�
       .compile();
     ```
 
-### 3. 在您的 React 应用程序中处理 UI 元素
+### 3. 在你的 React 应用程序中处理 UI 元素
 
-在客户端，您可以使用 `useStream()` 和 `LoadExternalComponent` 来显示 UI 元素。
+在客户端，你可以使用 `useStream()` 和 `LoadExternalComponent` 来显示 UI 元素。
 
 ```tsx title="src/app/page.tsx"
 "use client";
@@ -203,13 +219,13 @@ export default function Page() {
 }
 ```
 
-在后台，`LoadExternalComponent` 将从 LangGraph Platform 获取 UI 组件的 JS 和 CSS，并在 shadow DOM 中渲染它们，从而确保样式与您应用程序的其余部分隔离开来。
+在后台，`LoadExternalComponent` 将从 LangGraph Platform 获取 UI 组件的 JS 和 CSS，并在 Shadow DOM 中渲染它们，从而确保与应用程序其他部分的样式隔离。
 
 ## 操作指南
 
 ### 在客户端提供自定义组件
 
-如果您已经在客户端应用程序中加载了组件，您可以提供一个这些组件的映射，以便直接渲染，而无需从 LangGraph Platform 获取 UI 代码。
+如果你已经在客户端应用程序中加载了组件，可以提供一个包含这些组件的映射，以便直接渲染，而无需从 LangGraph Platform 获取 UI 代码。
 
 ```tsx
 const clientComponents = {
@@ -223,9 +239,9 @@ const clientComponents = {
 />;
 ```
 
-### 在组件加载时显示加载 UI
+### 加载组件时显示加载 UI
 
-您可以提供一个在组件加载时渲染的回退 UI。
+你可以在组件加载时提供一个 fallback UI 来进行渲染。
 
 ```tsx
 <LoadExternalComponent
@@ -237,7 +253,7 @@ const clientComponents = {
 
 ### 自定义 UI 组件的命名空间。
 
-默认情况下，`LoadExternalComponent` 将使用 `useStream()` Hook 中的 `assistantId` 来获取 UI 组件的代码。您可以通过向 `LoadExternalComponent` 组件提供 `namespace` 属性来自定义此行为。
+默认情况下，`LoadExternalComponent` 将使用 `useStream()` Hook 中的 `assistantId` 来获取 UI 组件的代码。你可以通过向 `LoadExternalComponent` 组件提供 `namespace` prop 来自定义此行为。
 
 === "`src/app/page.tsx`"
 
@@ -259,9 +275,9 @@ const clientComponents = {
     }
     ```
 
-### 从 UI 组件访问和交互式线程状态
+### 从 UI 组件访问和交互线程状态
 
-您可以使用 `useStreamContext` Hook 在 UI 组件中访问线程状态。
+你可以使用 `useStreamContext` Hook 在 UI 组件中访问线程状态。
 
 ```tsx
 import { useStreamContext } from "@langchain/langgraph-sdk/react-ui";
@@ -289,15 +305,15 @@ const WeatherComponent = (props: { city: string }) => {
 };
 ```
 
-### 将附加上下文传递给客户端组件
+### 将额外上下文传递给客户端组件
 
-您可以通过向 `LoadExternalComponent` 组件提供 `meta` 属性来将附加上下文传递给客户端组件。
+你可以通过向 `LoadExternalComponent` 组件提供 `meta` prop 来将额外上下文传递给客户端组件。
 
 ```tsx
 <LoadExternalComponent stream={thread} message={ui} meta={{ userId: "123" }} />
 ```
 
-然后，您可以使用 `useStreamContext` Hook 在 UI 组件中访问 `meta` 属性。
+然后，你可以使用 `useStreamContext` Hook 在 UI 组件中访问 `meta` prop。
 
 ```tsx
 import { useStreamContext } from "@langchain/langgraph-sdk/react-ui";
@@ -318,7 +334,7 @@ const WeatherComponent = (props: { city: string }) => {
 
 ### 从服务器流式传输 UI 消息
 
-您可以通过使用 `useStream()` Hook 的 `onCustomEvent` 回调，在节点执行完成之前流式传输 UI 消息。当 LLM 生成响应时更新 UI 组件特别有用。
+你可以通过使用 `useStream()` Hook 的 `onCustomEvent` 回调函数在节点执行完成之前流式传输 UI 消息。当 LLM 生成响应时更新 UI 组件特别有用。
 
 ```tsx
 import { uiMessageReducer } from "@langchain/langgraph-sdk/react-ui";
@@ -335,7 +351,7 @@ const { thread, submit } = useStream({
 });
 ```
 
-然后，您可以通过调用 `ui.push()` / `push_ui_message()` 并使用您想要更新的 UI 消息相同的 ID，来将更新推送到 UI 组件。
+然后，你可以通过调用 `ui.push()` / `push_ui_message()` 来推送更新到 UI 组件，使用你想更新的 UI 消息相同的 ID。
 
 === "Python"
 
@@ -388,7 +404,7 @@ const { thread, submit } = useStream({
 
                 push_ui_message(
                     "writer",
-                    {"content": content.text()},
+                    {"content": content.text()}, #NOSONAR
                     id=ui_message_id,
                     message=message,
                     # Use `merge=rue` to merge props with the existing UI message
@@ -493,7 +509,7 @@ const { thread, submit } = useStream({
 
 ### 从状态中移除 UI 消息
 
-与可以通过追加 `RemoveMessage` 从状态中移除消息类似，您可以通过调用具有 UI 消息 ID 的 `remove_ui_message` / `ui.delete` 来从状态中移除 UI 消息。
+与可以追加 `RemoveMessage` 来从状态中移除消息一样，你可以通过调用 `remove_ui_message` / `ui.delete` 并传入 UI 消息的 ID 来从状态中移除 UI 消息。
 
 === "Python"
 

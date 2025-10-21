@@ -1,13 +1,15 @@
-# 添加和管理内存
+# 添加和管理记忆
 
-AI 应用程序需要[内存](../../concepts/memory.md)来在多次交互中共享上下文。在 LangGraph 中，您可以添加两种内存：
+AI 应用程序需要[记忆](../../concepts/memory.md)在多次交互中共享上下文。在 LangGraph 中，您可以添加两种类型的记忆：
 
-- 将[短期内存](#add-short-term-memory)作为代理[状态](../../concepts/low_level.md#state)的一部分，以启用多轮对话。
-- 将[长期内存](#add-long-term-memory)添加到会话中以存储用户特定或应用程序级别的数据。
+- [添加短期记忆](#add-short-term-memory) 作为代理[状态](../../concepts/low_level.md#state)的一部分，以支持多轮对话。
+- [添加长期记忆](#add-long-term-memory) 以在会话中存储用户特定或应用程序级别的数据。
 
-## 添加短期内存
+## 添加短期记忆
 
-**短期内存**（线程级别[持久化](../../concepts/persistence.md)）使代理能够跟踪多轮对话。要添加短期内存：
+**短期**记忆（线程级别[持久化](../../concepts/persistence.md)）使代理能够跟踪多轮对话。要添加短期记忆：
+
+:::python
 
 ```python
 # highlight-next-line
@@ -28,9 +30,31 @@ graph.invoke(
 )
 ```
 
-### 在生产环境中使用
+:::
 
-在生产环境中，请使用由数据库支持的检查点：
+:::js
+
+```typescript
+import { MemorySaver, StateGraph } from "@langchain/langgraph";
+
+const checkpointer = new MemorySaver();
+
+const builder = new StateGraph(...);
+const graph = builder.compile({ checkpointer });
+
+await graph.invoke(
+  { messages: [{ role: "user", content: "hi! i am Bob" }] },
+  { configurable: { thread_id: "1" } }
+);
+```
+
+:::
+
+### 生产环境使用
+
+在生产环境中，请使用由数据库支持的 checkpointer：
+
+:::python
 
 ```python
 from langgraph.checkpoint.postgres import PostgresSaver
@@ -43,14 +67,31 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
     graph = builder.compile(checkpointer=checkpointer)
 ```
 
-??? example "示例：使用 [Postgres](https://pypi.org/project/langgraph-checkpoint-postgres/) 检查点"
+:::
 
+:::js
+
+```typescript
+import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+
+const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
+const checkpointer = PostgresSaver.fromConnString(DB_URI);
+
+const builder = new StateGraph(...);
+const graph = builder.compile({ checkpointer });
+```
+
+:::
+
+??? example "示例：使用 Postgres checkpointer"
+
+    :::python
     ```
     pip install -U "psycopg[binary,pool]" langgraph langgraph-checkpoint-postgres
     ```
 
     !!! Setup
-        您需要调用 `checkpointer.setup()` 才能首次使用 Postgres 检查点。
+        首次使用 Postgres checkpointer 时需要调用 `checkpointer.setup()`
 
     === "同步"
 
@@ -151,16 +192,68 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
             ):
                 chunk["messages"][-1].pretty_print()
         ```
+    :::
 
-??? example "示例：使用 [MongoDB](https://pypi.org/project/langgraph-checkpoint-mongodb/) 检查点"
+    :::js
+    ```
+    npm install @langchain/langgraph-checkpoint-postgres
+    ```
+
+    !!! Setup
+        首次使用 Postgres checkpointer 时需要调用 `checkpointer.setup()`
+
+    ```typescript
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import { StateGraph, MessagesZodState, START } from "@langchain/langgraph";
+    import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+
+    const model = new ChatAnthropic({ model: "claude-3-5-haiku-20241022" });
+
+    const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
+    const checkpointer = PostgresSaver.fromConnString(DB_URI);
+    // await checkpointer.setup();
+
+    const builder = new StateGraph(MessagesZodState)
+      .addNode("call_model", async (state) => {
+        const response = await model.invoke(state.messages);
+        return { messages: [response] };
+      })
+      .addEdge(START, "call_model");
+
+    const graph = builder.compile({ checkpointer });
+
+    const config = {
+      configurable: {
+        thread_id: "1"
+      }
+    };
+
+    for await (const chunk of await graph.stream(
+      { messages: [{ role: "user", content: "hi! I'm bob" }] },
+      { ...config, streamMode: "values" }
+    )) {
+      console.log(chunk.messages.at(-1)?.content);
+    }
+
+    for await (const chunk of await graph.stream(
+      { messages: [{ role: "user", content: "what's my name?" }] },
+      { ...config, streamMode: "values" }
+    )) {
+      console.log(chunk.messages.at(-1)?.content);
+    }
+    ```
+    :::
+
+:::python
+??? example "示例：使用 [MongoDB](https://pypi.org/project/langgraph-checkpoint-mongodb/) checkpointer"
 
     ```
     pip install -U pymongo langgraph langgraph-checkpoint-mongodb
     ```
 
-    !!! note "设置"
+    !!! note "Setup"
 
-        要使用 MongoDB 检查点，您需要一个 MongoDB 集群。如果您还没有集群，请遵循[此指南](https://www.mongodb.com/docs/guides/atlas/cluster/)进行创建。
+        要使用 MongoDB checkpointer，您需要一个 MongoDB 群集。如果还没有群集，请遵循[此指南](https://www.mongodb.com/docs/guides/atlas/cluster/)创建一个群集。
 
     === "同步"
 
@@ -260,14 +353,14 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
                 chunk["messages"][-1].pretty_print()
         ```
 
-??? example "示例：使用 [Redis](https://pypi.org/project/langgraph-checkpoint-redis/) 检查点"
+??? example "示例：使用 [Redis](https://pypi.org/project/langgraph-checkpoint-redis/) checkpointer"
 
     ```
     pip install -U langgraph langgraph-checkpoint-redis
     ```
 
     !!! Setup
-        您需要调用 `checkpointer.setup()` 才能首次使用 Redis 检查点。
+        首次使用 Redis checkpointer 时需要调用 `checkpointer.setup()`
 
 
     === "同步"
@@ -370,9 +463,13 @@ with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
                 chunk["messages"][-1].pretty_print()
         ```
 
-### 在子图中进行使用
+:::
 
-如果您的图包含[子图](../../concepts/subgraphs.md)，您只需在编译父图时提供检查点。LangGraph 将自动将检查点传播到子图。
+### 在子图中应用
+
+如果图包含[子图](../../concepts/subgraphs.md)，您只需在编译父图时提供 checkpointer。LangGraph 会自动将 checkpointer 传播到子图。
+
+:::python
 
 ```python
 from langgraph.graph import START, StateGraph
@@ -395,9 +492,6 @@ subgraph = subgraph_builder.compile()
 
 # 父图
 
-def node_1(state: State):
-    return {"foo": "hi! " + state["foo"]}
-
 builder = StateGraph(State)
 # highlight-next-line
 builder.add_node("node_1", subgraph)
@@ -408,7 +502,36 @@ checkpointer = InMemorySaver()
 graph = builder.compile(checkpointer=checkpointer)
 ```
 
-如果您希望子图拥有自己的内存，则可以通过 `with checkpointer=True` 来编译它。这在[多代理](../../concepts/multi_agent.md)系统中很有用，如果您希望代理能够跟踪其内部消息历史记录。
+:::
+
+:::js
+
+```typescript
+import { StateGraph, START, MemorySaver } from "@langchain/langgraph";
+import { z } from "zod";
+
+const State = z.object({ foo: z.string() });
+
+const subgraphBuilder = new StateGraph(State)
+  .addNode("subgraph_node_1", (state) => {
+    return { foo: state.foo + "bar" };
+  })
+  .addEdge(START, "subgraph_node_1");
+const subgraph = subgraphBuilder.compile();
+
+const builder = new StateGraph(State)
+  .addNode("node_1", subgraph)
+  .addEdge(START, "node_1");
+
+const checkpointer = new MemorySaver();
+const graph = builder.compile({ checkpointer });
+```
+
+:::
+
+如果您希望子图拥有自己的记忆，则可以使用相应的 checkpointer 选项来编译它。这在[多代理](../../concepts/multi_agent.md)系统中很有用，如果您想让代理跟踪其内部消息历史记录。
+
+:::python
 
 ```python
 subgraph_builder = StateGraph(...)
@@ -416,9 +539,23 @@ subgraph_builder = StateGraph(...)
 subgraph = subgraph_builder.compile(checkpointer=True)
 ```
 
-### 在工具中读取短期内存 { #read-short-term }
+:::
 
-LangGraph 允许代理在工具中访问其短期内存（状态）。
+:::js
+
+```typescript
+const subgraphBuilder = new StateGraph(...);
+// highlight-next-line
+const subgraph = subgraphBuilder.compile({ checkpointer: true });
+```
+
+:::
+
+### 在工具中读取短期记忆 { #read-short-term }
+
+LangGraph 允许代理在其工具中访问其短期记忆（状态）。
+
+:::python
 
 ```python
 from typing import Annotated
@@ -451,11 +588,57 @@ agent.invoke({
 })
 ```
 
-有关更多信息，请参阅[上下文](../../agents/context.md)指南。
+:::
 
-### 从工具中写入短期内存 { #write-short-term }
+:::js
 
-要修改执行期间代理的短期内存（状态），您可以直接从工具返回状态更新。这对于持久化中间结果或使信息可供后续工具或提示访问非常有用。
+```typescript
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+import {
+  MessagesZodState,
+  LangGraphRunnableConfig,
+} from "@langchain/langgraph";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+const CustomState = z.object({
+  messages: MessagesZodState.shape.messages,
+  userId: z.string(),
+});
+
+const getUserInfo = tool(
+  async (_, config: LangGraphRunnableConfig) => {
+    const userId = config.configurable?.userId;
+    return userId === "user_123" ? "User is John Smith" : "Unknown user";
+  },
+  {
+    name: "get_user_info",
+    description: "Look up user info.",
+    schema: z.object({}),
+  }
+);
+
+const agent = createReactAgent({
+  llm: model,
+  tools: [getUserInfo],
+  stateSchema: CustomState,
+});
+
+await agent.invoke(
+  { messages: [{ role: "user", content: "look up user information" }] },
+  { configurable: { userId: "user_123" } }
+);
+```
+
+:::
+
+请参阅[上下文](../../agents/context.md)指南了解更多信息。
+
+### 从工具写入短期记忆 { #write-short-term }
+
+要修改执行期间代理的短期记忆（状态），您可以直接从工具返回状态更新。这对于持久化中间结果或使信息可供后续工具或提示访问非常有用。
+
+:::python
 
 ```python
 from typing import Annotated
@@ -494,7 +677,7 @@ def greet(
     # highlight-next-line
     state: Annotated[CustomState, InjectedState]
 ) -> str:
-    """在找到用户信息后使用此功能向用户致意。"""
+    """在找到用户信息后用于问候用户的工具。"""
     user_name = state["user_name"]
     return f"Hello {user_name}!"
 
@@ -512,9 +695,81 @@ agent.invoke(
 )
 ```
 
-## 添加长期内存
+:::
 
-使用长期内存来存储跨对话的用户特定或应用程序特定的数据。
+:::js
+
+```typescript
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+import {
+  MessagesZodState,
+  LangGraphRunnableConfig,
+  Command,
+} from "@langchain/langgraph";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+const CustomState = z.object({
+  messages: MessagesZodState.shape.messages,
+  userName: z.string().optional(),
+});
+
+const updateUserInfo = tool(
+  async (_, config: LangGraphRunnableConfig) => {
+    const userId = config.configurable?.userId;
+    const name = userId === "user_123" ? "John Smith" : "Unknown user";
+    return new Command({
+      update: {
+        userName: name,
+        // 更新消息历史记录
+        messages: [
+          {
+            role: "tool",
+            content: "Successfully looked up user information",
+            tool_call_id: config.toolCall?.id,
+          },
+        ],
+      },
+    });
+  },
+  {
+    name: "update_user_info",
+    description: "Look up and update user info.",
+    schema: z.object({}),
+  }
+);
+
+const greet = tool(
+  async (_, config: LangGraphRunnableConfig) => {
+    const userName = config.configurable?.userName;
+    return `Hello ${userName}!`;
+  },
+  {
+    name: "greet",
+    description: "Use this to greet the user once you found their info.",
+    schema: z.object({}),
+  }
+);
+
+const agent = createReactAgent({
+  llm: model,
+  tools: [updateUserInfo, greet],
+  stateSchema: CustomState,
+});
+
+await agent.invoke(
+  { messages: [{ role: "user", content: "greet the user" }] },
+  { configurable: { userId: "user_123" } }
+);
+```
+
+:::
+
+## 添加长期记忆
+
+使用长期记忆在会话期间存储用户特定或应用程序特定的数据。
+
+:::python
 
 ```python
 # highlight-next-line
@@ -529,9 +784,26 @@ builder = StateGraph(...)
 graph = builder.compile(store=store)
 ```
 
-### 在生产环境中使用
+:::
 
-在生产环境中，请使用由数据库支持的存储：
+:::js
+
+```typescript
+import { InMemoryStore, StateGraph } from "@langchain/langgraph";
+
+const store = new InMemoryStore();
+
+const builder = new StateGraph(...);
+const graph = builder.compile({ store });
+```
+
+:::
+
+### 生产环境使用
+
+在生产环境中，请使用由数据库支持的 store：
+
+:::python
 
 ```python
 from langgraph.store.postgres import PostgresStore
@@ -544,14 +816,31 @@ with PostgresStore.from_conn_string(DB_URI) as store:
     graph = builder.compile(store=store)
 ```
 
-??? example "示例：使用 [Postgres](https://pypi.org/project/langgraph-checkpoint-postgres/) 存储"
+:::
 
+:::js
+
+```typescript
+import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres";
+
+const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
+const store = PostgresStore.fromConnString(DB_URI);
+
+const builder = new StateGraph(...);
+const graph = builder.compile({ store });
+```
+
+:::
+
+??? example "示例：使用 Postgres store"
+
+    :::python
     ```
     pip install -U "psycopg[binary,pool]" langgraph langgraph-checkpoint-postgres
     ```
 
     !!! Setup
-        您需要调用 `store.setup()` 才能首次使用 Postgres 存储。
+        首次使用 Postgres store 时需要调用 `store.setup()`
 
     === "同步"
 
@@ -563,6 +852,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
         # highlight-next-line
         from langgraph.store.postgres import PostgresStore
         from langgraph.store.base import BaseStore
+        import uuid
 
         model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
 
@@ -590,7 +880,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 info = "\n".join([d.value["data"] for d in memories])
                 system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
-                # 如果用户要求模型记住，则存储新回忆
+                # 如果用户要求模型记住，则存储新记忆
                 last_message = state["messages"][-1]
                 if "remember" in last_message.content.lower():
                     memory = "User name is Bob"
@@ -655,6 +945,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
         # highlight-next-line
         from langgraph.store.postgres.aio import AsyncPostgresStore
         from langgraph.store.base import BaseStore
+        import uuid
 
         model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
 
@@ -682,7 +973,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 info = "\n".join([d.value["data"] for d in memories])
                 system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
-                # 如果用户要求模型记住，则存储新回忆
+                # 如果用户要求模型记住，则存储新记忆
                 last_message = state["messages"][-1]
                 if "remember" in last_message.content.lower():
                     memory = "User name is Bob"
@@ -716,7 +1007,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
                 # highlight-next-line
                 config,
-                stream_mode="values"
+                stream_mode="values",
             ):
                 chunk["messages"][-1].pretty_print()
 
@@ -732,19 +1023,108 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 {"messages": [{"role": "user", "content": "what is my name?"}]},
                 # highlight-next-line
                 config,
-                stream_mode="values"
+                stream_mode="values",
             ):
                 chunk["messages"][-1].pretty_print()
         ```
+    :::
 
-??? example "示例：使用 [Redis](https://pypi.org/project/langgraph-checkpoint-redis/) 存储"
+    :::js
+    ```
+    npm install @langchain/langgraph-checkpoint-postgres
+    ```
+
+    !!! Setup
+        首次使用 Postgres store 时需要调用 `store.setup()`
+
+    ```typescript
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import { StateGraph, MessagesZodState, START, LangGraphRunnableConfig } from "@langchain/langgraph";
+    import { PostgresSaver, PostgresStore } from "@langchain/langgraph-checkpoint-postgres";
+    import { z } from "zod";
+    import { v4 as uuidv4 } from "uuid";
+
+    const model = new ChatAnthropic({ model: "claude-3-5-haiku-20241022" });
+
+    const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
+
+    const store = PostgresStore.fromConnString(DB_URI);
+    const checkpointer = PostgresSaver.fromConnString(DB_URI);
+    // await store.setup();
+    // await checkpointer.setup();
+
+    const callModel = async (
+      state: z.infer<typeof MessagesZodState>,
+      config: LangGraphRunnableConfig,
+    ) => {
+      const userId = config.configurable?.userId;
+      const namespace = ["memories", userId];
+      const memories = await config.store?.search(namespace, { query: state.messages.at(-1)?.content });
+      const info = memories?.map(d => d.value.data).join("\n") || "";
+      const systemMsg = `You are a helpful assistant talking to the user. User info: ${info}`;
+
+      // 如果用户要求模型记住，则存储新记忆
+      const lastMessage = state.messages.at(-1);
+      if (lastMessage?.content?.toLowerCase().includes("remember")) {
+        const memory = "User name is Bob";
+        await config.store?.put(namespace, uuidv4(), { data: memory });
+      }
+
+      const response = await model.invoke([
+        { role: "system", content: systemMsg },
+        ...state.messages
+      ]);
+      return { messages: [response] };
+    };
+
+    const builder = new StateGraph(MessagesZodState)
+      .addNode("call_model", callModel)
+      .addEdge(START, "call_model");
+
+    const graph = builder.compile({
+      checkpointer,
+      store,
+    });
+
+    const config = {
+      configurable: {
+        thread_id: "1",
+        userId: "1",
+      }
+    };
+
+    for await (const chunk of await graph.stream(
+      { messages: [{ role: "user", content: "Hi! Remember: my name is Bob" }] },
+      { ...config, streamMode: "values" }
+    )) {
+      console.log(chunk.messages.at(-1)?.content);
+    }
+
+    const config2 = {
+      configurable: {
+        thread_id: "2",
+        userId: "1",
+      }
+    };
+
+    for await (const chunk of await graph.stream(
+      { messages: [{ role: "user", content: "what is my name?" }] },
+      { ...config2, streamMode: "values" }
+    )) {
+      console.log(chunk.messages.at(-1)?.content);
+    }
+    ```
+    :::
+
+:::python
+??? example "示例：使用 [Redis](https://pypi.org/project/langgraph-checkpoint-redis/) store"
 
     ```
     pip install -U langgraph langgraph-checkpoint-redis
     ```
 
     !!! Setup
-        您需要调用 `store.setup()` 才能首次使用 Redis 存储。
+        首次使用 Redis store 时需要调用 `store.setup()`
 
 
     === "同步"
@@ -757,6 +1137,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
         # highlight-next-line
         from langgraph.store.redis import RedisStore
         from langgraph.store.base import BaseStore
+        import uuid
 
         model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
 
@@ -784,7 +1165,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 info = "\n".join([d.value["data"] for d in memories])
                 system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
-                # 如果用户要求模型记住，则存储新回忆
+                # 如果用户要求模型记住，则存储新记忆
                 last_message = state["messages"][-1]
                 if "remember" in last_message.content.lower():
                     memory = "User name is Bob"
@@ -849,6 +1230,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
         # highlight-next-line
         from langgraph.store.redis.aio import AsyncRedisStore
         from langgraph.store.base import BaseStore
+        import uuid
 
         model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
 
@@ -876,7 +1258,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 info = "\n".join([d.value["data"] for d in memories])
                 system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
-                # 如果用户要求模型记住，则存储新回忆
+                # 如果用户要求模型记住，则存储新记忆
                 last_message = state["messages"][-1]
                 if "remember" in last_message.content.lower():
                     memory = "User name is Bob"
@@ -910,7 +1292,7 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
                 # highlight-next-line
                 config,
-                stream_mode="values"
+                stream_mode="values",
             ):
                 chunk["messages"][-1].pretty_print()
 
@@ -926,14 +1308,18 @@ with PostgresStore.from_conn_string(DB_URI) as store:
                 {"messages": [{"role": "user", "content": "what is my name?"}]},
                 # highlight-next-line
                 config,
-                stream_mode="values"
+                stream_mode="values",
             ):
                 chunk["messages"][-1].pretty_print()
         ```
 
-### 在工具中读取长期内存 { #read-long-term }
+:::
 
-```python title="代理可使用的查找用户信息的工具"
+### 在工具中读取长期记忆 { #read-long-term }
+
+:::python
+
+```python title="代理可用于查找用户信息的一个工具"
 from langchain_core.runnables import RunnableConfig
 from langgraph.config import get_store
 from langgraph.prebuilt import create_react_agent
@@ -977,21 +1363,84 @@ agent.invoke(
 )
 ```
 
-1. `InMemoryStore` 是一个将数据存储在内存中的存储。在生产环境中，您通常会使用数据库或其他持久化存储。请查阅[存储文档](../../reference/store.md)以获取更多选项。如果您使用 **LangGraph Platform** 进行部署，平台将为您提供生产就绪的存储。
-2. 在此示例中，我们使用 `put` 方法向存储写入一些示例数据。有关更多详细信息，请参阅[BaseStore.put][langgraph.store.base.BaseStore.put] API 参考。
-3. 第一个参数是命名空间。它用于将相关数据分组在一起。在此示例中，我们使用 `users` 命名空间来分组用户数据。
-4. 命名空间内的键。此示例使用用户 ID 作为键。
-5. 我们要为给定用户存储的数据。
-6. `get_store` 函数用于访问存储。您可以从代码中的任何位置（包括工具和提示）调用它。此函数返回创建代理时传递给代理的存储。
-7. `get` 方法用于从存储中检索数据。第一个参数是命名空间，第二个参数是键。这将返回一个 `StoreValue` 对象，其中包含值和有关该值元数据。
-8. `store` 被传递给代理。这使代理能够在运行工具时访问存储。您也可以使用 `get_store` 函数从代码中的任何位置访问存储。
+1. `InMemoryStore` 是一个将数据存储在内存中的 store。在生产环境中，通常会使用数据库或其他持久存储。请查阅[store 文档](../../reference/store.md)了解更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产级别的 store。
+2. 在此示例中，我们使用 `put` 方法向 store 写入一些示例数据。更多详细信息请参阅 @[BaseStore.put] API 参考。
+3. 第一个参数是 namespace。它用于将相关数据分组。在此示例中，我们使用 `users` namespace 来分组用户数据。
+4. namespace 内的一个键。此示例使用用户 ID 作为键。
+5. 要为给定用户存储的数据。
+6. `get_store` 函数用于访问 store。您可以从代码中的任何位置调用它，包括工具和提示。此函数返回创建代理时传递给代理的 store。
+7. `get` 方法用于从 store 中检索数据。第一个参数是 namespace，第二个参数是键。这将返回一个 `StoreValue` 对象，其中包含值和有关该值的一些元数据。
+8. `store` 被传递给代理。这使得代理在运行工具时可以访问 store。您还可以使用 config 中的 store 从代码中的任何位置访问它。
+   :::
 
-### 从工具中写入长期内存 { #write-long-term }
+:::js
 
-```python title="更新用户信息的工具示例"
+```typescript title="代理可用于查找用户信息的一个工具"
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+import { LangGraphRunnableConfig, InMemoryStore } from "@langchain/langgraph";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+const store = new InMemoryStore(); // (1)!
+
+await store.put(
+  // (2)!
+  ["users"], // (3)!
+  "user_123", // (4)!
+  {
+    name: "John Smith",
+    language: "English",
+  } // (5)!
+);
+
+const getUserInfo = tool(
+  async (_, config: LangGraphRunnableConfig) => {
+    /**Look up user info.*/
+    // 与传递给 `createReactAgent` 的内容相同
+    const store = config.store; // (6)!
+    const userId = config.configurable?.userId;
+    const userInfo = await store?.get(["users"], userId); // (7)!
+    return userInfo?.value ? JSON.stringify(userInfo.value) : "Unknown user";
+  },
+  {
+    name: "get_user_info",
+    description: "Look up user info.",
+    schema: z.object({}),
+  }
+);
+
+const agent = createReactAgent({
+  llm: model,
+  tools: [getUserInfo],
+  store, // (8)!
+});
+
+// 运行代理
+await agent.invoke(
+  { messages: [{ role: "user", content: "look up user information" }] },
+  { configurable: { userId: "user_123" } }
+);
+```
+
+1. `InMemoryStore` 是一个将数据存储在内存中的 store。在生产环境中，通常会使用数据库或其他持久存储。请查阅[store 文档](../../reference/store.md)了解更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产级别的 store。
+2. 在此示例中，我们使用 `put` 方法向 store 写入一些示例数据。更多详细信息请参阅 @[BaseStore.put] API 参考。
+3. 第一个参数是 namespace。它用于将相关数据分组。在此示例中，我们使用 `users` namespace 来分组用户数据。
+4. namespace 内的一个键。此示例使用用户 ID 作为键。
+5. 要为给定用户存储的数据。
+6. store 可通过 config 访问。您可以从代码中的任何位置调用它，包括工具和提示。此函数返回创建代理时传递给代理的 store。
+7. `get` 方法用于从 store 中检索数据。第一个参数是 namespace，第二个参数是键。这将返回一个 `StoreValue` 对象，其中包含值和有关该值的一些元数据。
+8. `store` 被传递给代理。这使得代理在运行工具时可以访问 store。您还可以使用 config 中的 store 从代码中的任何位置访问它。
+   :::
+
+### 从工具写入长期记忆 { #write-long-term }
+
+:::python
+
+```python title="用于更新用户信息的工具示例"
 from typing_extensions import TypedDict
 
 from langgraph.config import get_store
+from langchain_core.runnables import RunnableConfig
 from langgraph.prebuilt import create_react_agent
 from langgraph.store.memory import InMemoryStore
 
@@ -1024,26 +1473,89 @@ agent.invoke(
     config={"configurable": {"user_id": "user_123"}} # (6)!
 )
 
-# 您可以直接访问存储以获取值
+# 您可以直接访问 store 来获取值
 store.get(("users",), "user_123").value
 ```
 
-1. `InMemoryStore` 是一个将数据存储在内存中的存储。在生产环境中，您通常会使用数据库或其他持久化存储。请查阅[存储文档](../../reference/store.md)以获取更多选项。如果您使用 **LangGraph Platform** 进行部署，平台将为您提供生产就绪的存储。
-2. `UserInfo` 类是一个 `TypedDict`，它定义了用户信息的数据结构。LLM 将使用它根据架构格式化响应。
-3. `save_user_info` 函数是一个允许代理更新用户信息的工具。这对于聊天应用程序非常有用，用户可以在其中更新其个人资料信息。
-4. `get_store` 函数用于访问存储。您可以从代码中的任何位置（包括工具和提示）调用它。此函数返回创建代理时传递给代理的存储。
-5. `put` 方法用于将数据存储在存储中。第一个参数是命名空间，第二个参数是键。这将用户信息的存储在存储中。
-6. `user_id` 在配置中传递。它用于标识正在更新信息的哪个用户。
+1. `InMemoryStore` 是一个将数据存储在内存中的 store。在生产环境中，通常会使用数据库或其他持久存储。请查阅[store 文档](../../reference/store.md)了解更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产级别的 store。
+2. `UserInfo` 类是一个 `TypedDict`，它定义了用户信息结构。LLM 将使用它来根据 schema 格式化响应。
+3. `save_user_info` 函数是一个允许代理更新用户信息的工具。这对于聊天应用程序可能很有用，用户希望更新他们的个人资料信息。
+4. `get_store` 函数用于访问 store。您可以从代码中的任何位置调用它，包括工具和提示。此函数返回创建代理时传递给代理的 store。
+5. `put` 方法用于将数据存储在 store 中。第一个参数是 namespace，第二个参数是键。这将把用户信息存储在 store 中。
+6. `user_id` 在 config 中传递。它用于标识正在更新信息的用户的 ID。
+   :::
+
+:::js
+
+```typescript title="用于更新用户信息的工具示例"
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+import { LangGraphRunnableConfig, InMemoryStore } from "@langchain/langgraph";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+const store = new InMemoryStore(); // (1)!
+
+const UserInfo = z.object({
+  // (2)!
+  name: z.string(),
+});
+
+const saveUserInfo = tool(
+  async (
+    userInfo: z.infer<typeof UserInfo>,
+    config: LangGraphRunnableConfig
+  ) => {
+    // (3)!
+    /**Save user info.*/
+    // 与传递给 `createReactAgent` 的内容相同
+    const store = config.store; // (4)!
+    const userId = config.configurable?.userId;
+    await store?.put(["users"], userId, userInfo); // (5)!
+    return "Successfully saved user info.";
+  },
+  {
+    name: "save_user_info",
+    description: "Save user info.",
+    schema: UserInfo,
+  }
+);
+
+const agent = createReactAgent({
+  llm: model,
+  tools: [saveUserInfo],
+  store,
+});
+
+// 运行代理
+await agent.invoke(
+  { messages: [{ role: "user", content: "My name is John Smith" }] },
+  { configurable: { userId: "user_123" } } // (6)!
+);
+
+// 您可以访问 store 直接获取值
+const result = await store.get(["users"], "user_123");
+console.log(result?.value);
+```
+
+1. `InMemoryStore` 是一个将数据存储在内存中的 store。在生产环境中，通常会使用数据库或其他持久存储。请查阅[store 文档](../../reference/store.md)了解更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产级别的 store。
+7. `UserInfo` schema 定义了用户信息结构。LLM 将使用它来根据 schema 格式化响应。
+8. `saveUserInfo` 函数是一个允许代理更新用户信息的工具。这对于聊天应用程序可能很有用，用户希望更新他们的个人资料信息。
+9. store 可通过 config 访问。您可以从代码中的任何位置调用它，包括工具和提示。此函数返回创建代理时传递给代理的 store。
+10. `put` 方法用于将数据存储在 store 中。第一个参数是 namespace，第二个参数是键。这将把用户信息存储在 store 中。
+11. `userId` 在 config 中传递。它用于标识正在更新信息的用户的 ID。
+   :::
 
 ### 使用语义搜索
 
-在图的内存存储中启用语义搜索，让图代理按语义相似性搜索存储中的项目。
+在图的记忆 store 中启用语义搜索，让图代理通过语义相似性搜索 store 中的项目。
+
+:::python
 
 ```python
 from langchain.embeddings import init_embeddings
 from langgraph.store.memory import InMemoryStore
 
-# 创建启用了语义搜索的存储
+# 启用语义搜索的 Store 的创建
 embeddings = init_embeddings("openai:text-embedding-3-small")
 store = InMemoryStore(
     index={
@@ -1060,8 +1572,37 @@ items = store.search(
 )
 ```
 
-??? example "带有语义搜索的长期内存"
+:::
 
+:::js
+
+```typescript
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { InMemoryStore } from "@langchain/langgraph";
+
+// 启用语义搜索的 Store 的创建
+const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
+const store = new InMemoryStore({
+  index: {
+    embeddings,
+    dims: 1536,
+  },
+});
+
+await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
+
+const items = await store.search(["user_123", "memories"], {
+  query: "I'm hungry",
+  limit: 1,
+});
+```
+
+:::
+
+??? example "长期记忆与语义搜索"
+
+    :::python
     ```python
     from typing import Optional
 
@@ -1070,10 +1611,11 @@ items = store.search(
     from langgraph.store.base import BaseStore
     from langgraph.store.memory import InMemoryStore
     from langgraph.graph import START, MessagesState, StateGraph
+    from langchain_core.messages import HumanMessage
 
     llm = init_chat_model("openai:gpt-4o-mini")
 
-    # 创建启用了语义搜索的存储
+    # 启用语义搜索的 Store 的创建
     embeddings = init_embeddings("openai:text-embedding-3-small")
     store = InMemoryStore(
         index={
@@ -1086,7 +1628,7 @@ items = store.search(
     store.put(("user_123", "memories"), "2", {"text": "I am a plumber"})
 
     def chat(state, *, store: BaseStore):
-        # 根据用户的最后一条消息进行搜索
+        # 基于用户最近一条消息进行搜索
         items = store.search(
             ("user_123", "memories"), query=state["messages"][-1].content, limit=2
         )
@@ -1112,28 +1654,84 @@ items = store.search(
     ):
         print(message.content, end="")
     ```
+    :::
 
-请参阅[此指南](../../cloud/deployment/semantic_search.md)以了解如何将语义搜索与 LangGraph 内存存储结合使用。
+    :::js
+    ```typescript
+    import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
+    import { StateGraph, START, MessagesZodState, InMemoryStore } from "@langchain/langgraph";
+    import { z } from "zod";
+    import { HumanMessage } from "@langchain/core/messages";
 
-## 管理短期内存
+    const llm = new ChatOpenAI({ model: "gpt-4o-mini" });
 
-通过启用[短期内存](#add-short-term-memory)，长对话可能会超出 LLM 的上下文窗口。常见解决方案包括：
+    // 启用语义搜索的 Store 的创建
+    const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
+    const store = new InMemoryStore({
+      index: {
+        embeddings,
+        dims: 1536,
+      }
+    });
 
-*   [截断消息](#trim-messages)：删除前 N 条或后 N 条消息（在调用 LLM 之前）
-*   [从 LangGraph 状态中删除](../../concepts/low_level.md#reducers)消息以永久删除
-*   [摘要消息](#summarize-messages)：汇总历史记录中的早期消息，并用摘要替换它们
-*   [管理检查点](#manage-checkpoints)以存储和检索消息历史记录
-*   自定义策略（例如，消息过滤等）
+    await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+    await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
 
-这使得代理能够在不超出 LLM 上下文窗口的情况下跟踪对话。
+    const chat = async (state: z.infer<typeof MessagesZodState>, config) => {
+      // 基于用户最近一条消息进行搜索
+      const items = await config.store.search(
+        ["user_123", "memories"],
+        { query: state.messages.at(-1)?.content, limit: 2 }
+      );
+      const memories = items.map(item => item.value.text).join("\n");
+      const memoriesText = memories ? `## Memories of user\n${memories}` : "";
 
-### 截断消息
+      const response = await llm.invoke([
+        { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+        ...state.messages,
+      ]);
 
-大多数 LLM 都有一个最大支持的上下文窗口（以令牌为单位）。决定何时截断消息的一种方法是计算消息历史记录中的令牌数，并在每次接近该限制时进行截断。如果您使用的是 LangChain，您可以使用 `trim_messages` 实用程序并指定要从列表中保留的令牌数，以及用于处理边界的 `strategy`（例如，保留最后 `max_tokens`）。
+      return { messages: [response] };
+    };
+
+    const builder = new StateGraph(MessagesZodState)
+      .addNode("chat", chat)
+      .addEdge(START, "chat");
+    const graph = builder.compile({ store });
+
+    for await (const [message, metadata] of await graph.stream(
+      { messages: [{ role: "user", content: "I'm hungry" }] },
+      { streamMode: "messages" }
+    )) {
+      if (message.content) {
+        console.log(message.content);
+      }
+    }
+    ```
+    :::
+
+请参阅[本指南](../../cloud/deployment/semantic_search.md)，了解有关如何将语义搜索与 LangGraph 记忆 store 结合使用的更多信息。
+
+## 管理短期记忆
+
+启用[短期记忆](#add-short-term-memory)后，长时间的对话可能会超出 LLM 的上下文窗口。常见的解决方案包括：
+
+- [修剪消息](#trim-messages)：删除前 N 条或最后 N 条消息（在调用 LLM 之前）
+- [删除消息](#delete-messages)：永久从 LangGraph 状态中删除
+- [汇总消息](#summarize-messages)：汇总历史记录中的较早消息，并用摘要替换它们
+- [管理检查点](#manage-checkpoints) 以存储和检索消息历史记录
+- 自定义策略（例如，消息过滤等）
+
+这使代理能够在不超出 LLM 的上下文窗口的情况下跟踪对话。
+
+### 修剪消息
+
+大多数 LLM 都有支持的最大上下文窗口（以 token 为单位）。决定何时截断消息的一种方法是对消息历史记录中的 token 进行计数，并在接近该限制时进行截断。如果您使用的是 LangChain，可以使用修剪消息实用程序，并指定要保留的 token 数量，以及用于处理边界的 `strategy`（例如，保留最后一个 `maxTokens`）。
 
 === "在代理中"
 
-    要在代理中截断消息历史记录，请使用 [`pre_model_hook`][langgraph.prebuilt.chat_agent_executor.create_react_agent] 和 [`trim_messages`](https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.trim_messages.html) 函数：
+    :::python
+    要在代理中修剪消息历史记录，请使用 @[`pre_model_hook`][create_react_agent] 和 [`trim_messages`](https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.trim_messages.html) 函数：
 
     ```python
     # highlight-next-line
@@ -1146,7 +1744,7 @@ items = store.search(
     )
     from langgraph.prebuilt import create_react_agent
 
-    # 此函数将在每次调用 LLM 的节点之前被调用
+    # 每次调用 LLM 的节点之前都会调用此函数
     def pre_model_hook(state):
         trimmed_messages = trim_messages(
             state["messages"],
@@ -1168,10 +1766,39 @@ items = store.search(
         checkpointer=checkpointer,
     )
     ```
+    :::
+
+    :::js
+    要在代理中修剪消息历史记录，请使用 `stateModifier` 和 [`trimMessages`](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
+
+    ```typescript
+    import { trimMessages } from "@langchain/core/messages";
+    import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+    // 每次调用 LLM 的节点之前都会调用此函数
+    const stateModifier = async (state) => {
+      return trimMessages(state.messages, {
+        strategy: "last",
+        maxTokens: 384,
+        startOn: "human",
+        endOn: ["human", "tool"],
+      });
+    };
+
+    const checkpointer = new MemorySaver();
+    const agent = createReactAgent({
+      llm: model,
+      tools,
+      stateModifier,
+      checkpointer,
+    });
+    ```
+    :::
 
 === "在工作流中"
 
-    要截断消息历史记录，请使用 [`trim_messages`](https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.trim_messages.html) 函数：
+    :::python
+    要修剪消息历史记录，请使用 [`trim_messages`](https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.trim_messages.html) 函数：
 
     ```python
     # highlight-next-line
@@ -1200,9 +1827,34 @@ items = store.search(
     builder.add_node(call_model)
     ...
     ```
+    :::
 
-??? example "完整示例：截断消息"
+    :::js
+    要修剪消息历史记录，请使用 [`trimMessages`](https://js.langchain.com/docs/how_to/trim_messages/) 函数：
 
+    ```typescript
+    import { trimMessages } from "@langchain/core/messages";
+
+    const callModel = async (state: z.infer<typeof MessagesZodState>) => {
+      const messages = trimMessages(state.messages, {
+        strategy: "last",
+        maxTokens: 128,
+        startOn: "human",
+        endOn: ["human", "tool"],
+      });
+      const response = await model.invoke(messages);
+      return { messages: [response] };
+    };
+
+    const builder = new StateGraph(MessagesZodState)
+      .addNode("call_model", callModel);
+    // ...
+    ```
+    :::
+
+??? example "完整示例：修剪消息"
+
+    :::python
     ```python
     # highlight-next-line
     from langchain_core.messages.utils import (
@@ -1251,12 +1903,54 @@ items = store.search(
 
     Your name is Bob, as you mentioned when you first introduced yourself.
     ```
+    :::
+
+    :::js
+    ```typescript
+    import { trimMessages } from "@langchain/core/messages";
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import { StateGraph, START, MessagesZodState, MemorySaver } from "@langchain/langgraph";
+    import { z } from "zod";
+
+    const model = new ChatAnthropic({ model: "claude-3-5-sonnet-20241022" });
+
+    const callModel = async (state: z.infer<typeof MessagesZodState>) => {
+      const messages = trimMessages(state.messages, {
+        strategy: "last",
+        maxTokens: 128,
+        startOn: "human",
+        endOn: ["human", "tool"],
+      });
+      const response = await model.invoke(messages);
+      return { messages: [response] };
+    };
+
+    const checkpointer = new MemorySaver();
+    const builder = new StateGraph(MessagesZodState)
+      .addNode("call_model", callModel)
+      .addEdge(START, "call_model");
+    const graph = builder.compile({ checkpointer });
+
+    const config = { configurable: { thread_id: "1" } };
+    await graph.invoke({ messages: [{ role: "user", content: "hi, my name is bob" }] }, config);
+    await graph.invoke({ messages: [{ role: "user", content: "write a short poem about cats" }] }, config);
+    await graph.invoke({ messages: [{ role: "user", content: "now do the same but for dogs" }] }, config);
+    const finalResponse = await graph.invoke({ messages: [{ role: "user", content: "what's my name?" }] }, config);
+
+    console.log(finalResponse.messages.at(-1)?.content);
+    ```
+
+    ```
+    Your name is Bob, as you mentioned when you first introduced yourself.
+    ```
+    :::
 
 ### 删除消息
 
-您可以从图状态中删除消息以管理消息历史记录。当您想要删除特定消息或清除整个消息历史记录时，这很有用。
+您可以从图状态中删除消息，以管理消息历史记录。当您想要删除特定消息或清空整个消息历史记录时，这很有用。
 
-要从图状态中删除消息，您可以使用 `RemoveMessage`。为了使 `RemoveMessage` 起作用，您需要使用[reducers](../../concepts/low_level.md#reducers)的 [`add_messages`][langgraph.graph.message.add_messages] 键，例如 [`MessagesState`](../../concepts/low_level.md#messagesstate)。
+:::python
+要从图状态中删除消息，可以使用 `RemoveMessage`。要使 `RemoveMessage` 生效，您需要使用带有 @[`add_messages`][add_messages] [reducer](../../concepts/low_level.md#reducers) 的状态键，例如 [`MessagesState`](../../concepts/low_level.md#messagesstate)。
 
 要删除特定消息：
 
@@ -1273,7 +1967,7 @@ def delete_messages(state):
 ```
 
 要删除**所有**消息：
-    
+
 ```python
 # highlight-next-line
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
@@ -1283,15 +1977,41 @@ def delete_messages(state):
     return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)]}
 ```
 
+:::
+
+:::js
+要从图状态中删除消息，可以使用 `RemoveMessage`。要使 `RemoveMessage` 生效，您需要使用带有 @[`messagesStateReducer`][messagesStateReducer] [reducer](../../concepts/low_level.md#reducers) 的状态键，例如 `MessagesZodState`。
+
+要删除特定消息：
+
+```typescript
+import { RemoveMessage } from "@langchain/core/messages";
+
+const deleteMessages = (state) => {
+  const messages = state.messages;
+  if (messages.length > 2) {
+    // 删除最早的两条消息
+    return {
+      messages: messages
+        .slice(0, 2)
+        .map((m) => new RemoveMessage({ id: m.id })),
+    };
+  }
+};
+```
+
+:::
+
 !!! warning
 
-    删除消息时，**请确保**生成的消息历史记录有效。检查您使用的 LLM 提供商的限制。例如：
-    
-    *   某些提供商期望消息历史记录以 `user` 消息开头
-    *   大多数提供商要求包含工具调用的 `assistant` 消息后面跟着相应的 `tool` 结果消息。
+    删除消息时，**请确保**生成的消息历史记录有效。检查您正在使用的 LLM 提供商的限制。例如：
+
+    * 某些提供商期望消息历史记录以 `user` 消息开头
+    * 大多数提供商要求包含工具调用的 `assistant` 消息后面必须跟相应的 `tool` 结果消息。
 
 ??? example "完整示例：删除消息"
 
+    :::python
     ```python
     # highlight-next-line
     from langchain_core.messages import RemoveMessage
@@ -1336,16 +2056,76 @@ def delete_messages(state):
     [('human', "hi! I'm bob"), ('ai', 'Hi Bob! How are you doing today? Is there anything I can help you with?'), ('human', "what's my name?"), ('ai', 'Your name is Bob.')]
     [('human', "what's my name?"), ('ai', 'Your name is Bob.')]
     ```
+    :::
 
-### 摘要消息
+    :::js
+    ```typescript
+    import { RemoveMessage } from "@langchain/core/messages";
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import { StateGraph, START, MessagesZodState, MemorySaver } from "@langchain/langgraph";
+    import { z } from "zod";
 
-如上所示，截断或删除消息的问题是您可能会丢失消息队列中的信息。因此，一些应用程序受益于使用聊天模型汇总消息历史记录的更复杂的方法。
+    const model = new ChatAnthropic({ model: "claude-3-5-sonnet-20241022" });
+
+    const deleteMessages = (state: z.infer<typeof MessagesZodState>) => {
+      const messages = state.messages;
+      if (messages.length > 2) {
+        // 删除最早的两条消息
+        return { messages: messages.slice(0, 2).map(m => new RemoveMessage({ id: m.id })) };
+      }
+      return {};
+    };
+
+    const callModel = async (state: z.infer<typeof MessagesZodState>) => {
+      const response = await model.invoke(state.messages);
+      return { messages: [response] };
+    };
+
+    const builder = new StateGraph(MessagesZodState)
+      .addNode("call_model", callModel)
+      .addNode("delete_messages", deleteMessages)
+      .addEdge(START, "call_model")
+      .addEdge("call_model", "delete_messages");
+
+    const checkpointer = new MemorySaver();
+    const app = builder.compile({ checkpointer });
+
+    const config = { configurable: { thread_id: "1" } };
+
+    for await (const event of await app.stream(
+      { messages: [{ role: "user", content: "hi! I'm bob" }] },
+      { ...config, streamMode: "values" }
+    )) {
+      console.log(event.messages.map(message => [message.getType(), message.content]));
+    }
+
+    for await (const event of await app.stream(
+      { messages: [{ role: "user", content: "what's my name?" }] },
+      { ...config, streamMode: "values" }
+    )) {
+      console.log(event.messages.map(message => [message.getType(), message.content]));
+    }
+    ```
+
+    ```
+    [['human', "hi! I'm bob"]]
+    [['human', "hi! I'm bob"], ['ai', 'Hi Bob! How are you doing today? Is there anything I can help you with?']]
+    [['human', "hi! I'm bob"], ['ai', 'Hi Bob! How are you doing today? Is there anything I can help you with?'], ['human', "what's my name?"]]
+    [['human', "hi! I'm bob"], ['ai', 'Hi Bob! How are you doing today? Is there anything I can help you with?'], ['human', "what's my name?"], ['ai', 'Your name is Bob.']]
+    [['human', "what's my name?"], ['ai', 'Your name is Bob.']]
+    ```
+    :::
+
+### 汇总消息
+
+如上所示，修剪或删除消息的问题在于，您可能会丢失因消息队列筛选而丢失的信息。因此，一些应用程序受益于更复杂的方​​法，即使用聊天模型汇总消息历史记录。
 
 ![](../../concepts/img/memory/summary.png)
 
 === "在代理中"
 
-    要在代理中汇总消息历史记录，请使用 [`pre_model_hook`][langgraph.prebuilt.chat_agent_executor.create_react_agent] 和预先构建的 [`SummarizationNode`](https://langchain-ai.github.io/langmem/reference/short_term/#langmem.short_term.SummarizationNode) 抽象：
+    :::python
+    要在代理中汇总消息历史记录，请使用 @[`pre_model_hook`][create_react_agent] 和预构建的 [`SummarizationNode`](https://langchain-ai.github.io/langmem/reference/short_term/#langmem.short_term.SummarizationNode) 抽象：
 
     ```python
     from langchain_anthropic import ChatAnthropic
@@ -1367,8 +2147,8 @@ def delete_messages(state):
     )
 
     class State(AgentState):
-        # 注意：我们添加此键以跟踪之前的摘要信息
-        # 以确保我们不会在每次 LLM 调用时都进行摘要
+        # 注意：我们添加了这个键来跟踪之前的摘要信息
+        # 以确保我们不会在每次调用 LLM 时都进行摘要
         # highlight-next-line
         context: dict[str, RunningSummary]  # (2)!
 
@@ -1386,15 +2166,16 @@ def delete_messages(state):
     )
     ```
 
-    1. `InMemorySaver` 是一个将代理状态存储在内存中的检查点。在生产环境中，您通常会使用数据库或其他持久化存储。请查阅[检查点文档](../../reference/checkpoints.md)以获取更多选项。如果您使用 **LangGraph Platform** 进行部署，平台将为您提供生产就绪的检查点。
-    2. `context` 键已添加到代理的状态中。该键包含用于摘要节点的簿记信息。它用于跟踪上次摘要信息，并确保代理不会在每次 LLM 调用时都进行摘要，这可能效率低下。
+    1. `InMemorySaver` 是一个将代理状态存储在内存中的 checkpointer。在生产环境中，通常会使用数据库或其他持久存储。请查阅[checkpointer 文档](../../reference/checkpoints.md)了解更多选项。如果您使用 **LangGraph Platform** 进行部署，该平台将为您提供生产级别的 checkpointer。
+    2. `context` 键已添加到代理的状态中。该键包含用于摘要节点的簿记信息。它用于跟踪最后一个摘要信息，并确保代理不会每次都进行摘要，这可能效率低下。
     3. `checkpointer` 已传递给代理。这使代理能够跨调用持久化其状态。
-    4. `pre_model_hook` 设置为 `SummarizationNode`。此节点将在将消息历史记录发送到 LLM 之前对其进行汇总。摘要节点将自动处理汇总过程并使用新的摘要更新代理的状态。如果您愿意，可以替换为自定义实现。请参阅[create_react_agent][langgraph.prebuilt.chat_agent_executor.create_react_agent] API 参考以获取更多详细信息。
-    5. `state_schema` 设置为 `State` 类，它是包含附加 `context` 键的自定义状态。
-
+    4. `pre_model_hook` 设置为 `SummarizationNode`。在将消息历史记录发送到 LLM 之前，此节点将对其进行汇总。摘要节点将自动处理汇总过程并使用新摘要更新代理的状态。如果您愿意，可以替换为自定义实现。请参阅 @[create_react_agent][create_react_agent] API 参考了解更多详细信息。
+    5. `state_schema` 设置为 `State` 类，其中包含额外的 `context` 键的自定义状态。
+    :::
 
 === "在工作流中"
 
+    :::python
     可以使用提示和编排逻辑来汇总消息历史记录。例如，在 LangGraph 中，您可以扩展 [`MessagesState`](../../concepts/low_level.md#working-with-messages-in-graph-state) 以包含 `summary` 键：
 
     ```python
@@ -1403,25 +2184,25 @@ def delete_messages(state):
         summary: str
     ```
 
-    然后，您可以生成聊天历史记录的摘要，使用任何现有摘要作为下一个摘要的上下文。当 `messages` 状态键中累积了一定数量的消息后，可以调用此 `summarize_conversation` 节点。
+    然后，您可以使用任何现有摘要作为下一个摘要的上下文来生成聊天历史记录的摘要。此类 `summarize_conversation` 节点可以在 `messages` 状态键中累积一定数量的消息后调用。
 
     ```python
     def summarize_conversation(state: State):
 
-        # 首先，我们获取现有的任何摘要
+        # 首先，我们获取任何现有摘要
         summary = state.get("summary", "")
 
         # 创建我们的摘要提示
         if summary:
 
-            # 已存在摘要
+            # 摘要已存在
             summary_message = (
-                f"这是到目前为止的对话摘要：{summary}\n\n"
-                "请考虑上述新消息来扩展摘要："
+                f"This is a summary of the conversation to date: {summary}\n\n"
+                "Extend the summary by taking into account the new messages above:"
             )
 
         else:
-            summary_message = "创建以上对话的摘要："
+            summary_message = "Create a summary of the conversation above:"
 
         # 将提示添加到我们的历史记录中
         messages = state["messages"] + [HumanMessage(content=summary_message)]
@@ -1431,9 +2212,66 @@ def delete_messages(state):
         delete_messages = [RemoveMessage(id=m.id) for m in state["messages"][:-2]]
         return {"summary": response.content, "messages": delete_messages}
     ```
+    :::
 
-??? example "完整示例：摘要消息"
+    :::js
+    可以使用提示和编排逻辑来汇总消息历史记录。例如，在 LangGraph 中，您可以扩展 [`MessagesZodState`](../../concepts/low_level.md#working-with-messages-in-graph-state) 以包含 `summary` 键：
 
+    ```typescript
+    import { MessagesZodState } from "@langchain/langgraph";
+    import { z } from "zod";
+
+    const State = MessagesZodState.merge(z.object({
+      summary: z.string().optional(),
+    }));
+    ```
+
+    然后，您可以使用任何现有摘要作为下一个摘要的上下文来生成聊天历史记录的摘要。此类 `summarizeConversation` 节点可以在 `messages` 状态键中累积一定数量的消息后调用。
+
+    ```typescript
+    import { RemoveMessage, HumanMessage } from "@langchain/core/messages";
+
+    const summarizeConversation = async (state: z.infer<typeof State>) => {
+      // 首先，我们汇总对话
+      const { summary, messages } = state;
+      let summaryMessage: string;
+      if (summary) {
+        // 如果摘要已存在，我们将使用与不存在摘要时不同的系统提示
+        // 来汇总它
+        summaryMessage =
+          `This is a summary of the conversation to date: ${summary}\n\n` +
+          "Extend the summary by taking into account the new messages above:";
+      } else {
+        summaryMessage = "Create a summary of the conversation above:";
+      }
+
+      const allMessages = [
+        ...messages,
+        new HumanMessage({ content: summaryMessage })
+      ];
+      const response = await model.invoke(allMessages);
+
+      // 我们现在需要删除不再显示的消息
+      // 我将删除最后两条消息之外的所有消息，但您可以更改此设置
+      const deleteMessages = state.messages
+        .slice(0, -2)
+        .map(m => new RemoveMessage({ id: m.id }));
+
+      if (typeof response.content !== "string") {
+        throw new Error("Expected a string response from the model");
+      }
+
+      return {
+        summary: response.content,
+        messages: deleteMessages
+      };
+    };
+    ```
+    :::
+
+??? example "完整示例：汇总消息"
+
+    :::python
     ```python
     from typing import Any, TypedDict
 
@@ -1490,10 +2328,10 @@ def delete_messages(state):
     print("\nSummary:", final_response["context"]["running_summary"].summary)
     ```
 
-    1. 我们将把运行摘要保存在 `context` 字段中
-    (由 `SummarizationNode` 预期)。
-    2. 定义仅用于过滤输入到 `call_model` 节点的私有状态。
-    3. 我们在这里传递私有输入状态，以隔离摘要节点返回的消息。
+    1. 我们将在 `context` 字段中跟踪我们正在进行的摘要
+    (由 `SummarizationNode` 期望)。
+    2. 定义仅用于过滤传递给 `call_model` 节点的输入的私有状态。
+    3. 我们在此处传递私有输入状态，以隔离摘要节点返回的消息。
 
     ```
     ================================== Ai Message ==================================
@@ -1502,15 +2340,131 @@ def delete_messages(state):
 
     Summary: In this conversation, I was introduced to Bob, who then asked me to write a poem about cats. I composed a poem titled "The Mystery of Cats" that captured cats' graceful movements, independent nature, and their special relationship with humans. Bob then requested a similar poem about dogs, so I wrote "The Joy of Dogs," which highlighted dogs' loyalty, enthusiasm, and loving companionship. Both poems were written in a similar style but emphasized the distinct characteristics that make each pet special.
     ```
+    :::
 
+    :::js
+    ```typescript
+    import { ChatAnthropic } from "@langchain/anthropic";
+    import {
+      SystemMessage,
+      HumanMessage,
+      RemoveMessage,
+      type BaseMessage
+    } from "@langchain/core/messages";
+    import {
+      MessagesZodState,
+      StateGraph,
+      START,
+      END,
+      MemorySaver,
+    } from "@langchain/langgraph";
+    import { z } from "zod";
+    import { v4 as uuidv4 } from "uuid";
 
+    const memory = new MemorySaver();
+
+    // 除了 `messages` 键（MessagesZodState 已有）之外，我们还将添加 `summary` 属性
+    const GraphState = z.object({
+      messages: MessagesZodState.shape.messages,
+      summary: z.string().default(""),
+    });
+
+    // 我们将使用此模型来进行对话和汇总
+    const model = new ChatAnthropic({ model: "claude-3-haiku-20240307" });
+
+    // 定义调用模型的逻辑
+    const callModel = async (state: z.infer<typeof GraphState>) => {
+      // 如果存在摘要，我们在其中添加此摘要作为系统消息
+      const { summary } = state;
+      let { messages } = state;
+      if (summary) {
+        const systemMessage = new SystemMessage({
+          id: uuidv4(),
+          content: `Summary of conversation earlier: ${summary}`,
+        });
+        messages = [systemMessage, ...messages];
+      }
+      const response = await model.invoke(messages);
+      // 我们返回一个对象，因为它将被添加到现有状态中
+      return { messages: [response] };
+    };
+
+    // 我们现在定义确定何时结束或汇总对话的逻辑
+    const shouldContinue = (state: z.infer<typeof GraphState>) => {
+      const messages = state.messages;
+      // 如果消息超过六条，则汇总对话
+      if (messages.length > 6) {
+        return "summarize_conversation";
+      }
+      // 否则就可以结束
+      return END;
+    };
+
+    const summarizeConversation = async (state: z.infer<typeof GraphState>) => {
+      // 首先，我们汇总对话
+      const { summary, messages } = state;
+      let summaryMessage: string;
+      if (summary) {
+        // 如果摘要已存在，我们将使用与不存在摘要时不同的系统提示
+        // 来汇总它
+        summaryMessage =
+          `This is a summary of the conversation to date: ${summary}\n\n` +
+          "Extend the summary by taking into account the new messages above:";
+      } else {
+        summaryMessage = "Create a summary of the conversation above:";
+      }
+
+      const allMessages = [
+        ...messages,
+        new HumanMessage({ id: uuidv4(), content: summaryMessage })
+      ];
+
+      const response = await model.invoke(allMessages);
+
+      // 我们现在需要删除不再显示的消息
+      // 我将删除最后两条消息之外的所有消息，但您可以更改此设置
+      const deleteMessages = messages
+        .slice(0, -2)
+        .map((m) => new RemoveMessage({ id: m.id! }));
+
+      if (typeof response.content !== "string") {
+        throw new Error("Expected a string response from the model");
+      }
+
+      return { summary: response.content, messages: deleteMessages };
+    };
+
+    // 定义一个新图
+    const workflow = new StateGraph(GraphState)
+      // 定义对话节点和汇总节点
+      .addNode("conversation", callModel)
+      .addNode("summarize_conversation", summarizeConversation)
+      // 将入口点设为对话
+      .addEdge(START, "conversation")
+      // 我们现在添加一个条件边
+      .addConditionalEdges(
+        // 首先，我们定义起始节点。我们使用 `conversation`。
+        // 这意味着这些是调用 `conversation` 节点后采用的边。
+        "conversation",
+        // 接下来，我们传递将确定 next 节点将调用哪个函数的函数。
+        shouldContinue,
+      )
+      // 我们现在添加一条从 `summarize_conversation` 到 END 的正常边。
+      // 这意味着在调用 `summarize_conversation` 后，我们将结束。
+      .addEdge("summarize_conversation", END);
+
+    // 最后，我们进行编译！
+    const app = workflow.compile({ checkpointer: memory });
+    ```
+    :::
 
 ### 管理检查点
 
-您可以查看和删除检查点存储的信息。
+您可以查看和删除由 checkpointer 存储的信息。
 
 #### 查看线程状态（检查点）
 
+:::python
 === "Graph/Functional API"
 
     ```python
@@ -1518,7 +2472,7 @@ def delete_messages(state):
         "configurable": {
             # highlight-next-line
             "thread_id": "1",
-            # 可选地提供特定检查点的 ID，
+            # 可选地为特定检查点提供 ID，
             # 否则将显示最新检查点
             # highlight-next-line
             # "checkpoint_id": "1f029ca3-1f5b-6704-8004-820c16b69a5a"
@@ -1554,7 +2508,7 @@ def delete_messages(state):
         "configurable": {
             # highlight-next-line
             "thread_id": "1",
-            # 可选地提供特定检查点的 ID，
+            # 可选地为特定检查点提供 ID，
             # 否则将显示最新检查点
             # highlight-next-line
             # "checkpoint_id": "1f029ca3-1f5b-6704-8004-820c16b69a5a"
@@ -1573,7 +2527,7 @@ def delete_messages(state):
             'ts': '2025-05-05T16:01:24.680462+00:00',
             'id': '1f029ca3-1f5b-6704-8004-820c16b69a5a',
             'channel_versions': {'__start__': '00000000000000000000000000000005.0.5290678567601859', 'messages': '00000000000000000000000000000006.0.3205149138784782', 'branch:to:call_model': '00000000000000000000000000000006.0.14611156755133758'}, 'versions_seen': {'__input__': {}, '__start__': {'__start__': '00000000000000000000000000000004.0.5736472536395331'}, 'call_model': {'branch:to:call_model': '00000000000000000000000000000005.0.1410174088651449'}},
-            'channel_values': {'messages': [HumanMessage(content="hi! I'm bob"), AIMessage(content='Hi Bob! How are you doing today? Is there anything I can help you with?'), HumanMessage(content="what's my name?"), AIMessage(content='Your name is Bob.')]},
+            'channel_values': {'messages': [HumanMessage(content="hi! I'm bob"), AIMessage(content='Hi Bob! How are you doing today?), HumanMessage(content="what's my name?"), AIMessage(content='Your name is Bob.')]},
         },
         metadata={
             'source': 'loop',
@@ -1587,8 +2541,46 @@ def delete_messages(state):
     )
     ```
 
-#### 查看线程的检查点历史记录
+:::
 
+:::js
+
+```typescript
+const config = {
+  configurable: {
+    thread_id: "1",
+    // 可选地为特定检查点提供 ID，
+    // 否则将显示最新检查点
+    // checkpoint_id: "1f029ca3-1f5b-6704-8004-820c16b69a5a"
+  },
+};
+await graph.getState(config);
+```
+
+```
+{
+  values: { messages: [HumanMessage(...), AIMessage(...), HumanMessage(...), AIMessage(...)] },
+  next: [],
+  config: { configurable: { thread_id: '1', checkpoint_ns: '', checkpoint_id: '1f029ca3-1f5b-6704-8004-820c16b69a5a' } },
+  metadata: {
+    source: 'loop',
+    writes: { call_model: { messages: AIMessage(...) } },
+    step: 4,
+    parents: {},
+    thread_id: '1'
+  },
+  createdAt: '2025-05-05T16:01:24.680462+00:00',
+  parentConfig: { configurable: { thread_id: '1', checkpoint_ns: '', checkpoint_id: '1f029ca3-1790-6b0a-8003-baf965b6a38f' } },
+  tasks: [],
+  interrupts: []
+}
+```
+
+:::
+
+#### 查看线程（检查点）的历史记录
+
+:::python
 === "Graph/Functional API"
 
     ```python
@@ -1655,8 +2647,8 @@ def delete_messages(state):
             interrupts=()
         ),
         StateSnapshot(
-            values={'messages': [HumanMessage(content="hi! I'm bob")]},
-            next=(),
+            values={'messages': []},
+            next=('__start__',),
             config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1f029ca3-0870-6ce2-bfff-1f3f14c3e565'}},
             metadata={'source': 'input', 'writes': {'__start__': {'messages': [{'role': 'user', 'content': "hi! I'm bob"}]}}, 'step': -1, 'parents': {}, 'thread_id': '1'},
             created_at='2025-05-05T16:01:22.277497+00:00',
@@ -1688,7 +2680,8 @@ def delete_messages(state):
                 'v': 3,
                 'ts': '2025-05-05T16:01:24.680462+00:00',
                 'id': '1f029ca3-1f5b-6704-8004-820c16b69a5a',
-                'channel_versions': {'__start__': '00000000000000000000000000000005.0.5290678567601859', 'messages': '00000000000000000000000000000006.0.3205149138784782', 'branch:to:call_model': '00000000000000000000000000000006.0.14611156755133758'}, 'versions_seen': {'__input__': {}, '__start__': {'__start__': '00000000000000000000000000000004.0.5736472536395331'}, 'call_model': {'branch:to:call_model': '00000000000000000000000000000005.0.1410174088651449'}},
+                'channel_versions': {'__start__': '00000000000000000000000000000005.0.5290678567601859', 'messages': '00000000000000000000000000000006.0.3205149138784782', 'branch:to:call_model': '00000000000000000000000000000006.0.14611156755133758'},
+                'versions_seen': {'__input__': {}, '__start__': {'__start__': '00000000000000000000000000000004.0.5736472536395331'}, 'call_model': {'branch:to:call_model': '00000000000000000000000000000005.0.1410174088651449'}},
                 'channel_values': {'messages': [HumanMessage(content="hi! I'm bob"), AIMessage(content='Hi Bob! How are you doing today? Is there anything I can help you with?'), HumanMessage(content="what's my name?"), AIMessage(content='Your name is Bob.')]},
             },
             metadata={'source': 'loop', 'writes': {'call_model': {'messages': AIMessage(content='Your name is Bob.')}}, 'step': 4, 'parents': {}, 'thread_id': '1'},
@@ -1768,13 +2761,49 @@ def delete_messages(state):
     ]
     ```
 
+:::
+
+:::js
+
+```typescript
+const config = {
+  configurable: {
+    thread_id: "1",
+  },
+};
+
+const history = [];
+for await (const state of graph.getStateHistory(config)) {
+  history.push(state);
+}
+```
+
+:::
+
 #### 删除线程的所有检查点
+
+:::python
 
 ```python
 thread_id = "1"
 checkpointer.delete_thread(thread_id)
 ```
 
-## 预构建内存工具
+:::
 
-**LangMem** 是 LangChain 维护的一个库，它提供了在代理中管理长期内存的工具。请参阅[LangMem 文档](https://langchain-ai.github.io/langmem/)以获取使用示例。
+:::js
+
+```typescript
+const threadId = "1";
+await checkpointer.deleteThread(threadId);
+```
+
+:::
+
+:::python
+
+## 预构建的记忆工具
+
+**LangMem** 是 LangChain 维护的一个库，提供用于在代理中管理长期记忆的工具。有关用法示例，请参阅[LangMem 文档](https://langchain-ai.github.io/langmem/)。
+
+:::

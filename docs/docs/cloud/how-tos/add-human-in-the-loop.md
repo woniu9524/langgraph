@@ -1,6 +1,6 @@
-# 人工干预：使用 Server API
+# 人工干预 (Human-in-the-loop) 使用 Server API
 
-要审核、编辑和批准代理或工作流中的工具调用，请使用 LangGraph 的 [人工干预](../../concepts/human_in_the_loop.md) 功能。
+要审查、编辑和批准代理或工作流中的工具调用，请使用 LangGraph 的[人工干预](../../concepts/human_in_the_loop.md)功能。
 
 ## 动态中断
 
@@ -12,14 +12,14 @@
     from langgraph_sdk.schema import Command
     client = get_client(url=<DEPLOYMENT_URL>)
 
-    # 使用名为 "agent" 的已部署图表
+    # 使用名为 "agent" 的已部署图
     assistant_id = "agent"
 
     # 创建一个线程
     thread = await client.threads.create()
     thread_id = thread["thread_id"]
 
-    # 运行图表直到命中中断点。
+    # 运行图直到命中中断。
     result = await client.runs.wait(
         thread_id,
         assistant_id,
@@ -30,14 +30,12 @@
     # > [
     # >     {
     # >         'value': {'text_to_revise': 'original text'},
-    # >         'resumable': True,
-    # >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
-    # >         'when': 'during'
+    # >         'id': '...',
     # >     }
     # > ]
 
 
-    # 恢复图表
+    # 恢复图
     print(await client.runs.wait(
         thread_id,
         assistant_id,
@@ -47,9 +45,9 @@
     # > {'some_text': 'Edited text'}
     ```
 
-    1. 图表以初始状态调用。
-    2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
-    3. 图表使用 `Command(resume=...)` 恢复，注入人工输入并继续执行。
+    1. 使用一些初始状态调用图。
+    2. 当图命中中断时，它将返回一个具有载荷和元数据的中断对象。
+    3. 使用 `Command(resume=...)` 恢复图，注入用户输入并继续执行。
 
 === "JavaScript"
 
@@ -57,43 +55,43 @@
     import { Client } from "@langchain/langgraph-sdk";
     const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
 
-    // 使用名为 "agent" 的已部署图表
+    // 使用名为 "agent" 的已部署图
     const assistantID = "agent";
 
     // 创建一个线程
     const thread = await client.threads.create();
     const threadID = thread["thread_id"];
 
-    // 运行图表直到命中中断点。
+    // 运行图直到命中中断。
     const result = await client.runs.wait(
       threadID,
       assistantID,
-      { input: { "some_text": "original text" } }   # (1)!
+      { input: { "some_text": "original text" } }   // (1)!
     );
 
     console.log(result['__interrupt__']); // (2)!
     // > [
-    # >     {
-    # >         'value': {'text_to_revise': 'original text'},
-    # >         'resumable': True,
-    # >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
-    # >         'when': 'during'
-    # >     }
-    # > ]
+    // >     {
+    // >         'value': {'text_to_revise': 'original text'},
+    // >         'resumable': True,
+    // >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
+    // >         'when': 'during'
+    // >     }
+    // > ]
 
-    // 恢复图表
+    // 恢复图
     console.log(await client.runs.wait(
         threadID,
         assistantID,
         // highlight-next-line
-        { command: { resume: "Edited text" }}   # (3)!
+        { command: { resume: "Edited text" }}   // (3)!
     ));
-    # > {'some_text': 'Edited text'}
+    // > {'some_text': 'Edited text'}
     ```
 
-    1. 图表以初始状态调用。
-    2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
-    3. 图表使用 `{ resume: ... }` 命令对象恢复，注入人工输入并继续执行。
+    1. 使用一些初始状态调用图。
+    2. 当图命中中断时，它将返回一个具有载荷和元数据的中断对象。
+    3. 使用 `{ resume: ... }` 命令对象恢复图，注入用户输入并继续执行。
 
 === "cURL"
 
@@ -106,7 +104,7 @@
     --data '{}'
     ```
 
-    运行图表直到命中中断点：
+    运行图直到命中中断：
 
     ```bash
     curl --request POST \
@@ -118,7 +116,7 @@
     }"
     ```
 
-    恢复图表：
+    恢复图：
 
     ```bash
     curl --request POST \
@@ -134,8 +132,8 @@
 
 ??? example "扩展示例：使用 `interrupt`"
 
-    这是您可以在 LangGraph API 服务器中运行的示例图表。
-    有关更多详细信息，请参阅 [LangGraph Platform 快速入门](../quick_start.md)。
+    这是可以在 LangGraph API 服务器中运行的示例图。
+    有关更多详细信息，请参阅[LangGraph Platform 快速入门](../quick_start.md)。
 
     ```python
     from typing import TypedDict
@@ -162,7 +160,7 @@
         }
 
 
-    # 构建图表
+    # 构建图
     graph_builder = StateGraph(State)
     graph_builder.add_node("human_node", human_node)
     graph_builder.add_edge(START, "human_node")
@@ -170,11 +168,11 @@
     graph = graph_builder.compile()
     ```
 
-    1. `interrupt(...)` 在 `human_node` 处暂停执行，将给定有效负载呈现给人工。
-    2. 可以将任何 JSON 可序列化值传递给 `interrupt` 函数。此处为一个包含要修改的文本的字典。
-    3. 一旦恢复，`interrupt(...)` 的返回值就是用户提供的输入，用于更新状态。
+    1. `interrupt(...)` 会在 `human_node` 处暂停执行，将指定的内容呈现给人工进行处理。
+    2. 可以将任何 JSON 可序列化值传递给 `interrupt` 函数。此处传递了一个包含要修订文本的字典。
+    3. 恢复后，`interrupt(...)` 的返回值是人工提供的内容，用于更新状态。
 
-    一旦您运行了 LangGraph API 服务器，就可以使用 [LangGraph SDK](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/) 进行交互。
+    一旦您拥有一个正在运行的 LangGraph API 服务器，您就可以使用[LangGraph SDK](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/) 进行交互。
 
     === "Python"
 
@@ -184,14 +182,14 @@
         from langgraph_sdk.schema import Command
         client = get_client(url=<DEPLOYMENT_URL>)
 
-        # 使用名为 "agent" 的已部署图表
+        # 使用名为 "agent" 的已部署图
         assistant_id = "agent"
 
         # 创建一个线程
         thread = await client.threads.create()
         thread_id = thread["thread_id"]
 
-        # 运行图表直到命中中断点。
+        # 运行图直到命中中断。
         result = await client.runs.wait(
             thread_id,
             assistant_id,
@@ -202,14 +200,12 @@
         # > [
         # >     {
         # >         'value': {'text_to_revise': 'original text'},
-        # >         'resumable': True,
-        # >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
-        # >         'when': 'during'
+        # >         'id': '...',
         # >     }
         # > ]
 
 
-        # 恢复图表
+        # 恢复图
         print(await client.runs.wait(
             thread_id,
             assistant_id,
@@ -219,9 +215,9 @@
         # > {'some_text': 'Edited text'}
         ```
 
-        1. 图表以初始状态调用。
-        2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
-        3. 图表使用 `Command(resume=...)` 恢复，注入人工输入并继续执行。
+        1. 使用一些初始状态调用图。
+        2. 当图命中中断时，它将返回一个具有载荷和元数据的中断对象。
+        3. 使用 `Command(resume=...)` 恢复图，注入用户输入并继续执行。
 
     === "JavaScript"
 
@@ -229,43 +225,43 @@
         import { Client } from "@langchain/langgraph-sdk";
         const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
 
-        // 使用名为 "agent" 的已部署图表
+        // 使用名为 "agent" 的已部署图
         const assistantID = "agent";
 
         // 创建一个线程
         const thread = await client.threads.create();
         const threadID = thread["thread_id"];
 
-        // 运行图表直到命中中断点。
+        // 运行图直到命中中断。
         const result = await client.runs.wait(
           threadID,
           assistantID,
-          { input: { "some_text": "original text" } }   # (1)!
+          { input: { "some_text": "original text" } }   // (1)!
         );
 
         console.log(result['__interrupt__']); // (2)!
         // > [
-        # >     {
-        # >         'value': {'text_to_revise': 'original text'},
-        # >         'resumable': True,
-        # >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
-        # >         'when': 'during'
-        # >     }
-        # > ]
+        // >     {
+        // >         'value': {'text_to_revise': 'original text'},
+        // >         'resumable': True,
+        // >         'ns': ['human_node:fc722478-2f21-0578-c572-d9fc4dd07c3b'],
+        // >         'when': 'during'
+        // >     }
+        // > ]
 
-        // 恢复图表
+        // 恢复图
         console.log(await client.runs.wait(
             threadID,
             assistantID,
             // highlight-next-line
-            { command: { resume: "Edited text" }}   # (3)!
+            { command: { resume: "Edited text" }}   // (3)!
         ));
-        # > {'some_text': 'Edited text'}
+        // > {'some_text': 'Edited text'}
         ```
 
-        1. 图表以初始状态调用。
-        2. 当图表命中中断点时，它会返回一个包含有效负载和元数据的中断对象。
-        3. 图表使用 `{ resume: ... }` 命令对象恢复，注入人工输入并继续执行。
+        1. 使用一些初始状态调用图。
+        2. 当图命中中断时，它将返回一个具有载荷和元数据的中断对象。
+        3. 使用 `{ resume: ... }` 命令对象恢复图，注入用户输入并继续执行。
 
     === "cURL"
 
@@ -278,7 +274,7 @@
         --data '{}'
         ```
 
-        运行图表直到命中中断点：
+        运行图直到命中中断：
 
         ```bash
         curl --request POST \
@@ -290,7 +286,7 @@
         }"
         ```
 
-        恢复图表：
+        恢复图：
 
         ```bash
         curl --request POST \
@@ -312,7 +308,7 @@
 
     不建议在人工干预工作流中使用静态中断。它们最适合用于调试和测试。
 
-您可以通过在编译时指定 `interrupt_before` 和 `interrupt_after` 来设置静态中断：
+您可以在编译时指定 `interrupt_before` 和 `interrupt_after` 来设置静态中断：
 
 ```python
 # highlight-next-line
@@ -345,7 +341,7 @@ graph = graph_builder.compile( # (1)!
     )
     ```
 
-    1. 调用 `client.runs.wait` 时附带 `interrupt_before` 和 `interrupt_after` 参数。这是运行时配置，可为每次调用更改。
+    1. 调用 `client.runs.wait` 并带有 `interrupt_before` 和 `interrupt_after` 参数。这是运行时配置，每次调用都可以更改。
     2. `interrupt_before` 指定在节点执行前应暂停执行的节点。
     3. `interrupt_after` 指定在节点执行后应暂停执行的节点。
 
@@ -366,7 +362,7 @@ graph = graph_builder.compile( # (1)!
     )
     ```
 
-    1. 调用 `client.runs.wait` 时附带 `interruptBefore` 和 `interruptAfter` 参数。这是运行时配置，可为每次调用更改。
+    1. 调用 `client.runs.wait` 并带有 `interruptBefore` 和 `interruptAfter` 参数。这是运行时配置，每次调用都可以更改。
     2. `interruptBefore` 指定在节点执行前应暂停执行的节点。
     3. `interruptAfter` 指定在节点执行后应暂停执行的节点。
 
@@ -392,21 +388,21 @@ graph = graph_builder.compile( # (1)!
     from langgraph_sdk import get_client
     client = get_client(url=<DEPLOYMENT_URL>)
 
-    # 使用名为 "agent" 的已部署图表
+    # 使用名为 "agent" 的已部署图
     assistant_id = "agent"
 
     # 创建一个线程
     thread = await client.threads.create()
     thread_id = thread["thread_id"]
 
-    # 运行图表直到第一个断点
+    # 运行图直到第一个断点
     result = await client.runs.wait(
         thread_id,
         assistant_id,
         input=inputs   # (1)!
     )
 
-    # 恢复图表
+    # 恢复图
     await client.runs.wait(
         thread_id,
         assistant_id,
@@ -414,8 +410,8 @@ graph = graph_builder.compile( # (1)!
     )
     ```
 
-    1. 图表运行直到命中第一个断点。
-    2. 通过将 `input` 设置为 `None` 来恢复图表。这将运行图表直到命中下一个断点。
+    1. 图运行直到第一个断点。
+    2. 通过为输入传递 `None` 来恢复图。这将运行图直到下一个断点。
 
 === "JavaScript"
 
@@ -423,30 +419,30 @@ graph = graph_builder.compile( # (1)!
     import { Client } from "@langchain/langgraph-sdk";
     const client = new Client({ apiUrl: <DEPLOYMENT_URL> });
 
-    // 使用名为 "agent" 的已部署图表
+    // 使用名为 "agent" 的已部署图
     const assistantID = "agent";
 
     // 创建一个线程
     const thread = await client.threads.create();
     const threadID = thread["thread_id"];
 
-    // 运行图表直到第一个断点
+    // 运行图直到断点
     const result = await client.runs.wait(
       threadID,
       assistantID,
-      { input: input }   # (1)!
+      { input: input }   // (1)!
     );
 
-    // 恢复图表
+    // 恢复图
     await client.runs.wait(
       threadID,
       assistantID,
-      { input: null }   # (2)!
+      { input: null }   // (2)!
     );
     ```
 
-    1. 图表运行直到命中第一个断点。
-    2. 通过将 `input` 设置为 `null` 来恢复图表。这将运行图表直到命中下一个断点。
+    1. 图运行直到第一个断点。
+    2. 通过为输入传递 `null` 来恢复图。这将运行图直到下一个断点。
 
 === "cURL"
 
@@ -459,7 +455,7 @@ graph = graph_builder.compile( # (1)!
     --data '{}'
     ```
 
-    运行图表直到断点：
+    运行图直到断点：
 
     ```bash
     curl --request POST \
@@ -471,7 +467,7 @@ graph = graph_builder.compile( # (1)!
     }"
     ```
 
-    恢复图表：
+    恢复图：
 
     ```bash
     curl --request POST \
@@ -482,8 +478,7 @@ graph = graph_builder.compile( # (1)!
     }"
     ```
 
-
 ## 了解更多
 
-- [人工干预概念指南](../../concepts/human_in_the_loop.md): 详细了解 LangGraph 的人工干预功能。
-- [常用模式](../../how-tos/human_in_the_loop/add-human-in-the-loop.md#common-patterns): 了解如何实现批准/拒绝操作、请求用户输入、工具调用审核和验证人工输入等模式。
+- [人工干预概念指南](../../concepts/human_in_the_loop.md)：了解更多关于 LangGraph 人工干预功能。
+- [常见模式](../../how-tos/human_in_the_loop/add-human-in-the-loop.md#common-patterns)：了解如何实现批准/拒绝操作、请求用户输入、工具调用审查和验证用户输入等模式。

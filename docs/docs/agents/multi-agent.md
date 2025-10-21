@@ -7,22 +7,22 @@ hide:
   - tags
 ---
 
-# Multi-agent
+# 多智能体 (Multi-agent)
 
-单个代理可能难以胜任需要专精多个领域或管理多种工具的任务。为了解决这个问题，你可以将你的代理分解成更小、更独立的代理，并将它们组合成一个 [multi-agent system](../concepts/multi_agent.md)。
+当一个智能体需要专注于多个领域或管理大量工具时，它可能会面临挑战。为了解决这个问题，你可以将你的智能体分解成更小、独立的智能体，并将它们组合成一个[多智能体系统](../concepts/multi_agent.md)。
 
-在多代理系统中，代理之间需要进行通信。它们通过 [handoffs](#handoffs) 进行通信——这是一个原始操作，用于描述将控制权交给哪个代理以及要发送给该代理的载荷（payload）。
+在多智能体系统中，智能体之间需要进行通信。它们通过[交接 (handoffs)](#handoffs) 来实现——这是一种原始操作，用于描述将控制权交给哪个智能体以及要发送给该智能体的载荷 (payload)。
 
-两种最流行的多代理架构是：
+最流行的两种多智能体架构是：
 
-- [supervisor](#supervisor) — 单个代理由一个集中的 supervisor 代理协调。Supervisor 控制所有通信流程和任务委派，并根据当前上下文和任务要求决定调用哪个代理。
-- [swarm](#swarm) — 代理根据其专长动态地将控制权交给彼此。系统会记住哪个代理是最后活动的，以确保在后续交互中，会话能与该代理恢复。
+- [Supervisor](#supervisor) — 由一个中心性的 supervisor 智能体协调各个独立的智能体。Supervisor 控制所有通信流程和任务委派，并根据当前上下文和任务需求来决定调用哪个智能体。
+- [Swarm](#swarm) — 智能体根据它们的专业化能力动态地将控制权交接给彼此。系统会记住上次活动的智能体，确保在后续交互中，会话可以与该智能体恢复。
 
-## Supervisor
+## Supervisor (主管)
 
 ![Supervisor](./assets/supervisor.png)
 
-使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) 库来创建 supervisor 多代理系统：
+使用 [`langgraph-supervisor`](https://github.com/langchain-ai/langgraph-supervisor-py) 库来创建一个 supervisor 多智能体系统：
 
 ```bash
 pip install langgraph-supervisor
@@ -35,17 +35,17 @@ from langgraph.prebuilt import create_react_agent
 from langgraph_supervisor import create_supervisor
 
 def book_hotel(hotel_name: str):
-    """Book a hotel"""
-    return f"Successfully booked a stay at {hotel_name}."
+    """预订酒店"""
+    return f"成功预订了 {hotel_name} 的住宿。."
 
 def book_flight(from_airport: str, to_airport: str):
-    """Book a flight"""
-    return f"Successfully booked a flight from {from_airport} to {to_airport}."
+    """预订航班"""
+    return f"成功预订了从 {from_airport} 到 {to_airport} 的航班。"
 
 flight_assistant = create_react_agent(
     model="openai:gpt-4o",
     tools=[book_flight],
-    prompt="You are a flight booking assistant",
+    prompt="你是一名航班预订助手",
     # highlight-next-line
     name="flight_assistant"
 )
@@ -53,7 +53,7 @@ flight_assistant = create_react_agent(
 hotel_assistant = create_react_agent(
     model="openai:gpt-4o",
     tools=[book_hotel],
-    prompt="You are a hotel booking assistant",
+    prompt="你是一名酒店预订助手",
     # highlight-next-line
     name="hotel_assistant"
 )
@@ -63,8 +63,8 @@ supervisor = create_supervisor(
     agents=[flight_assistant, hotel_assistant],
     model=ChatOpenAI(model="gpt-4o"),
     prompt=(
-        "You manage a hotel booking assistant and a"
-        "flight booking assistant. Assign work to them."
+        "你管理着一个酒店预订助手和一个"
+        "航班预订助手。请将工作分配给它们。"
     )
 ).compile()
 
@@ -73,7 +73,7 @@ for chunk in supervisor.stream(
         "messages": [
             {
                 "role": "user",
-                "content": "book a flight from BOS to JFK and a stay at McKittrick Hotel"
+                "content": "预订从 BOS 到 JFK 的航班以及 McKittrick Hotel 的住宿"
             }
         ]
     }
@@ -82,11 +82,71 @@ for chunk in supervisor.stream(
     print("\n")
 ```
 
-## Swarm
+使用 [`@langchain/langgraph-supervisor`](https://github.com/langchain-ai/langgraphjs/tree/main/libs/langgraph-supervisor) 库来创建一个 supervisor 多智能体系统：
+
+```bash
+npm install @langchain/langgraph-supervisor
+```
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+// highlight-next-line
+import { createSupervisor } from "langgraph-supervisor";
+
+function bookHotel(hotelName: string) {
+  /**预订酒店*/
+  return `成功预订了 ${hotelName} 的住宿。`;
+}
+
+function bookFlight(fromAirport: string, toAirport: string) {
+  /**预订航班*/
+  return `成功预订了从 ${fromAirport} 到 ${toAirport} 的航班。`;
+}
+
+const flightAssistant = createReactAgent({
+  llm: "openai:gpt-4o",
+  tools: [bookFlight],
+  stateModifier: "你是一名航班预订助手",
+  // highlight-next-line
+  name: "flight_assistant",
+});
+
+const hotelAssistant = createReactAgent({
+  llm: "openai:gpt-4o",
+  tools: [bookHotel],
+  stateModifier: "你是一名酒店预订助手",
+  // highlight-next-line
+  name: "hotel_assistant",
+});
+
+// highlight-next-line
+const supervisor = createSupervisor({
+  agents: [flightAssistant, hotelAssistant],
+  llm: new ChatOpenAI({ model: "gpt-4o" }),
+  systemPrompt:
+    "你管理着一个酒店预订助手和一个 " +
+    "航班预订助手。请将工作分配给它们。",
+});
+
+for await (const chunk of supervisor.stream({
+  messages: [
+    {
+      role: "user",
+      content: "预订从 BOS 到 JFK 的航班以及 McKittrick Hotel 的住宿",
+    },
+  ],
+})) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+## Swarm (蜂群)
 
 ![Swarm](./assets/swarm.png)
 
-使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) 库来创建 swarm 多代理系统：
+使用 [`langgraph-swarm`](https://github.com/langchain-ai/langgraph-swarm-py) 库来创建一个 swarm 多智能体系统：
 
 ```bash
 pip install langgraph-swarm
@@ -99,18 +159,18 @@ from langgraph_swarm import create_swarm, create_handoff_tool
 
 transfer_to_hotel_assistant = create_handoff_tool(
     agent_name="hotel_assistant",
-    description="Transfer user to the hotel-booking assistant.",
+    description="将用户转接至酒店预订助手。",
 )
 transfer_to_flight_assistant = create_handoff_tool(
     agent_name="flight_assistant",
-    description="Transfer user to the flight-booking assistant.",
+    description="将用户转接至航班预订助手。",
 )
 
 flight_assistant = create_react_agent(
     model="anthropic:claude-3-5-sonnet-latest",
     # highlight-next-line
     tools=[book_flight, transfer_to_hotel_assistant],
-    prompt="You are a flight booking assistant",
+    prompt="你是一名航班预订助手",
     # highlight-next-line
     name="flight_assistant"
 )
@@ -118,7 +178,7 @@ hotel_assistant = create_react_agent(
     model="anthropic:claude-3-5-sonnet-latest",
     # highlight-next-line
     tools=[book_hotel, transfer_to_flight_assistant],
-    prompt="You are a hotel booking assistant",
+    prompt="你是一名酒店预订助手",
     # highlight-next-line
     name="hotel_assistant"
 )
@@ -134,7 +194,7 @@ for chunk in swarm.stream(
         "messages": [
             {
                 "role": "user",
-                "content": "book a flight from BOS to JFK and a stay at McKittrick Hotel"
+                "content": "预订从 BOS 到 JFK 的航班以及 McKittrick Hotel 的住宿"
             }
         ]
     }
@@ -143,37 +203,95 @@ for chunk in swarm.stream(
     print("\n")
 ```
 
-## Handoffs
+使用 [`@langchain/langgraph-swarm`](https://github.com/langchain-ai/langgraphjs/tree/main/libs/langgraph-swarm) 库来创建一个 swarm 多智能体系统：
 
-多代理交互中的一个常见模式是 **handoffs**，即一个代理将控制权“交接”给另一个代理。Handoffs 允许你指定：
+```bash
+npm install @langchain/langgraph-swarm
+```
 
-- **destination**: 要导航到的目标代理
-- **payload**: 要传递给该代理的信息
+```typescript
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+// highlight-next-line
+import { createSwarm, createHandoffTool } from "@langchain/langgraph-swarm";
 
-`langgraph-supervisor`（supervisor 交接给单个代理）和 `langgraph-swarm`（单个代理可以交接给其他代理）都使用此模式。
+const transferToHotelAssistant = createHandoffTool({
+  agentName: "hotel_assistant",
+  description: "Transfer user to the hotel-booking assistant.",
+});
 
-要使用 `create_react_agent` 实现 handoffs，你需要：
+const transferToFlightAssistant = createHandoffTool({
+  agentName: "flight_assistant",
+  description: "Transfer user to the flight-booking assistant.",
+});
 
-1. 创建一个可以转移控制权给另一个代理的特殊工具
+const flightAssistant = createReactAgent({
+  llm: "anthropic:claude-3-5-sonnet-latest",
+  // highlight-next-line
+  tools: [bookFlight, transferToHotelAssistant],
+  stateModifier: "You are a flight booking assistant",
+  // highlight-next-line
+  name: "flight_assistant",
+});
+
+const hotelAssistant = createReactAgent({
+  llm: "anthropic:claude-3-5-sonnet-latest",
+  // highlight-next-line
+  tools: [bookHotel, transferToFlightAssistant],
+  stateModifier: "You are a hotel booking assistant",
+  // highlight-next-line
+  name: "hotel_assistant",
+});
+
+// highlight-next-line
+const swarm = createSwarm({
+  agents: [flightAssistant, hotelAssistant],
+  defaultActiveAgent: "flight_assistant",
+});
+
+for await (const chunk of swarm.stream({
+  messages: [
+    {
+      role: "user",
+      content: "book a flight from BOS to JFK and a stay at McKittrick Hotel",
+    },
+  ],
+})) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+## Handoffs (交接)
+
+多智能体交互中的一个常见模式是**交接 (handoffs)**，即一个智能体将控制权“交接”给另一个智能体。交接允许你指定：
+
+- **destination (目标)**: 要导航到的目标智能体
+- **payload (载荷)**: 要传递给该智能体的信息
+
+这既被 `langgraph-supervisor`（supervisor 将控制权交接给各个智能体）和 `langgraph-swarm`（单个智能体可以将控制权交接给其他智能体）使用。
+
+要使用 `create_react_agent` 实现交接，你需要：
+
+1.  创建一个可以向不同智能体传输控制权的特殊工具。
 
     ```python
     def transfer_to_bob():
-        """Transfer to bob."""
+        """转接给 Bob。"""
         return Command(
-            # name of the agent (node) to go to
+            # 要前往的智能体 (节点) 的名称
             # highlight-next-line
             goto="bob",
-            # data to send to the agent
+            # 要发送给智能体的数据
             # highlight-next-line
             update={"messages": [...]},
-            # indicate to LangGraph that we need to navigate to
-            # agent node in a parent graph
+            # 指示 LangGraph 需要导航到
+            # 父图中的智能体节点
             # highlight-next-line
             graph=Command.PARENT,
         )
     ```
 
-1. 创建具有 handoff 工具访问权限的单个代理：
+2.  创建可以访问交接工具的各个智能体：
 
     ```python
     flight_assistant = create_react_agent(
@@ -184,7 +302,7 @@ for chunk in swarm.stream(
     )
     ```
 
-1. 定义一个包含单个代理作为节点的父图：
+3.  定义一个包含各个智能体作为节点的父图：
 
     ```python
     from langgraph.graph import StateGraph, MessagesState
@@ -196,7 +314,52 @@ for chunk in swarm.stream(
     )
     ```
 
-综上所述，你可以通过以下方式实现一个简单的多代理系统，包含两个代理——一个航班预订助手和一个酒店预订助手：
+这既被 `@langchain/langgraph-supervisor`（supervisor 将控制权交接给各个智能体）和 `@langchain/langgraph-swarm`（单个智能体可以将控制权交接给其他智能体）使用。
+
+要使用 `createReactAgent` 实现交接，你需要：
+
+1.  创建一个可以向不同智能体传输控制权的特殊工具。
+
+    ```typescript
+    function transferToBob() {
+      /**转接给 Bob。*/
+      return new Command({
+        // 要前往的智能体 (节点) 的名称
+        // highlight-next-line
+        goto: "bob",
+        // 要发送给智能体的数据
+        // highlight-next-line
+        update: { messages: [...] },
+        // 指示 LangGraph 需要导航到
+        // 父图中的智能体节点
+        // highlight-next-line
+        graph: Command.PARENT,
+      });
+    }
+    ```
+
+2.  创建可以访问交接工具的各个智能体：
+
+    ```typescript
+    const flightAssistant = createReactAgent({
+      ..., tools: [bookFlight, transferToHotelAssistant]
+    });
+    const hotelAssistant = createReactAgent({
+      ..., tools: [bookHotel, transferToFlightAssistant]
+    });
+    ```
+
+3.  定义一个包含各个智能体作为节点的父图：
+
+    ```typescript
+    import { StateGraph, MessagesZodState } from "@langchain/langgraph";
+    const multiAgentGraph = new StateGraph(MessagesZodState)
+      .addNode("flight_assistant", flightAssistant)
+      .addNode("hotel_assistant", hotelAssistant)
+      // ...
+    ```
+
+将这些组合在一起，以下是实现一个简单的多智能体系统的方法，该系统包含两个智能体——一个航班预订助手和一个酒店预订助手：
 
 ```python
 from typing import Annotated
@@ -232,31 +395,31 @@ def create_handoff_tool(*, agent_name: str, description: str | None = None):
         )
     return handoff_tool
 
-# Handoffs
+# 交接
 transfer_to_hotel_assistant = create_handoff_tool(
     agent_name="hotel_assistant",
-    description="Transfer user to the hotel-booking assistant.",
+    description="将用户转接至酒店预订助手。",
 )
 transfer_to_flight_assistant = create_handoff_tool(
     agent_name="flight_assistant",
-    description="Transfer user to the flight-booking assistant.",
+    description="将用户转接至航班预订助手。",
 )
 
-# Simple agent tools
+# 简单的智能体工具
 def book_hotel(hotel_name: str):
-    """Book a hotel"""
-    return f"Successfully booked a stay at {hotel_name}."
+    """预订酒店"""
+    return f"成功预订了 {hotel_name} 的住宿。"
 
 def book_flight(from_airport: str, to_airport: str):
-    """Book a flight"""
-    return f"Successfully booked a flight from {from_airport} to {to_airport}."
+    """预订航班"""
+    return f"成功预订了从 {from_airport} 到 {to_airport} 的航班。"
 
-# Define agents
+# 定义智能体
 flight_assistant = create_react_agent(
     model="anthropic:claude-3-5-sonnet-latest",
     # highlight-next-line
     tools=[book_flight, transfer_to_hotel_assistant],
-    prompt="You are a flight booking assistant",
+    prompt="你是一名航班预订助手",
     # highlight-next-line
     name="flight_assistant"
 )
@@ -264,12 +427,12 @@ hotel_assistant = create_react_agent(
     model="anthropic:claude-3-5-sonnet-latest",
     # highlight-next-line
     tools=[book_hotel, transfer_to_flight_assistant],
-    prompt="You are a hotel booking assistant",
+    prompt="你是一名酒店预订助手",
     # highlight-next-line
     name="hotel_assistant"
 )
 
-# Define multi-agent graph
+# 定义多智能体图
 multi_agent_graph = (
     StateGraph(MessagesState)
     .add_node(flight_assistant)
@@ -278,13 +441,13 @@ multi_agent_graph = (
     .compile()
 )
 
-# Run the multi-agent graph
+# 运行多智能体图
 for chunk in multi_agent_graph.stream(
     {
         "messages": [
             {
                 "role": "user",
-                "content": "book a flight from BOS to JFK and a stay at McKittrick Hotel"
+                "content": "预订从 BOS 到 JFK 的航班以及 McKittrick Hotel 的住宿"
             }
         ]
     }
@@ -293,16 +456,157 @@ for chunk in multi_agent_graph.stream(
     print("\n")
 ```
 
-1. Access agent's state
-2. The `Command` primitive allows specifying a state update and a node transition as a single operation, making it useful for implementing handoffs.
-3. Name of the agent or node to hand off to.
-4. Take the agent's messages and **add** them to the parent's **state** as part of the handoff. The next agent will see the parent state.
-5. Indicate to LangGraph that we need to navigate to agent node in a **parent** multi-agent graph.
+1.  访问智能体的状态
+2.  `Command` 原始操作允许将状态更新和节点转换作为单个操作进行指定，这对于实现交接很有用。
+3.  要交接到的智能体或节点的名称。
+4.  获取智能体的消息，并将它们作为交接的一部分**添加**到父级的**状态**中。下一个智能体将看到父级状态。
+5.  指示 LangGraph 需要导航到**父级**多智能体图中的智能体节点。
+
+```typescript
+import { tool } from "@langchain/core/tools";
+import { ChatAnthropic } from "@langchain/anthropic";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import {
+  StateGraph,
+  START,
+  MessagesZodState,
+  Command,
+} from "@langchain/langgraph";
+import { z } from "zod";
+
+function createHandoffTool({
+  agentName,
+  description,
+}: {
+  agentName: string;
+  description?: string;
+}) {
+  const name = `transfer_to_${agentName}`;
+  const toolDescription = description || `Transfer to ${agentName}`;
+
+  return tool(
+    async (_, config) => {
+      const toolMessage = {
+        role: "tool" as const,
+        content: `Successfully transferred to ${agentName}`,
+        name: name,
+        tool_call_id: config.toolCall?.id!,
+      };
+      return new Command({
+        // (2)!
+        // highlight-next-line
+        goto: agentName, // (3)!
+        // highlight-next-line
+        update: { messages: [toolMessage] }, // (4)!
+        // highlight-next-line
+        graph: Command.PARENT, // (5)!
+      });
+    },
+    {
+      name,
+      description: toolDescription,
+      schema: z.object({}),
+    }
+  );
+}
+
+// Handoffs (交接)
+const transferToHotelAssistant = createHandoffTool({
+  agentName: "hotel_assistant",
+  description: "将用户转接至酒店预订助手。",
+});
+
+const transferToFlightAssistant = createHandoffTool({
+  agentName: "flight_assistant",
+  description: "将用户转接至航班预订助手。",
+});
+
+// Simple agent tools (简单的智能体工具)
+const bookHotel = tool(
+  async ({ hotelName }) => {
+    /**预订酒店*/
+    return `成功预订了 ${hotelName} 的住宿。`;
+  },
+  {
+    name: "book_hotel",
+    description: "预订酒店",
+    schema: z.object({
+      hotelName: z.string().describe("要预订的酒店名称"),
+    }),
+  }
+);
+
+const bookFlight = tool(
+  async ({ fromAirport, toAirport }) => {
+    /**预订航班*/
+    return `成功预订了从 ${fromAirport} 到 ${toAirport} 的航班。`;
+  },
+  {
+    name: "book_flight",
+    description: "预订航班",
+    schema: z.object({
+      fromAirport: z.string().describe("出发机场代码"),
+      toAirport: z.string().describe("到达机场代码"),
+    }),
+  }
+);
+
+// Define agents (定义智能体)
+const flightAssistant = createReactAgent({
+  llm: new ChatAnthropic({ model: "anthropic:claude-3-5-sonnet-latest" }),
+  // highlight-next-line
+  tools: [bookFlight, transferToHotelAssistant],
+  stateModifier: "你是一名航班预订助手",
+  // highlight-next-line
+  name: "flight_assistant",
+});
+
+const hotelAssistant = createReactAgent({
+  llm: new ChatAnthropic({ model: "anthropic:claude-3-5-sonnet-latest" }),
+  // highlight-next-line
+  tools: [bookHotel, transferToFlightAssistant],
+  stateModifier: "你是一名酒店预订助手",
+  // highlight-next-line
+  name: "hotel_assistant",
+});
+
+// Define multi-agent graph (定义多智能体图)
+const multiAgentGraph = new StateGraph(MessagesZodState)
+  .addNode("flight_assistant", flightAssistant)
+  .addNode("hotel_assistant", hotelAssistant)
+  .addEdge(START, "flight_assistant")
+  .compile();
+
+// Run the multi-agent graph (运行多智能体图)
+for await (const chunk of multiAgentGraph.stream({
+  messages: [
+    {
+      role: "user",
+      content: "预订从 BOS 到 JFK 的航班以及 McKittrick Hotel 的住宿",
+    },
+  ],
+})) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+1.  访问智能体的状态
+2.  `Command` 原始操作允许将状态更新和节点转换作为单个操作进行指定，这对于实现交接很有用。
+3.  要交接到的智能体或节点的名称。
+4.  获取智能体的消息，并将它们作为交接的一部分**添加**到父级的**状态**中。下一个智能体将看到父级状态。
+5.  指示 LangGraph 需要导航到**父级**多智能体图中的智能体节点。
 
 !!! Note
-    This handoff implementation assumes that:
 
-    - each agent receives overall message history (across all agents) in the multi-agent system as its input
-    - each agent outputs its internal messages history to the overall message history of the multi-agent system
+    此交接实现假定：
 
-    Check out LangGraph [supervisor](https://github.com/langchain-ai/langgraph-supervisor-py#customizing-handoff-tools) and [swarm](https://github.com/langchain-ai/langgraph-swarm-py#customizing-handoff-tools) documentation to learn how to customize handoffs.
+    - 每个智能体接收到的输入是多智能体系统中整体的消息历史（跨所有智能体）。
+    - 每个智能体将内部消息历史输出到多智能体系统的整体消息历史中。
+
+[*]
+
+    请查阅 LangGraph [supervisor](https://github.com/langchain-ai/langgraph-supervisor-py#customizing-handoff-tools) 和 [swarm](https://github.com/langchain-ai/langgraph-swarm-py#customizing-handoff-tools) 文档，了解如何自定义交接工具。
+[*]
+
+    请查阅 LangGraph [supervisor](https://github.com/langchain-ai/langgraphjs/tree/main/libs/langgraph-supervisor#customizing-handoff-tools) 和 [swarm](https://github.com/langchain-ai/langgraphjs/tree/main/libs/langgraph-swarm#customizing-handoff-tools) 文档，了解如何自定义交接工具。

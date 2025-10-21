@@ -9,28 +9,37 @@ hide:
   - tags
 ---
 
-# Enable human intervention
+# 启用人工干预
 
-To review, edit, and approve tool calls in an agent or workflow, use interrupts to pause a graph and wait for human input. Interrupts use LangGraph's [persistence](../../concepts/persistence.md) layer, which saves the graph state, to indefinitely pause graph execution until you resume.
+要审核、编辑和批准代理或工作流中的工具调用，请使用中断（interrupts）来暂停图（graph）并等待人工输入。中断利用 LangGraph 的 [持久化](../../concepts/persistence.md) 层来保存图状态，从而无限期地暂停图执行，直到您恢复它。
 
 !!! info
 
-    For more information about human-in-the-loop workflows, see the [Human-in-the-Loop](../../concepts/human_in_the_loop.md) conceptual guide.
+    有关人工干预工作流的更多信息，请参阅[人工干预](../../concepts/human_in_the_loop.md)概念指南。
 
-## Pause using `interrupt`
+## 使用 `interrupt` 暂停
 
-[Dynamic interrupts](../../concepts/human_in_the_loop.md#key-capabilities) (also known as dynamic breakpoints) are triggered based on the current state of the graph. You can set dynamic interrupts by calling [`interrupt` function][langgraph.types.interrupt] in the appropriate place. The graph will pause, which allows for human intervention, and then resumes the graph with their input. It's useful for tasks like approvals, edits, or gathering additional context.
+:::python
+[动态中断](../../concepts/human_in_the_loop.md#key-capabilities)（也称为动态断点）会根据图的当前状态触发。您可以通过在适当的位置调用 @[`interrupt` 函数][interrupt] 来设置动态中断。图将暂停，允许人工干预，然后根据其输入恢复图。这对于审批、编辑或收集额外上下文等任务非常有用。
 
 !!! note
 
-    As of v1.0, `interrupt` is the recommended way to pause a graph. `NodeInterrupt` is deprecated and will be removed in v2.0.
+    截至 v1.0，`interrupt` 是暂停图的推荐方式。`NodeInterrupt` 已弃用，并将在 v2.0 中移除。
 
-To use `interrupt` in your graph, you need to:
+:::
 
-1. [**Specify a checkpointer**](../../concepts/persistence.md#checkpoints) to save the graph state after each step.
-2. **Call `interrupt()`** in the appropriate place. See the [Common Patterns](#common-patterns) section for examples.
-3. **Run the graph** with a [**thread ID**](../../concepts/persistence.md#threads) until the `interrupt` is hit.
-4. **Resume execution** using `invoke`/`ainvoke`/`stream`/`astream` (see [**The `Command` primitive**](#resume-using-the-Command-primitive)).
+:::js
+[动态中断](../../concepts/human_in_the_loop.md#key-capabilities)（也称为动态断点）会根据图的当前状态触发。您可以通过在适当的位置调用 @[`interrupt` 函数][interrupt] 来设置动态中断。图将暂停，允许人工干预，然后根据其输入恢复图。这对于审批、编辑或收集额外上下文等任务非常有用。
+:::
+
+要在图中启用 `interrupt`，您需要：
+
+1. [**指定一个检查点（checkpointer）**](../../concepts/persistence.md#checkpoints) 以在每一步后保存图状态。
+2. **调用 `interrupt()`** 在适当位置。有关示例，请参阅[通用模式](#common-patterns)部分。
+3. **使用 [**线程 ID**](../../concepts/persistence.md#threads) 运行图**，直到命中 `interrupt`。
+4. **使用 `invoke`/`stream` 恢复执行**（请参阅[**`Command` 原语**](#resume-using-the-command-primitive)）。
+
+:::python
 
 ```python
 # highlight-next-line
@@ -50,7 +59,7 @@ def human_node(state: State):
 
 graph = graph_builder.compile(checkpointer=checkpointer) # (4)!
 
-# Run the graph until the interrupt is hit.
+# 运行图直到命中中断。
 config = {"configurable": {"thread_id": "some_id"}}
 result = graph.invoke({"some_text": "original text"}, config=config) # (5)!
 print(result['__interrupt__']) # (6)!
@@ -67,28 +76,81 @@ print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
 # > {'some_text': 'Edited text'}
 ```
 
-1. `interrupt(...)` pauses execution at `human_node`, surfacing the given payload to a human.
-2. Any JSON serializable value can be passed to the `interrupt` function. Here, a dict containing the text to revise.
-3. Once resumed, the return value of `interrupt(...)` is the human-provided input, which is used to update the state.
-4. A checkpointer is required to persist graph state. In production, this should be durable (e.g., backed by a database).
-5. The graph is invoked with some initial state.
-6. When the graph hits the interrupt, it returns an `Interrupt` object with the payload and metadata.
-7. The graph is resumed with a `Command(resume=...)`, injecting the human's input and continuing execution.
+1. `interrupt(...)` 在 `human_node` 处暂停执行，将给定有效负载（payload）显示给人类。
+2. 任何 JSON 可序列化值都可以传递给 `interrupt` 函数。此处，传递了一个包含待修订文本的字典。
+3. 恢复后，`interrupt(...)` 的返回值是用户提供的输入，用于更新状态。
+4. 需要检查点（checkpointer）来持久化图状态。在生产环境中，这应该是持久的（例如，由数据库支持）。
+5. 图以一些初始状态调用（invoke）。
+6. 当图命中中断时，它会返回一个包含有效负载和元数据的 `Interrupt` 对象。
+7. 图使用 `Command(resume=...)` 恢复，注入人类的输入并继续执行。
+   :::
+
+:::js
+
+```typescript
+// highlight-next-line
+import { interrupt, Command } from "@langchain/langgraph";
+
+const graph = graphBuilder
+  .addNode("humanNode", (state) => {
+    // highlight-next-line
+    const value = interrupt( // (1)!
+      // (2)!
+      {
+        textToRevise: state.someText,
+      }
+    );
+    return {
+      someText: value, // (3)!
+    };
+  })
+  .addEdge(START, "humanNode")
+  .compile({ checkpointer }); // (4)!
+
+// 运行图直到命中中断。
+const config = { configurable: { thread_id: "some_id" } };
+const result = await graph.invoke({ someText: "original text" }, config); // (5)!
+console.log(result.__interrupt__); // (6)!
+// > [
+// >   {
+// >     value: { textToRevise: 'original text' },
+// >     resumable: true,
+// >     ns: ['humanNode:6ce9e64f-edef-fe5d-f7dc-511fa9526960'],
+// >     when: 'during'
+// >   }
+// > ]
+
+// highlight-next-line
+console.log(await graph.invoke(new Command({ resume: "Edited text" }), config)); // (7)!
+// > { someText: 'Edited text' }
+```
+
+1. `interrupt(...)` 在 `humanNode` 处暂停执行，将给定有效负载（payload）显示给人类。
+2. 任何 JSON 可序列化值都可以传递给 `interrupt` 函数。此处，传递了一个包含待修订文本的对象。
+3. 恢复后，`interrupt(...)` 的返回值是用户提供的输入，用于更新状态。
+4. 需要检查点（checkpointer）来持久化图状态。在生产环境中，这应该是持久的（例如，由数据库支持）。
+5. 图以一些初始状态调用（invoke）。
+6. 当图命中中断时，它会返回一个包含 `__interrupt__` 的对象，其中包含有效负载和元数据。
+7. 图使用 `Command({ resume: ... })` 恢复，注入人类的输入并继续执行。
+   :::
 
 ??? example "Extended example: using `interrupt`"
 
+    :::python
     ```python
     from typing import TypedDict
     import uuid
-
     from langgraph.checkpoint.memory import InMemorySaver
     from langgraph.constants import START
     from langgraph.graph import StateGraph
+
     # highlight-next-line
     from langgraph.types import interrupt, Command
 
+
     class State(TypedDict):
         some_text: str
+
 
     def human_node(state: State):
         # highlight-next-line
@@ -106,14 +168,10 @@ print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
     graph_builder = StateGraph(State)
     graph_builder.add_node("human_node", human_node)
     graph_builder.add_edge(START, "human_node")
-
     checkpointer = InMemorySaver() # (4)!
-
     graph = graph_builder.compile(checkpointer=checkpointer)
-
     # Pass a thread ID to the graph to run it.
     config = {"configurable": {"thread_id": uuid.uuid4()}}
-
     # Run the graph until the interrupt is hit.
     result = graph.invoke({"some_text": "original text"}, config=config) # (5)!
 
@@ -125,6 +183,8 @@ print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
     # >       ns=['human_node:6ce9e64f-edef-fe5d-f7dc-511fa9526960']
     # >    )
     # > ]
+    print(result["__interrupt__"]) # (6)!
+    # > [Interrupt(value={'text_to_revise': 'original text'}, id='6d7c4048049254c83195429a3659661d')]
 
     # highlight-next-line
     print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
@@ -138,54 +198,214 @@ print(graph.invoke(Command(resume="Edited text"), config=config)) # (7)!
     5. The graph is invoked with some initial state.
     6. When the graph hits the interrupt, it returns an `Interrupt` object with the payload and metadata.
     7. The graph is resumed with a `Command(resume=...)`, injecting the human's input and continuing execution.
+    :::
 
+    :::js
+    ```typescript
+    import { z } from "zod";
+    import { v4 as uuidv4 } from "uuid";
+    import { MemorySaver, StateGraph, START, interrupt, Command } from "@langchain/langgraph";
+
+    const StateAnnotation = z.object({
+      someText: z.string(),
+    });
+
+    // Build the graph
+    const graphBuilder = new StateGraph(StateAnnotation)
+      .addNode("humanNode", (state) => {
+        // highlight-next-line
+        const value = interrupt( // (1)!
+          // (2)!
+          {
+            textToRevise: state.someText
+          }
+        );
+        return {
+          someText: value // (3)!
+        };
+      })
+      .addEdge(START, "humanNode");
+
+    const checkpointer = new MemorySaver(); // (4)!
+
+    const graph = graphBuilder.compile({ checkpointer });
+
+    // Pass a thread ID to the graph to run it.
+    const config = { configurable: { thread_id: uuidv4() } };
+
+    // Run the graph until the interrupt is hit.
+    const result = await graph.invoke({ someText: "original text" }, config); // (5)!
+
+    console.log(result.__interrupt__); // (6)!
+    // > [
+    // >   {
+    // >     value: { textToRevise: 'original text' },
+    // >     resumable: true,
+    // >     ns: ['humanNode:6ce9e64f-edef-fe5d-f7dc-511fa9526960'],
+    // >     when: 'during'
+    // >   }
+    // > ]
+
+    // highlight-next-line
+    console.log(await graph.invoke(new Command({ resume: "Edited text" }), config)); // (7)!
+    // > { someText: 'Edited text' }
+    ```
+
+    1. `interrupt(...)` pauses execution at `humanNode`, surfacing the given payload to a human.
+    2. Any JSON serializable value can be passed to the `interrupt` function. Here, an object containing the text to revise.
+    3. Once resumed, the `interrupt(...)` 的返回值是用户提供的输入，用于更新状态。
+    4. A checkpointer is required to persist graph state. In production, this should be durable (e.g., backed by a database).
+    5. The graph is invoked with some initial state.
+    6. When the graph hits the interrupt, it returns an object with `__interrupt__` containing the payload and metadata.
+    7. The graph is resumed with a `Command({ resume: ... })`, injecting the human's input and continuing execution.
+    :::
 
 !!! tip "New in 0.4.0"
 
-      `__interrupt__` is a special key that will be returned when running the graph if the graph is interrupted. Support for `__interrupt__` in `invoke` and `ainvoke` has been added in version 0.4.0. If you're on an older version, you will only see `__interrupt__` in the result if you use `stream` or `astream`. You can also use `graph.get_state(thread_id)` to get the interrupt value.
+    :::python
+    `__interrupt__` 是一个特殊键，当图被中断时运行图会返回该键。`invoke` 和 `ainvoke` 对 `__interrupt__` 的支持已在 0.4.0 版本中添加。如果您使用的是旧版本，只有在使用 `stream` 或 `astream` 时才能看到 `__interrupt__`。您还可以使用 `graph.get_state(thread_id)` 来获取中断值。
+    :::
+
+    :::js
+    `__interrupt__` 是图中中断时返回的特殊键。`invoke` 对 `__interrupt__` 的支持已在 0.4.0 版本中添加。如果您使用的是旧版本，只有在使用 `stream` 时才能看到 `__interrupt__`。您还可以使用 `graph.getState(config)` 来获取中断值。
+    :::
 
 !!! warning
 
-      Interrupts resemble Python's input() function in terms of developer experience, but they do not automatically resume execution from the interruption point. Instead, they rerun the entire node where the interrupt was used. For this reason, interrupts are typically best placed at the start of a node or in a dedicated node.
+    :::python
+    中断在开发者体验方面类似于 Python 的 `input()` 函数，但它们不会自动从中断点恢复执行。相反，它们会重新运行使用中断的整个节点。因此，中断通常最好放在节点的开头或一个单独的节点中。
+    :::
 
-## Resume using the `Command` primitive
+    :::js
+    中断既强大又便捷，但需要注意的是，它们不会自动从中断点恢复执行。相反，它们会重新运行使用中断的整个节点。因此，中断通常最好放在节点的开头或一个单独的节点中。
+    :::
 
-When the `interrupt` function is used within a graph, execution pauses at that point and awaits user input.
+## 使用 `Command` 原语恢复
 
-To resume execution, use the [`Command`][langgraph.types.Command] primitive, which can be supplied via the `invoke`, `ainvoke`, `stream`, or `astream` methods. The graph resumes execution from the beginning of the node where `interrupt(...)` was initially called. This time, the `interrupt` function will return the value provided in `Command(resume=value)` rather than pausing again. All code from the beginning of the node to the `interrupt` will be re-executed.
+:::python
+!!! warning
+
+    从 `interrupt` 恢复与 Python 的 `input()` 函数不同，后者是从调用 `input()` 函数的确切点恢复执行。
+
+:::
+
+当 `interrupt` 函数在图中被使用时，执行会在该点暂停，并等待用户输入。
+
+:::python
+要恢复执行，请使用 @[`Command`][Command] 原语，该原语可以通过 `invoke` 或 `stream` 方法提供。图将从调用 `interrupt(...)` 的节点的开头恢复执行。这一次，`interrupt` 函数将返回 `Command(resume=value)` 中提供的值，而不是再次暂停。从节点开头到 `interrupt` 的所有代码都将被重新执行。
 
 ```python
-# Resume graph execution by providing the user's input.
+# 通过提供用户的输入来恢复图执行。
 graph.invoke(Command(resume={"age": "25"}), thread_config)
 ```
 
-### Resume multiple interrupts with one invocation
+:::
 
-If you have multiple interrupts in the task queue, you can use `Command.resume` with a dictionary mapping of interrupt ids to resume with a single `invoke` / `stream` call.
+:::js
+要恢复执行，请使用 @[`Command`][Command] 原语，该原语可以通过 `invoke` 或 `stream` 方法提供。图将从调用 `interrupt(...)` 的节点的开头恢复执行。这一次，`interrupt` 函数将返回 `Command(resume=value)` 中提供的值，而不是再次暂停。从节点开头到 `interrupt` 的所有代码都将被重新执行。
 
-For example, once your graph has been interrupted (multiple times, theoretically) and is stalled:
-
-```python
-resume_map = {
-    i.interrupt_id: f"human input for prompt {i.value}"
-    for i in parent.get_state(thread_config).interrupts
-}
-
-parent_graph.invoke(Command(resume=resume_map), config=thread_config)
+```typescript
+// 通过提供用户的输入来恢复图执行。
+await graph.invoke(new Command({ resume: { age: "25" } }), threadConfig);
 ```
 
-## Common patterns
+:::
 
-Below we show different design patterns that can be implemented using `interrupt` and `Command`.
+### 使用一次调用恢复多个中断
 
-### Approve or reject
+当节点以并行方式运行中断条件时，任务队列中可能存在多个中断。
+例如，以下图并行运行两个需要人工输入的节点：
+
+<figure markdown="1">
+![image](../assets/human_in_loop_parallel.png){: style="max-height:400px"}
+</figure>
+
+:::python
+一旦您的图被中断并停滞，您就可以使用 `Command.resume` 一次性恢复所有中断，提供一个中断 ID 到恢复值的映射。
+
+```python
+from typing import TypedDict
+import uuid
+from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.constants import START
+from langgraph.graph import StateGraph
+from langgraph.types import interrupt, Command
+
+
+class State(TypedDict):
+    text_1: str
+    text_2: str
+
+
+def human_node_1(state: State):
+    value = interrupt({"text_to_revise": state["text_1"]})
+    return {"text_1": value}
+
+
+def human_node_2(state: State):
+    value = interrupt({"text_to_revise": state["text_2"]})
+    return {"text_2": value}
+
+
+graph_builder = StateGraph(State)
+graph_builder.add_node("human_node_1", human_node_1)
+graph_builder.add_node("human_node_2", human_node_2)
+
+# 从 START 并行添加两个节点
+graph_builder.add_edge(START, "human_node_1")
+graph_builder.add_edge(START, "human_node_2")
+
+checkpointer = InMemorySaver()
+graph = graph_builder.compile(checkpointer=checkpointer)
+
+thread_id = str(uuid.uuid4())
+config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
+result = graph.invoke(
+    {"text_1": "original text 1", "text_2": "original text 2"}, config=config
+)
+
+# 使用中断 ID 到值的映射进行恢复
+resume_map = {
+    i.id: f"edited text for {i.value['text_to_revise']}"
+    for i in graph.get_state(config).interrupts
+}
+print(graph.invoke(Command(resume=resume_map), config=config))
+# > {'text_1': 'edited text for original text 1', 'text_2': 'edited text for original text 2'}
+```
+
+:::
+
+:::js
+
+```typescript
+const state = await parentGraph.getState(threadConfig);
+const resumeMap = Object.fromEntries(
+  state.interrupts.map((i) => [
+    i.interruptId,
+    `human input for prompt ${i.value}`,
+  ])
+);
+
+await parentGraph.invoke(new Command({ resume: resumeMap }), threadConfig);
+```
+
+:::
+
+## 通用模式
+
+下面我们展示了可以使用 `interrupt` 和 `Command` 实现的不同设计模式。
+
+### 批准或拒绝
 
 <figure markdown="1">
 ![image](../../concepts/img/human_in_the_loop/approve-or-reject.png){: style="max-height:400px"}
-<figcaption>Depending on the human's approval or rejection, the graph can proceed with the action or take an alternative path.</figcaption>
+<figcaption>根据人类的批准或拒绝，图可以继续执行操作或采取替代路径。</figcaption>
 </figure>
 
-Pause the graph before a critical step, such as an API call, to review and approve the action. If the action is rejected, you can prevent the graph from executing the step, and potentially take an alternative action.
+在关键步骤（如 API 调用）之前暂停图，以审核和批准操作。如果操作被拒绝，您可以阻止图执行该步骤，并可能采取替代操作。
+
+:::python
 
 ```python
 from typing import Literal
@@ -195,8 +415,7 @@ def human_approval(state: State) -> Command[Literal["some_node", "another_node"]
     is_approved = interrupt(
         {
             "question": "Is this correct?",
-            # Surface the output that should be
-            # reviewed and approved by the human.
+            # 显示应由人类审核和批准的输出。
             "llm_output": state["llm_output"]
         }
     )
@@ -206,19 +425,52 @@ def human_approval(state: State) -> Command[Literal["some_node", "another_node"]
     else:
         return Command(goto="another_node")
 
-# Add the node to the graph in an appropriate location
-# and connect it to the relevant nodes.
+# 在适当的位置将节点添加到图中
+# 并将其连接到相关节点。
 graph_builder.add_node("human_approval", human_approval)
 graph = graph_builder.compile(checkpointer=checkpointer)
 
-# After running the graph and hitting the interrupt, the graph will pause.
-# Resume it with either an approval or rejection.
+# 运行图并命中中断后，图将暂停。
+# 使用批准或拒绝来恢复它。
 thread_config = {"configurable": {"thread_id": "some_id"}}
 graph.invoke(Command(resume=True), config=thread_config)
 ```
 
+:::
+
+:::js
+
+```typescript
+import { interrupt, Command } from "@langchain/langgraph";
+
+// 在适当的位置将节点添加到图中
+// 并将其连接到相关节点。
+graphBuilder.addNode("humanApproval", (state) => {
+  const isApproved = interrupt({
+    question: "Is this correct?",
+    // 显示应由人类审核和批准的输出。
+    llmOutput: state.llmOutput,
+  });
+
+  if (isApproved) {
+    return new Command({ goto: "someNode" });
+  } else {
+    return new Command({ goto: "anotherNode" });
+  }
+});
+const graph = graphBuilder.compile({ checkpointer });
+
+// 运行图并命中中断后，图将暂停。
+// 使用批准或拒绝来恢复它。
+const threadConfig = { configurable: { thread_id: "some_id" } };
+await graph.invoke(new Command({ resume: true }), threadConfig);
+```
+
+:::
+
 ??? example "Extended example: approve or reject with interrupt"
 
+    :::python
     ```python
     from typing import Literal, TypedDict
     import uuid
@@ -226,7 +478,7 @@ graph.invoke(Command(resume=True), config=thread_config)
     from langgraph.constants import START, END
     from langgraph.graph import StateGraph
     from langgraph.types import interrupt, Command
-    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.checkpoint.memory import InMemorySaver
 
     # Define the shared graph state
     class State(TypedDict):
@@ -271,7 +523,7 @@ graph.invoke(Command(resume=True), config=thread_config)
     builder.add_edge("approved_path", END)
     builder.add_edge("rejected_path", END)
 
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
     graph = builder.compile(checkpointer=checkpointer)
 
     # Run until interrupt
@@ -286,14 +538,112 @@ graph.invoke(Command(resume=True), config=thread_config)
     final_result = graph.invoke(Command(resume="approve"), config=config)
     print(final_result)
     ```
+    :::
 
-### Review and edit state
+    :::js
+    ```typescript
+    import { z } from "zod";
+    import { v4 as uuidv4 } from "uuid";
+    import {
+      StateGraph,
+      START,
+      END,
+      interrupt,
+      Command,
+      MemorySaver
+    } from "@langchain/langgraph";
+
+    // Define the shared graph state
+    const StateAnnotation = z.object({
+      llmOutput: z.string(),
+      decision: z.string(),
+    });
+
+    // Simulate an LLM output node
+    function generateLlmOutput(state: z.infer<typeof StateAnnotation>) {
+      return { llmOutput: "This is the generated output." };
+    }
+
+    // Human approval node
+    function humanApproval(state: z.infer<typeof StateAnnotation>): Command {
+      const decision = interrupt({
+        question: "Do you approve the following output?",
+        llmOutput: state.llmOutput
+      });
+
+      if (decision === "approve") {
+        return new Command({
+          goto: "approvedPath",
+          update: { decision: "approved" }
+        });
+      } else {
+        return new Command({
+          goto: "rejectedPath",
+          update: { decision: "rejected" }
+        });
+      }
+    }
+
+    // Next steps after approval
+    function approvedNode(state: z.infer<typeof StateAnnotation>) {
+      console.log("✅ Approved path taken.");
+      return state;
+    }
+
+    // Alternative path after rejection
+    function rejectedNode(state: z.infer<typeof StateAnnotation>) {
+      console.log("❌ Rejected path taken.");
+      return state;
+    }
+
+    // Build the graph
+    const builder = new StateGraph(StateAnnotation)
+      .addNode("generateLlmOutput", generateLlmOutput)
+      .addNode("humanApproval", humanApproval, {
+        ends: ["approvedPath", "rejectedPath"]
+      })
+      .addNode("approvedPath", approvedNode)
+      .addNode("rejectedPath", rejectedNode)
+      .addEdge(START, "generateLlmOutput")
+      .addEdge("generateLlmOutput", "humanApproval")
+      .addEdge("approvedPath", END)
+      .addEdge("rejectedPath", END);
+
+    const checkpointer = new MemorySaver();
+    const graph = builder.compile({ checkpointer });
+
+    // Run until interrupt
+    const config = { configurable: { thread_id: uuidv4() } };
+    const result = await graph.invoke({}, config);
+    console.log(result.__interrupt__);
+    // Output:
+    // [{
+    //   value: {
+    //     question: 'Do you approve the following output?',
+    //     llmOutput: 'This is the generated output.'
+    //   },
+    //   ...
+    // }]
+
+    // Simulate resuming with human input
+    // To test rejection, replace resume: "approve" with resume: "reject"
+    const finalResult = await graph.invoke(
+      new Command({ resume: "approve" }),
+      config
+    );
+    console.log(finalResult);
+    ```
+    :::
+
+### 审核和编辑状态
 
 <figure markdown="1">
 ![image](../../concepts/img/human_in_the_loop/edit-graph-state-simple.png){: style="max-height:400px"}
-<figcaption>A human can review and edit the state of the graph. This is useful for correcting mistakes or updating the state with additional information.
+<figcaption>人类可以审核和编辑图的状态。这对于纠正错误或使用额外信息更新状态非常有用。
 </figcaption>
 </figure>
+
+:::python
 
 ```python
 from langgraph.types import interrupt
@@ -301,28 +651,28 @@ from langgraph.types import interrupt
 def human_editing(state: State):
     ...
     result = interrupt(
-        # Interrupt information to surface to the client.
-        # Can be any JSON serializable value.
+        # 向客户端显示的中断信息。
+        # 任何 JSON 可序列化值都可以。
         {
             "task": "Review the output from the LLM and make any necessary edits.",
             "llm_generated_summary": state["llm_generated_summary"]
         }
     )
 
-    # Update the state with the edited text
+    # 使用编辑后的文本更新状态
     return {
         "llm_generated_summary": result["edited_text"]
     }
 
-# Add the node to the graph in an appropriate location
-# and connect it to the relevant nodes.
+# 在适当的位置将节点添加到图中
+# 并将其连接到相关节点。
 graph_builder.add_node("human_editing", human_editing)
 graph = graph_builder.compile(checkpointer=checkpointer)
 
 ...
 
-# After running the graph and hitting the interrupt, the graph will pause.
-# Resume it with the edited text.
+# 运行图并命中中断后，图将暂停。
+# 使用编辑后的文本恢复它。
 thread_config = {"configurable": {"thread_id": "some_id"}}
 graph.invoke(
     Command(resume={"edited_text": "The edited text"}),
@@ -330,8 +680,46 @@ graph.invoke(
 )
 ```
 
+:::
+
+:::js
+
+```typescript
+import { interrupt } from "@langchain/langgraph";
+
+function humanEditing(state: z.infer<typeof StateAnnotation>) {
+  const result = interrupt({
+    // 向客户端显示的中断信息。
+    # 任何 JSON 可序列化值都可以。
+    task: "Review the output from the LLM and make any necessary edits.",
+    llmGeneratedSummary: state.llmGeneratedSummary,
+  });
+
+  // 使用编辑后的文本更新状态
+  return {
+    llmGeneratedSummary: result.editedText,
+  };
+}
+
+// 在适当的位置将节点添加到图中
+// 并将其连接到相关节点。
+graphBuilder.addNode("humanEditing", humanEditing);
+const graph = graphBuilder.compile({ checkpointer });
+
+// 运行图并命中中断后，图将暂停。
+// 使用编辑后的文本恢复它。
+const threadConfig = { configurable: { thread_id: "some_id" } };
+await graph.invoke(
+  new Command({ resume: { editedText: "The edited text" } }),
+  threadConfig
+);
+```
+
+:::
+
 ??? example "Extended example: edit state with interrupt"
 
+    :::python
     ```python
     from typing import TypedDict
     import uuid
@@ -339,7 +727,7 @@ graph.invoke(
     from langgraph.constants import START, END
     from langgraph.graph import StateGraph
     from langgraph.types import interrupt, Command
-    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.checkpoint.memory import InMemorySaver
 
     # Define the graph state
     class State(TypedDict):
@@ -378,7 +766,7 @@ graph.invoke(
     builder.add_edge("downstream_use", END)
 
     # Set up in-memory checkpointing for interrupt support
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
     graph = builder.compile(checkpointer=checkpointer)
 
     # Invoke the graph until it hits the interrupt
@@ -388,14 +776,15 @@ graph.invoke(
     # Output interrupt payload
     print(result["__interrupt__"])
     # Example output:
-    # Interrupt(
-    #   value={
-    #     'task': 'Please review and edit the generated summary if necessary.',
-    #     'generated_summary': 'The cat sat on the mat and looked at the stars.'
-    #   },
-    #   resumable=True,
-    #   ...
-    # )
+    # > [
+    # >     Interrupt(
+    # >         value={
+    # >             'task': 'Please review and edit the generated summary if necessary.',
+    # >             'generated_summary': 'The cat sat on the mat and looked at the stars.'
+    # >         },
+    # >         id='...'
+    # >     )
+    # > ]
 
     # Resume the graph with human-edited input
     edited_summary = "The cat lay on the rug, gazing peacefully at the night sky."
@@ -405,31 +794,115 @@ graph.invoke(
     )
     print(resumed_result)
     ```
+    :::
 
-### Review tool calls
+    :::js
+    ```typescript
+    import { z } from "zod";
+    import { v4 as uuidv4 } from "uuid";
+    import {
+      StateGraph,
+      START,
+      END,
+      interrupt,
+      Command,
+      MemorySaver
+    } from "@langchain/langgraph";
+
+    // Define the graph state
+    const StateAnnotation = z.object({
+      summary: z.string(),
+    });
+
+    // Simulate an LLM summary generation
+    function generateSummary(state: z.infer<typeof StateAnnotation>) {
+      return {
+        summary: "The cat sat on the mat and looked at the stars."
+      };
+    }
+
+    // Human editing node
+    function humanReviewEdit(state: z.infer<typeof StateAnnotation>) {
+      const result = interrupt({
+        task: "Please review and edit the generated summary if necessary.",
+        generatedSummary: state.summary
+      });
+      return {
+        summary: result.editedSummary
+      };
+    }
+
+    // Simulate downstream use of the edited summary
+    function downstreamUse(state: z.infer<typeof StateAnnotation>) {
+      console.log(`✅ Using edited summary: ${state.summary}`);
+      return state;
+    }
+
+    // Build the graph
+    const builder = new StateGraph(StateAnnotation)
+      .addNode("generateSummary", generateSummary)
+      .addNode("humanReviewEdit", humanReviewEdit)
+      .addNode("downstreamUse", downstreamUse)
+      .addEdge(START, "generateSummary")
+      .addEdge("generateSummary", "humanReviewEdit")
+      .addEdge("humanReviewEdit", "downstreamUse")
+      .addEdge("downstreamUse", END);
+
+    // Set up in-memory checkpointing for interrupt support
+    const checkpointer = new MemorySaver();
+    const graph = builder.compile({ checkpointer });
+
+    // Invoke the graph until it hits the interrupt
+    const config = { configurable: { thread_id: uuidv4() } };
+    const result = await graph.invoke({}, config);
+
+    // Output interrupt payload
+    console.log(result.__interrupt__);
+    // Example output:
+    // [{
+    //   value: {
+    //     task: 'Please review and edit the generated summary if necessary.',
+    //     generatedSummary: 'The cat sat on the mat and looked at the stars.'
+    //   },
+    //   resumable: true,
+    //   ...
+    // }]
+
+    // Resume the graph with human-edited input
+    const editedSummary = "The cat lay on the rug, gazing peacefully at the night sky.";
+    const resumedResult = await graph.invoke(
+      new Command({ resume: { editedSummary } }),
+      config
+    );
+    console.log(resumedResult);
+    ```
+    :::
+
+### 审核工具调用
 
 <figure markdown="1">
 ![image](../../concepts/img/human_in_the_loop/tool-call-review.png){: style="max-height:400px"}
-<figcaption>A human can review and edit the output from the LLM before proceeding. This is particularly
-critical in applications where the tool calls requested by the LLM may be sensitive or require human oversight.
+<figcaption>人类可以审核和编辑 LLM 的输出，然后再继续。这在 LLM 请求的工具调用可能敏感或需要人工监督的应用程序中尤其重要。
 </figcaption>
 </figure>
 
-To add a human approval step to a tool:
+要将人工干预步骤添加到工具：
 
-1. Use `interrupt()` in the tool to pause execution.
-2. Resume with a `Command(resume=...)` to continue based on human input.
+1. 在工具中使用 `interrupt()` 来暂停执行。
+2. 使用 `Command` 恢复，以便根据人工输入继续。
+
+:::python
 
 ```python
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import interrupt
 from langgraph.prebuilt import create_react_agent
 
-# An example of a sensitive tool that requires human review / approval
+# 一个需要人工审核/批准的敏感工具示例
 def book_hotel(hotel_name: str):
     """Book a hotel"""
     # highlight-next-line
-    response = interrupt(  # (1)!
+    response = interrupt( # (1)!
         f"Trying to call `book_hotel` with args {{'hotel_name': {hotel_name}}}. "
         "Please approve or suggest edits."
     )
@@ -452,11 +925,66 @@ agent = create_react_agent(
 )
 ```
 
-1. The [`interrupt` function][langgraph.types.interrupt] pauses the agent graph at a specific node. In this case, we call `interrupt()` at the beginning of the tool function, which pauses the graph at the node that executes the tool. The information inside `interrupt()` (e.g., tool calls) can be presented to a human, and the graph can be resumed with the user input (tool call approval, edit or feedback).
-2. The `InMemorySaver` is used to store the agent state at every step in the tool calling loop. This enables [short-term memory](../memory/add-memory.md#add-short-term-memory) and [human-in-the-loop](../../concepts/human_in_the_loop.md) capabilities. In this example, we use `InMemorySaver` to store the agent state in memory. In a production application, the agent state will be stored in a database.
-3. Initialize the agent with the `checkpointer`.
+1. @[`interrupt` 函数][interrupt] 在代理图中的特定节点处暂停。在此示例中，我们在工具函数开始时调用 `interrupt()`，这会在执行该工具的节点处暂停图。`interrupt()` 中的信息（例如，工具调用）可以显示给人类，并且图可以使用用户输入（工具调用批准、编辑或反馈）恢复。
+2. `InMemorySaver` 用于在工具调用循环的每一步存储代理状态。这支持[短期记忆](../memory/add-memory.md#add-short-term-memory)和[人工干预](../../concepts/human_in_the_loop.md)功能。在此示例中，我们使用 `InMemorySaver` 在内存中存储代理状态。在生产应用程序中，代理状态将存储在数据库中。
+3. 使用 `checkpointer` 初始化代理。
+   :::
 
-Run the agent with the `stream()` method, passing the `config` object to specify the thread ID. This allows the agent to resume the same conversation on future invocations.
+:::js
+
+```typescript
+import { MemorySaver } from "@langchain/langgraph";
+import { interrupt } from "@langchain/langgraph";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+
+// 一个需要人工审核/批准的敏感工具示例
+const bookHotel = tool(
+  async ({ hotelName }) => {
+    // highlight-next-line
+    const response = interrupt( // (1)!
+      // `bookHotel` 的参数包含 `hotelName`
+      `Trying to call \`bookHotel\` with args {"hotelName": "${hotelName}"}. ` +
+        "Please approve or suggest edits."
+    );
+    if (response.type === "accept") {
+      // 继续使用原始参数
+    } else if (response.type === "edit") {
+      hotelName = response.args.hotelName;
+    } else {
+      throw new Error(`Unknown response type: ${response.type}`);
+    }
+    return `Successfully booked a stay at ${hotelName}.`;
+  },
+  {
+    name: "bookHotel",
+    description: "Book a hotel",
+    schema: z.object({
+      hotelName: z.string(),
+    }),
+  }
+);
+
+// highlight-next-line
+const checkpointer = new MemorySaver(); // (2)!
+
+const agent = createReactAgent({
+  llm: model,
+  tools: [bookHotel],
+  // highlight-next-line
+  checkpointSaver: checkpointer, // (3)!
+});
+```
+
+1. @[`interrupt` 函数][interrupt] 在代理图中的特定节点处暂停。在此示例中，我们在工具函数开始时调用 `interrupt()`，这会在执行该工具的节点处暂停图。`interrupt()` 中的信息（例如，工具调用）可以显示给人类，并且图可以使用用户输入（工具调用批准、编辑或反馈）恢复。
+2. `MemorySaver` 用于在工具调用循环的每一步存储代理状态。这支持[短期记忆](../memory/add-memory.md#add-short-term-memory)和[人工干预](../../concepts/human_in_the_loop.md)功能。在此示例中，我们使用 `MemorySaver` 在内存中存储代理状态。在生产应用程序中，代理状态将存储在数据库中。
+3. 使用 `checkpointSaver` 初始化代理。
+   :::
+
+使用 `stream()` 方法运行代理，并传递 `config` 对象来指定线程 ID。这允许代理在未来的调用中恢复相同的对话。
+
+:::python
 
 ```python
 config = {
@@ -475,9 +1003,37 @@ for chunk in agent.stream(
     print("\n")
 ```
 
-> You should see that the agent runs until it reaches the `interrupt()` call, at which point it pauses and waits for human input.
+:::
 
-Resume the agent with a `Command(resume=...)` to continue based on human input.
+:::js
+
+```typescript
+const config = {
+  configurable: {
+    // highlight-next-line
+    thread_id: "1",
+  },
+};
+
+const stream = await agent.stream(
+  { messages: [{ role: "user", content: "book a stay at McKittrick hotel" }] },
+  // highlight-next-line
+  config
+);
+
+for await (const chunk of stream) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+:::
+
+> 您应该看到代理运行直到达到 `interrupt()` 调用，此时它会暂停并等待人工输入。
+
+使用 `Command` 恢复代理，以便根据人工输入继续。
+
+:::python
 
 ```python
 from langgraph.types import Command
@@ -492,11 +1048,35 @@ for chunk in agent.stream(
     print("\n")
 ```
 
-1. The [`interrupt` function][langgraph.types.interrupt] is used in conjunction with the [`Command`][langgraph.types.Command] object to resume the graph with a value provided by the human.
+1. @[`interrupt` 函数][interrupt] 与 @[`Command`][Command] 对象结合使用，以恢复图并提供人类提供的值。
+   :::
 
-### Add interrupts to any tool
+:::js
 
-You can create a wrapper to add interrupts to *any* tool. The example below provides a reference implementation compatible with [Agent Inbox UI](https://github.com/langchain-ai/agent-inbox) and [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui).
+```typescript
+import { Command } from "@langchain/langgraph";
+
+const resumeStream = await agent.stream(
+  // highlight-next-line
+  new Command({ resume: { type: "accept" } }), // (1)!
+  // new Command({ resume: { type: "edit", args: { hotelName: "McKittrick Hotel" } } }),
+  config
+);
+
+for await (const chunk of resumeStream) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+1. @[`interrupt` 函数][interrupt] 与 @[`Command`][Command] 对象结合使用，以恢复图并提供人类提供的值。
+   :::
+
+### 为任何工具添加中断
+
+您可以创建一个包装器来为 _所有_ 工具添加中断。下面的示例提供了一个与 [Agent Inbox UI](https://github.com/langchain-ai/agent-inbox) 和 [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) 兼容的参考实现。
+
+:::python
 
 ```python title="Wrapper that adds human-in-the-loop to any tool"
 from typing import Callable
@@ -556,12 +1136,90 @@ def add_human_in_the_loop(
     return call_tool_with_interrupt
 ```
 
-1. This wrapper creates a new tool that calls `interrupt()` **before** executing the wrapped tool.
-2. `interrupt()` is using special input and output format that's expected by [Agent Inbox UI](https://github.com/langchain-ai/agent-inbox):
-    - a list of [`HumanInterrupt`][langgraph.prebuilt.interrupt.HumanInterrupt] objects is sent to `AgentInbox` render interrupt information to the end user
-    - resume value is provided by `AgentInbox` as a list (i.e., `Command(resume=[...])`)
+1. 此包装器创建了一个新工具，该工具在执行包装工具 _之前_ 调用 `interrupt()`。
+2. `interrupt()` 使用 [Agent Inbox UI](https://github.com/langchain-ai/agent-inbox) 期望的特殊输入和输出格式： - 一系列 @[`HumanInterrupt`][HumanInterrupt] 对象被发送到 `AgentInbox` 以向最终用户渲染中断信息 - 恢复值由 `AgentInbox` 提供为列表（即 `Command(resume=[...])`）
+   :::
 
-You can use the `add_human_in_the_loop` wrapper to add `interrupt()` to any tool without having to add it *inside* the tool:
+:::js
+
+```typescript title="Wrapper that adds human-in-the-loop to any tool"
+import { StructuredTool, tool } from "@langchain/core/tools";
+import { RunnableConfig } from "@langchain/core/runnables";
+import { interrupt } from "@langchain/langgraph";
+
+interface HumanInterruptConfig {
+  allowAccept?: boolean;
+  allowEdit?: boolean;
+  allowRespond?: boolean;
+}
+
+interface HumanInterrupt {
+  actionRequest: {
+    action: string;
+    args: Record<string, any>;
+  };
+  config: HumanInterruptConfig;
+  description: string;
+}
+
+function addHumanInTheLoop(
+  originalTool: StructuredTool,
+  interruptConfig: HumanInterruptConfig = {
+    allowAccept: true,
+    allowEdit: true,
+    allowRespond: true,
+  }
+): StructuredTool {
+  // Wrap the original tool to support human-in-the-loop review
+  return tool(
+    // (1)!
+    async (toolInput: Record<string, any>, config?: RunnableConfig) => {
+      const request: HumanInterrupt = {
+        actionRequest: {
+          action: originalTool.name,
+          args: toolInput,
+        },
+        config: interruptConfig,
+        description: "Please review the tool call",
+      };
+
+      // highlight-next-line
+      const response = interrupt([request])[0]; // (2)!
+
+      // approve the tool call
+      if (response.type === "accept") {
+        return await originalTool.invoke(toolInput, config);
+      }
+      // update tool call args
+      else if (response.type === "edit") {
+        const updatedArgs = response.args.args;
+        return await originalTool.invoke(updatedArgs, config);
+      }
+      // respond to the LLM with user feedback
+      else if (response.type === "response") {
+        return response.args;
+      } else {
+        throw new Error(
+          `Unsupported interrupt response type: ${response.type}`
+        );
+      }
+    },
+    {
+      name: originalTool.name,
+      description: originalTool.description,
+      schema: originalTool.schema,
+    }
+  );
+}
+```
+
+1. 此包装器创建了一个新工具，该工具在执行包装工具 _之前_ 调用 `interrupt()`。
+2. `interrupt()` 使用 [Agent Inbox UI](https://github.com/langchain-ai/agent-inbox) 期望的特殊输入和输出格式： - 一系列 [`HumanInterrupt`] 对象被发送到 `AgentInbox` 以向最终用户渲染中断信息 - 恢复值由 `AgentInbox` 提供为列表（即 `Command({ resume: [...] })`）
+   :::
+
+您可以使用此包装器将 `interrupt()` 添加到任何工具中，而无需将其 _插入_ 工具内部：
+
+:::python
 
 ```python
 from langgraph.checkpoint.memory import InMemorySaver
@@ -597,12 +1255,66 @@ for chunk in agent.stream(
     print("\n")
 ```
 
-1. The `add_human_in_the_loop` wrapper is used to add `interrupt()` to the tool. This allows the agent to pause execution and wait for human input before proceeding with the tool call.
+1. `add_human_in_the_loop` 包装器用于向工具添加 `interrupt()`。此功能允许代理在继续工具调用之前暂停执行并等待人工输入。
+   :::
 
-> You should see that the agent runs until it reaches the `interrupt()` call,
->  at which point it pauses and waits for human input.
+:::js
 
-Resume the agent with a `Command(resume=...)`  to continue based on human input.
+```typescript
+import { MemorySaver } from "@langchain/langgraph";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
+
+// highlight-next-line
+const checkpointer = new MemorySaver();
+
+const bookHotel = tool(
+  async ({ hotelName }) => {
+    return `Successfully booked a stay at ${hotelName}.`;
+  },
+  {
+    name: "bookHotel",
+    description: "Book a hotel",
+    schema: z.object({
+      hotelName: z.string(),
+    }),
+  }
+);
+
+const agent = createReactAgent({
+  llm: model,
+  tools: [
+    // highlight-next-line
+    addHumanInTheLoop(bookHotel), // (1)!
+  ],
+  // highlight-next-line
+  checkpointSaver: checkpointer,
+});
+
+const config = { configurable: { thread_id: "1" } };
+
+// Run the agent
+const stream = await agent.stream(
+  { messages: [{ role: "user", content: "book a stay at McKittrick hotel" }] },
+  // highlight-next-line
+  config
+);
+
+for await (const chunk of stream) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+1. `addHumanInTheLoop` 包装器用于向工具添加 `interrupt()`。此功能允许代理在继续工具调用之前暂停执行并等待人工输入。
+   :::
+
+> 您应该看到代理运行直到达到 `interrupt()` 调用，此时它会暂停并等待人工输入。
+
+使用 `Command` 恢复代理，以便根据人工输入继续。
+
+:::python
 
 ```python
 from langgraph.types import Command
@@ -617,9 +1329,33 @@ for chunk in agent.stream(
     print("\n")
 ```
 
-### Validate human input
+:::
 
-If you need to validate the input provided by the human within the graph itself (rather than on the client side), you can achieve this by using multiple interrupt calls within a single node.
+:::js
+
+```typescript
+import { Command } from "@langchain/langgraph";
+
+const resumeStream = await agent.stream(
+  // highlight-next-line
+  new Command({ resume: [{ type: "accept" }] }),
+  // new Command({ resume: [{ type: "edit", args: { args: { hotelName: "McKittrick Hotel" } } }] }),
+  config
+);
+
+for await (const chunk of resumeStream) {
+  console.log(chunk);
+  console.log("\n");
+}
+```
+
+:::
+
+### 验证人工输入
+
+如果您需要在图本身内（而不是在客户端）验证人类提供的输入，可以通过在单个节点中使用多个中断调用来实现。
+
+:::python
 
 ```python
 from langgraph.types import interrupt
@@ -646,8 +1382,42 @@ def human_node(state: State):
     }
 ```
 
+:::
+
+:::js
+
+```typescript
+import { interrupt } from "@langchain/langgraph";
+
+graphBuilder.addNode("humanNode", (state) => {
+  // Human node with validation.
+  let question = "What is your age?";
+
+  while (true) {
+    const answer = interrupt(question);
+
+    // Validate answer, if the answer isn't valid ask for input again.
+    if (typeof answer !== "number" || answer < 0) {
+      question = `'${answer}' is not a valid age. What is your age?`;
+      continue;
+    } else {
+      // If the answer is valid, we can proceed.
+      break;
+    }
+  }
+
+  console.log(`The human in the loop is ${answer} years old.`);
+  return {
+    age: answer,
+  };
+});
+```
+
+:::
+
 ??? example "Extended example: validating user input"
 
+    :::python
     ```python
     from typing import TypedDict
     import uuid
@@ -655,7 +1425,7 @@ def human_node(state: State):
     from langgraph.constants import START, END
     from langgraph.graph import StateGraph
     from langgraph.types import interrupt, Command
-    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.checkpoint.memory import InMemorySaver
 
     # Define graph state
     class State(TypedDict):
@@ -694,7 +1464,7 @@ def human_node(state: State):
     builder.add_edge("report_age", END)
 
     # Create the graph with a memory checkpointer
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
     graph = builder.compile(checkpointer=checkpointer)
 
     # Run the graph until the first interrupt
@@ -714,14 +1484,92 @@ def human_node(state: State):
     final_result = graph.invoke(Command(resume="25"), config=config)
     print(final_result)  # Should include the valid age
     ```
+    :::
 
-## Debug with interrupts
+    :::js
+    ```typescript
+    import { z } from "zod";
+    import { v4 as uuidv4 } from "uuid";
+    import {
+      StateGraph,
+      START,
+      END,
+      interrupt,
+      Command,
+      MemorySaver
+    } from "@langchain/langgraph";
 
-To debug and test a graph, use [static interrupts](../../concepts/human_in_the_loop.md#key-capabilities) (also known as static breakpoints) to step through the graph execution one node at a time or to pause the graph execution at specific nodes. Static interrupts are triggered at defined points either before or after a node executes. You can set static interrupts by specifying `interrupt_before` and `interrupt_after` at compile time or run time.
+    // Define graph state
+    const StateAnnotation = z.object({
+      age: z.number(),
+    });
+
+    // Node that asks for human input and validates it
+    function getValidAge(state: z.infer<typeof StateAnnotation>) {
+      let prompt = "Please enter your age (must be a non-negative integer).";
+
+      while (true) {
+        const userInput = interrupt(prompt);
+
+        // Validate the input
+        try {
+          const age = parseInt(userInput as string);
+          if (isNaN(age) || age < 0) {
+            throw new Error("Age must be non-negative.");
+          }
+          return { age };
+        } catch (error) {
+          prompt = `'${userInput}' is not valid. Please enter a non-negative integer for age.`;
+        }
+      }
+    }
+
+    // Node that uses the valid input
+    function reportAge(state: z.infer<typeof StateAnnotation>) {
+      console.log(`✅ Human is ${state.age} years old.`);
+      return state;
+    }
+
+    // Build the graph
+    const builder = new StateGraph(StateAnnotation)
+      .addNode("getValidAge", getValidAge)
+      .addNode("reportAge", reportAge)
+      .addEdge(START, "getValidAge")
+      .addEdge("getValidAge", "reportAge")
+      .addEdge("reportAge", END);
+
+    // Create the graph with a memory checkpointer
+    const checkpointer = new MemorySaver();
+    const graph = builder.compile({ checkpointer });
+
+    // Run the graph until the first interrupt
+    const config = { configurable: { thread_id: uuidv4() } };
+    let result = await graph.invoke({}, config);
+    console.log(result.__interrupt__);  // First prompt: "Please enter your age..."
+
+    // Simulate an invalid input (e.g., string instead of integer)
+    result = await graph.invoke(new Command({ resume: "not a number" }), config);
+    console.log(result.__interrupt__);  // Follow-up prompt with validation message
+
+    // Simulate a second invalid input (e.g., negative number)
+    result = await graph.invoke(new Command({ resume: "-10" }), config);
+    console.log(result.__interrupt__);  // Another retry
+
+    // Provide valid input
+    const finalResult = await graph.invoke(new Command({ resume: "25" }), config);
+    console.log(finalResult);  // Should include the valid age
+    ```
+    :::
+
+:::python
+
+## 使用中断进行调试
+
+要调试和测试图，请使用[静态中断](../../concepts/human_in_the_loop.md#key-capabilities)（也称为静态断点）来逐个节点地步进图执行或在特定节点处暂停图执行。静态中断在节点执行之前或之后定义的点触发。您可以通过在编译时或运行时指定 `interrupt_before` 和 `interrupt_after` 来设置静态中断。
 
 !!! warning
 
-    Static interrupts are **not** recommended for human-in-the-loop workflows. Use [dynamic interrupts](#pause-using-interrupt) instead.
+    静态中断 **不** 推荐用于人工干预工作流。请使用[动态中断](#pause-using-interrupt)。
 
 === "Compile time"
 
@@ -748,12 +1596,12 @@ To debug and test a graph, use [static interrupts](../../concepts/human_in_the_l
     graph.invoke(None, config=thread_config) # (6)!
     ```
 
-    1. The breakpoints are set during `compile` time.
-    2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
-    3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
-    4. A checkpointer is required to enable breakpoints.
-    5. The graph is run until the first breakpoint is hit.
-    6. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
+    1. 断点在 `compile` 时间设置。
+    2. `interrupt_before` 指定在节点执行前暂停执行的节点。
+    3. `interrupt_after` 指定在节点执行后暂停执行的节点。
+    4. 使用检查点（checkpointer）来启用断点。
+    5. 图运行直到命中第一个断点。
+    6. 通过传递 `None` 作为输入来恢复图。这将运行图直到命中下一个断点。
 
 === "Run time"
 
@@ -783,16 +1631,16 @@ To debug and test a graph, use [static interrupts](../../concepts/human_in_the_l
     graph.invoke(None, config=config) # (5)!
     ```
 
-    1. `graph.invoke` is called with the `interrupt_before` and `interrupt_after` parameters. This is a run-time configuration and can be changed for every invocation.
-    2. `interrupt_before` specifies the nodes where execution should pause before the node is executed.
-    3. `interrupt_after` specifies the nodes where execution should pause after the node is executed.
-    4. The graph is run until the first breakpoint is hit.
-    5. The graph is resumed by passing in `None` for the input. This will run the graph until the next breakpoint is hit.
+    1. `graph.invoke` 使用 `interrupt_before` 和 `interrupt_after` 参数调用。这是运行时配置，可以针对每次调用进行更改。
+    2. `interrupt_before` 指定在节点执行前暂停执行的节点。
+    3. `interrupt_after` 指定在节点执行后暂停执行的节点。
+    4. 图运行直到命中第一个断点。
+    5. 通过传递 `None` 作为输入来恢复图。这将运行图直到命中下一个断点。
 
     !!! note
 
-        You cannot set static breakpoints at runtime for **sub-graphs**.
-        If you have a sub-graph, you must set the breakpoints at compilation time.
+        您不能在运行时为 **子图** 设置静态断点。
+        如果您有子图，则必须在编译时设置断点。
 
 ??? example "Setting static breakpoints"
 
@@ -863,24 +1711,27 @@ To debug and test a graph, use [static interrupts](../../concepts/human_in_the_l
         print(event)
     ```
 
-### Use static interrupts in LangGraph Studio
+### 在 LangGraph Studio 中使用静态中断
 
-You can use [LangGraph Studio](../../concepts/langgraph_studio.md) to debug your graph. You can set static breakpoints in the UI and then run the graph. You can also use the UI to inspect the graph state at any point in the execution.
+您可以使用[LangGraph Studio](../../concepts/langgraph_studio.md) 来调试您的图。您可以在 UI 中设置静态断点，然后运行图。您还可以使用 UI 在执行的任何点检查图状态。
 
 ![image](../../concepts/img/human_in_the_loop/static-interrupt.png){: style="max-height:400px"}
 
-LangGraph Studio is free with [locally deployed applications](../../tutorials/langgraph-platform/local-server.md) using `langgraph dev`.
+使用 `langgraph dev` 部署[本地应用程序](../../tutorials/langgraph-platform/local-server.md)时，LangGraph Studio 是免费的。
 
-## Considerations
+:::
 
-When using human-in-the-loop, there are some considerations to keep in mind.
+## 考虑因素
 
-### Using with code with side-effects
+在使用人工干预时，需要注意一些事项。
 
-Place code with side effects, such as API calls, after the `interrupt` or in a separate node to avoid duplication, as these are re-triggered every time the node is resumed.
+### 使用有副作用的代码
+
+将具有副作用的代码（例如 API 调用）放在 `interrupt` 之后或单独的节点中，以避免重复执行，因为每次恢复节点时都会重新触发它们。
 
 === "Side effects after interrupt"
 
+    :::python
     ```python
     from langgraph.types import interrupt
 
@@ -891,9 +1742,25 @@ Place code with side effects, such as API calls, after the `interrupt` or in a s
 
         api_call(answer) # OK as it's after the interrupt
     ```
+    :::
+
+    :::js
+    ```typescript
+    import { interrupt } from "@langchain/langgraph";
+
+    function humanNode(state: z.infer<typeof StateAnnotation>) {
+      // Human node with validation.
+
+      const answer = interrupt(question);
+
+      apiCall(answer); // OK as it's after the interrupt
+    }
+    ```
+    :::
 
 === "Side effects in a separate node"
 
+    :::python
     ```python
     from langgraph.types import interrupt
 
@@ -909,10 +1776,33 @@ Place code with side effects, such as API calls, after the `interrupt` or in a s
     def api_call_node(state: State):
         api_call(...) # OK as it's in a separate node
     ```
+    :::
 
-### Using with subgraphs called as functions
+    :::js
+    ```typescript
+    import { interrupt } from "@langchain/langgraph";
 
-When invoking a subgraph as a function, the parent graph will resume execution from the **beginning of the node** where the subgraph was invoked where the `interrupt` was triggered. Similarly, the **subgraph** will resume from the **beginning of the node** where the `interrupt()` function was called.
+    function humanNode(state: z.infer<typeof StateAnnotation>) {
+      // Human node with validation.
+
+      const answer = interrupt(question);
+
+      return {
+        answer
+      };
+    }
+
+    function apiCallNode(state: z.infer<typeof StateAnnotation>) {
+      apiCall(state.answer); # OK as it's in a separate node
+    }
+    ```
+    :::
+
+### 与作为函数调用的子图一起使用
+
+在将子图作为函数调用时，父图将从调用子图的节点的 _开头_ 恢复执行（当 `interrupt` 被触发时）。同样，**子图** 将从调用 `interrupt()` 函数的节点的 _开头_ 恢复执行。
+
+:::python
 
 ```python
 def node_in_parent_graph(state: State):
@@ -923,27 +1813,44 @@ def node_in_parent_graph(state: State):
     ...
 ```
 
+:::
+
+:::js
+
+```typescript
+async function nodeInParentGraph(state: z.infer<typeof StateAnnotation>) {
+  someCode(); # <-- This will re-execute when the subgraph is resumed.
+  # Invoke a subgraph as a function.
+  # The subgraph contains an `interrupt` call.
+  const subgraphResult = await subgraph.invoke(someInput);
+  # ...
+}
+```
+
+:::
+
 ??? example "Extended example: parent and subgraph execution flow"
 
-    Say we have a parent graph with 3 nodes:
+    假设我们有一个包含 3 个节点的父图：
 
-    **Parent Graph**: `node_1` → `node_2` (subgraph call) → `node_3`
+    **父图**: `node_1` → `node_2` (子图调用) → `node_3`
 
-    And the subgraph has 3 nodes, where the second node contains an `interrupt`:
+    子图包含 3 个节点，其中第二个节点包含一个 `interrupt`：
 
-    **Subgraph**: `sub_node_1` → `sub_node_2` (`interrupt`) → `sub_node_3`
+    **子图**: `sub_node_1` → `sub_node_2` (`interrupt`) → `sub_node_3`
 
-    When resuming the graph, the execution will proceed as follows:
+    恢复图时，执行将按以下方式进行：
 
-    1. **Skip `node_1`** in the parent graph (already executed, graph state was saved in snapshot).
-    2. **Re-execute `node_2`** in the parent graph from the start.
-    3. **Skip `sub_node_1`** in the subgraph (already executed, graph state was saved in snapshot).
-    4. **Re-execute `sub_node_2`** in the subgraph from the beginning.
-    5. Continue with `sub_node_3` and subsequent nodes.
+    1. **跳过父图中的 `node_1`**（已执行，图状态已保存在快照中）。
+    2. **重新执行父图中的 `node_2`** 从开头。
+    3. **跳过子图中的 `sub_node_1`**（已执行，图状态已保存在快照中）。
+    4. **从开头重新执行子图中的 `sub_node_2`**。
+    5. 继续执行 `sub_node_3` 及后续节点。
 
-    Here is abbreviated example code that you can use to understand how subgraphs work with interrupts.
-    It counts the number of times each node is entered and prints the count.
+    以下是您可以用来理解子图如何与中断配合使用的简短示例代码。
+    它会计算入口次数并打印计数。
 
+    :::python
     ```python
     import uuid
     from typing import TypedDict
@@ -951,7 +1858,7 @@ def node_in_parent_graph(state: State):
     from langgraph.graph import StateGraph
     from langgraph.constants import START
     from langgraph.types import interrupt, Command
-    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.checkpoint.memory import InMemorySaver
 
 
     class State(TypedDict):
@@ -977,7 +1884,7 @@ def node_in_parent_graph(state: State):
         print(f"Got an answer of {answer}")
 
 
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
 
     subgraph_builder = StateGraph(State)
     subgraph_builder.add_node("some_node", node_in_subgraph)
@@ -996,7 +1903,7 @@ def node_in_parent_graph(state: State):
         counter_parent_node += 1 # This code will run again on resuming!
         print(f"Entered `parent_node` a total of {counter_parent_node} times")
 
-        # Please note that we're unintentionally incrementing the state counter
+        # Please note that we're intentionally incrementing the state counter
         # in the graph state as well to demonstrate that the subgraph update
         # of the same key will not conflict with the parent graph (until
         subgraph_state = subgraph.invoke(state)
@@ -1008,12 +1915,12 @@ def node_in_parent_graph(state: State):
     builder.add_edge(START, "parent_node")
 
     # A checkpointer must be enabled for interrupts to work!
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
     graph = builder.compile(checkpointer=checkpointer)
 
     config = {
         "configurable": {
-          "thread_id": uuid.uuid4(),
+          "thread_id": uuidv4(),
         }
     }
 
@@ -1032,22 +1939,124 @@ def node_in_parent_graph(state: State):
     Entered `parent_node` a total of 1 times
     Entered `node_in_subgraph` a total of 1 times
     Entered human_node in sub-graph a total of 1 times
-    {'__interrupt__': (Interrupt(value='what is your name?', resumable=True, ns=['parent_node:4c3a0248-21f0-1287-eacf-3002bc304db4', 'human_node:2fe86d52-6f70-2a3f-6b2f-b1eededd6348'], when='during'),)}
+    {'__interrupt__': (Interrupt(value='what is your name?', id='...'),)}
     --- Resuming ---
     Entered `parent_node` a total of 2 times
     Entered human_node in sub-graph a total of 2 times
     Got an answer of 35
     {'parent_node': {'state_counter': 1}}
     ```
+    :::
 
-### Using multiple interrupts
+    :::js
+    ```typescript
+    import { v4 as uuidv4 } from "uuid";
+    import {
+      StateGraph,
+      START,
+      interrupt,
+      Command,
+      MemorySaver
+    } from "@langchain/langgraph";
+    import { z } from "zod";
 
-Using multiple interrupts within a **single** node can be helpful for patterns like [validating human input](#validate-human-input). However, using multiple interrupts in the same node can lead to unexpected behavior if not handled carefully.
+    const StateAnnotation = z.object({
+      stateCounter: z.number(),
+    });
 
-When a node contains multiple interrupt calls, LangGraph keeps a list of resume values specific to the task executing the node. Whenever execution resumes, it starts at the beginning of the node. For each interrupt encountered, LangGraph checks if a matching value exists in the task's resume list. Matching is **strictly index-based**, so the order of interrupt calls within the node is critical.
+    // Global variable to track the number of attempts
+    let counterNodeInSubgraph = 0;
 
-To avoid issues, refrain from dynamically changing the node's structure between executions. This includes adding, removing, or reordering interrupt calls, as such changes can result in mismatched indices. These problems often arise from unconventional patterns, such as mutating state via `Command(resume=..., update=SOME_STATE_MUTATION)` or relying on global variables to modify the node’s structure dynamically.
+    function nodeInSubgraph(state: z.infer<typeof StateAnnotation>) {
+      // A node in the sub-graph.
+      counterNodeInSubgraph += 1; # This code will **NOT** run again!
+      console.log(`Entered 'nodeInSubgraph' a total of ${counterNodeInSubgraph} times`);
+      return {};
+    }
 
+    let counterHumanNode = 0;
+
+    function humanNode(state: z.infer<typeof StateAnnotation>) {
+      counterHumanNode += 1; # This code will run again!
+      console.log(`Entered humanNode in sub-graph a total of ${counterHumanNode} times`);
+      const answer = interrupt("what is your name?");
+      console.log(`Got an answer of ${answer}`);
+      return {};
+    }
+
+    const checkpointer = new MemorySaver();
+
+    const subgraphBuilder = new StateGraph(StateAnnotation)
+      .addNode("someNode", nodeInSubgraph)
+      .addNode("humanNode", humanNode)
+      .addEdge(START, "someNode")
+      .addEdge("someNode", "humanNode");
+    const subgraph = subgraphBuilder.compile({ checkpointer });
+
+    let counterParentNode = 0;
+
+    async function parentNode(state: z.infer<typeof StateAnnotation>) {
+      # This parent node will invoke the subgraph.
+      counterParentNode += 1; # This code will run again on resuming!
+      console.log(`Entered 'parentNode' a total of ${counterParentNode} times`);
+
+      # Please note that we're intentionally incrementing the state counter
+      # in the graph state as well to demonstrate that the subgraph update
+      # of the same key will not conflict with the parent graph (until
+      const subgraphState = await subgraph.invoke(state);
+      return subgraphState;
+    }
+
+    const builder = new StateGraph(StateAnnotation)
+      .addNode("parentNode", parentNode)
+      .addEdge(START, "parentNode");
+
+    # A checkpointer must be enabled for interrupts to work!
+    const graph = builder.compile({ checkpointer });
+
+    const config = {
+      configurable: {
+        thread_id: uuidv4(),
+      }
+    };
+
+    const stream = await graph.stream({ stateCounter: 1 }, config);
+    for await (const chunk of stream) {
+      console.log(chunk);
+    }
+
+    console.log('--- Resuming ---');
+
+    const resumeStream = await graph.stream(new Command({ resume: "35" }), config);
+    for await (const chunk of resumeStream) {
+      console.log(chunk);
+    }
+    ```
+
+    This will print out
+
+    ```
+    Entered 'parentNode' a total of 1 times
+    Entered 'nodeInSubgraph' a total of 1 times
+    Entered humanNode in sub-graph a total of 1 times
+    { __interrupt__: [{ value: 'what is your name?', resumable: true, ns: ['parentNode:4c3a0248-21f0-1287-eacf-3002bc304db4', 'humanNode:2fe86d52-6f70-2a3f-6b2f-b1eededd6348'], when: 'during' }] }
+    --- Resuming ---
+    Entered 'parentNode' a total of 2 times
+    Entered humanNode in sub-graph a total of 2 times
+    Got an answer of 35
+    { parentNode: null }
+    ```
+    :::
+
+### 在单个节点中使用多个中断
+
+在 _单个_ 节点中使用多个中断可能有助于实现类似[验证人工输入](#validate-human-input)的模式。但是，如果处理不当，在单个节点中使用多个中断可能会导致意外行为。
+
+当节点包含多个中断调用时，LangGraph 会为执行该节点的任务维护一个针对恢复值的列表。每次恢复执行时，都会从节点的开头开始。对于遇到的每个中断，LangGraph 会检查任务的恢复列表中是否存在匹配的值。匹配是 **严格基于索引的**，因此节点内的中断调用顺序至关重要。
+
+为避免问题，请避免在执行之间动态更改节点结构。这包括添加、删除或重新排序中断调用，因为此类更改可能导致索引不匹配。这些问题通常源于非标准的模式，例如通过 `Command(resume=..., update=SOME_STATE_MUTATION)` 改变状态，或依赖全局变量动态修改节点结构。
+
+:::python
 ??? example "Extended example: incorrect code that introduces non-determinism"
 
     ```python
@@ -1057,7 +2066,7 @@ To avoid issues, refrain from dynamically changing the node's structure between 
     from langgraph.graph import StateGraph
     from langgraph.constants import START
     from langgraph.types import interrupt, Command
-    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.checkpoint.memory import InMemorySaver
 
 
     class State(TypedDict):
@@ -1091,7 +2100,7 @@ To avoid issues, refrain from dynamically changing the node's structure between 
     builder.add_edge(START, "human_node")
 
     # A checkpointer must be enabled for interrupts to work!
-    checkpointer = MemorySaver()
+    checkpointer = InMemorySaver()
     graph = builder.compile(checkpointer=checkpointer)
 
     config = {
@@ -1108,7 +2117,9 @@ To avoid issues, refrain from dynamically changing the node's structure between 
     ```
 
     ```pycon
-    {'__interrupt__': (Interrupt(value='what is your name?', resumable=True, ns=['human_node:3a007ef9-c30d-c357-1ec1-86a1a70d8fba'], when='during'),)}
+    {'__interrupt__': (Interrupt(value='what is your name?', id='...'),)}
     Name: N/A. Age: John
     {'human_node': {'age': 'John', 'name': 'N/A'}}
     ```
+
+:::

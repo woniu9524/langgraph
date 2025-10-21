@@ -13,9 +13,9 @@
 [![Open Issues](https://img.shields.io/github/issues-raw/langchain-ai/langgraph)](https://github.com/langchain-ai/langgraph/issues)
 [![Docs](https://img.shields.io/badge/docs-latest-blue)](https://langchain-ai.github.io/langgraph/)
 
-LangGraph 受到许多塑造代理未来公司的信赖——包括 Klarna、Replit、Elastic 等——它是一个低级别协调框架，用于构建、管理和部署长期运行、有状态的代理。
+LangGraph 受到各家公司的信赖，它们正在塑造智能体（agent）的未来——包括 Klarna、Replit、Elastic 等。LangGraph 是一个低级编排框架，用于构建、管理和部署长期运行、有状态的智能体。
 
-## 开始使用
+## 入门
 
 安装 LangGraph：
 
@@ -23,7 +23,7 @@ LangGraph 受到许多塑造代理未来公司的信赖——包括 Klarna、Rep
 pip install -U langgraph
 ```
 
-然后，[使用预构建组件](https://langchain-ai.github.io/langgraph/agents/agents/) 创建一个代理：
+然后，[使用预构建组件](https://langchain-ai.github.io/langgraph/agents/agents/)创建一个智能体：
 
 ```python
 # pip install -qU "langchain[anthropic]" to call the model
@@ -31,8 +31,7 @@ pip install -U langgraph
 from langgraph.prebuilt import create_react_agent
 
 def get_weather(city: str) -> str:
-    """Get weather for a given city."""
-    # **此处是注释，应翻译**
+    """获取指定城市的天气。"""
     return f"It's always sunny in {city}!"
 
 agent = create_react_agent(
@@ -41,44 +40,45 @@ agent = create_react_agent(
     prompt="You are a helpful assistant"
 )
 
-# Run the agent
+# 运行智能体
 agent.invoke(
     {"messages": [{"role": "user", "content": "what is the weather in sf"}]}
 )
 ```
 
-有关更多信息，请参阅[快速入门](https://langchain-ai.github.io/langgraph/agents/agents/)。或者，要了解如何使用可自定义的架构、长期记忆和其他复杂任务处理来构建[代理工作流](https://langchain-ai.github.io/langgraph/concepts/low_level/)，请参阅[LangGraph 基础教程](https://langchain-ai.github.io/langgraph/tutorials/get-started/1-build-basic-chatbot/)。
+有关更多信息，请参阅[快速入门](https://langchain-ai.github.io/langgraph/agents/agents/)。或者，如需了解如何构建具有可自定义架构、长期记忆和其他复杂任务处理能力的[智能体工作流](https://langchain-ai.github.io/langgraph/concepts/low_level/)，请参阅[LangGraph 入门教程](https://langchain-ai.github.io/langgraph/tutorials/get-started/1-build-basic-chatbot/)。
 
 ## 核心优势
 
-LangGraph 为*任何*长期运行、有状态的工作流或代理提供低级别支持基础设施。LangGraph 不会抽象化提示或架构，并提供以下中心优势：
+LangGraph 为*任何*长期运行、有状态的工作流或智能体提供低级支持基础设施。LangGraph 不会抽象化提示或架构，并提供以下核心优势：
 
-- [持久化执行](https://langchain-ai.github.io/langgraph/concepts/durable_execution/)：构建能够从故障中恢复并在长时间内运行的代理，自动从中断处精确恢复。
-- [人工干预](https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/)：通过在执行的任何阶段检查和修改代理状态，无缝地融入人工监督。
-- [全面的记忆](https://langchain-ai.github.io/langgraph/concepts/memory/)：创建真正的有状态代理，兼具正在进行的推理的短期工作记忆和跨会话的长期持久记忆。
-- [通过 LangSmith 进行调试](http://www.langchain.com/langsmith)：借助可视化工具深入了解复杂的代理行为，这些工具可以追踪执行路径、捕获状态转换并提供详细的运行时指标。
-- [生产就绪的部署](https://langchain-ai.github.io/langgraph/concepts/deployment_options/)：使用专为有状态、长期运行的工作流的独特挑战而设计的可伸缩基础设施，自信地部署复杂的代理系统。
+- [持久化执行](https://langchain-ai.github.io/langgraph/concepts/durable_execution/)：构建能够经受故障并可长时间运行的智能体，自动从中断处精确恢复。
+- [人工干预](https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/)：通过在执行的任何阶段检查和修改智能体状态，无缝地融入人工监督。
+- [全面的记忆](https://langchain-ai.github.io/langgraph/concepts/memory/)：创建真正有状态的智能体，兼具用于持续推理的短期工作记忆和跨会话的长期持久记忆。
+- [通过 LangSmith 进行调试](http://www.langchain.com/langsmith)：使用可视化工具深入了解复杂的智能体行为，这些工具可以跟踪执行路径、捕获状态转换并提供详细的运行时指标。
+- [生产级部署](https://langchain-ai.github.io/langgraph/concepts/deployment_options/)：使用专为有状态、长期运行工作流的独特挑战而设计的可扩展基础设施，自信地部署复杂的智能体系统。
 
 ## LangGraph 的生态系统
 
-虽然 LangGraph 可以独立使用，但它也可以与任何 LangChain 产品无缝集成，为开发人员提供一套完整的代理构建工具。为了改进您的 LLM 应用程序开发，请将 LangGraph 与以下产品配合使用：
+虽然 LangGraph 可以独立使用，但它也可以与任何 LangChain 产品无缝集成，为开发人员提供一套完整的智能体构建工具。为了改进您的 LLM 应用开发，请将 LangGraph 与以下工具搭配使用：
 
-- [LangSmith](http://www.langchain.com/langsmith) — 有助于代理评估和可观察性。调试性能不佳的 LLM 应用运行、评估代理轨迹、获得生产环境的可视性，并随着时间的推移提高性能。
-- [LangGraph Platform](https://langchain-ai.github.io/langgraph/concepts/langgraph_platform/) — 使用专用的部署平台轻松部署和扩展代理，该平台适用于长期运行的有状态工作流。跨团队发现、重用、配置和共享代理——并通过[LangGraph Studio](https://langchain-ai.github.io/langgraph/concepts/langgraph_studio/) 中的可视化原型快速迭代。
-- [LangChain](https://python.langchain.com/docs/introduction/) – 提供集成和可组合组件，以简化 LLM 应用程序开发。
+- [LangSmith](http://www.langchain.com/langsmith) — 有助于智能体评估和可观察性。调试性能不佳的 LLM 应用运行，评估智能体轨迹，在生产环境中获得可见性，并随着时间的推移提高性能。
+- [LangSmith Deployment](https://langchain-ai.github.io/langgraph/concepts/langgraph_platform/) — 使用专为长期运行、有状态工作流设计的部署平台，轻松部署和扩展智能体。发现、重用、配置和跨团队共享智能体——并通过 [LangGraph Studio](https://langchain-ai.github.io/langgraph/concepts/langgraph_studio/) 中的可视化原型快速迭代。
+- [LangChain](https://python.langchain.com/docs/introduction/) – 提供集成和可组合组件，以简化 LLM 应用开发。
 
 > [!NOTE]
-> 正在寻找 LangGraph 的 JS 版本？请参阅[JS 仓库](https://github.com/langchain-ai/langgraphjs)和[JS 文档](https://langchain-ai.github.io/langgraphjs/)。
+> 正在寻找 LangGraph 的 JavaScript 版本？请参阅 [JS 仓库](https://github.com/langchain-ai/langgraphjs) 和 [JS 文档](https://langchain-ai.github.io/langgraphjs/)。
 
 ## 附加资源
 
-- [指南](https://langchain-ai.github.io/langgraph/how-tos/)：针对流式传输、添加记忆和持久化以及设计模式（例如分支、子图等）等主题的快速、可操作的代码片段。
-- [参考](https://langchain-ai.github.io/langgraph/reference/graphs/)：有关核心类、方法、如何使用图和检查点 API 以及更高级的预构建组件的详细参考。
-- [示例](https://langchain-ai.github.io/langgraph/tutorials/overview/)：关于开始使用 LangGraph 的指导性示例。
-- [LangChain Academy](https://academy.langchain.com/courses/intro-to-langgraph)：在我们免费、结构化的课程中学习 LangGraph 的基础知识。
-- [模板](https://langchain-ai.github.io/langgraph/concepts/template_applications/)：常见代理工作流（例如 ReAct 代理、记忆、检索等）的预构建参考应用程序，可以克隆和改编。
-- [案例研究](https://www.langchain.com/built-with-langgraph)：了解行业领导者如何使用 LangGraph 大规模发布 AI 应用。
+- [指南](https://langchain-ai.github.io/langgraph/guides/)：关于流式传输、添加记忆和持久化以及设计模式（例如分支、子图等）的快速、可操作的代码片段。
+- [参考](https://langchain-ai.github.io/langgraph/reference/graphs/)：关于核心类、方法、如何使用图和检查点 API 以及更高级的预构建组件的详细参考。
+- [示例](https://langchain-ai.github.io/langgraph/examples/)：关于开始使用 LangGraph 的指导性示例。
+- [LangChain 论坛](https://forum.langchain.com/)：与社区联系，分享您的技术问题、想法和反馈。
+- [LangChain Academy](https://academy.langchain.com/courses/intro-to-langgraph)：在我们免费的结构化课程中学习 LangGraph 的基础知识。
+- [模板](https://langchain-ai.github.io/langgraph/concepts/template_applications/)：用于常见智能体工作流（例如 ReAct 智能体、记忆、检索等）的预构建参考应用，可以克隆和改编。
+- [案例研究](https://www.langchain.com/built-with-langgraph)：听听行业领导者如何使用 LangGraph 来大规模发布 AI 应用程序。
 
 ## 致谢
 
-LangGraph 的灵感来源于 [Pregel](https://research.google.com/pubs/pub37252/) 和 [Apache Beam](https://beam.apache.org/)。公开接口借鉴了 [NetworkX](https://networkx.org/documentation/latest/) 的灵感。LangGraph 由 LangChain 的创建者 LangChain Inc. 构建，但也可在不使用 LangChain 的情况下使用。
+LangGraph 的灵感来自 [Pregel](https://research.google.com/pubs/pub37252/) 和 [Apache Beam](https://beam.apache.org/)。公共接口借鉴了 [NetworkX](https://networkx.org/documentation/latest/) 的设计。LangGraph 由 LangChain 的创建者 LangChain Inc. 开发，但也可在不使用 LangChain 的情况下使用。

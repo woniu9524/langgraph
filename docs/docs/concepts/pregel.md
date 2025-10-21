@@ -1,332 +1,614 @@
----
-search:
-  boost: 2
----
+## LangGraph 运行时
 
-# LangGraph 运行时
+`@`[Pregel](https://api.python.langchain.com/en/latest/pregel/langgraph.pregel.Pregel.html#langgraph.pregel.Pregel)` 实现了 LangGraph 的运行时，负责管理 LangGraph 应用的执行。
 
-[Pregel][langgraph.pregel.Pregel] 实现了 LangGraph 的运行时，负责管理 LangGraph 应用程序的执行。
+编译一个 `@`[StateGraph](https://api.python.langchain.com/en/latest/graph/langgraph.graph.StateGraph.html#langgraph.graph.StateGraph)` 或创建一个 `@`[entrypoint](https://api.python.langchain.com/en/latest/func/langgraph.func.entrypoint.html#langgraph.func.entrypoint)` 会生成一个 `@`[Pregel](https://api.python.langchain.com/en/latest/pregel/langgraph.pregel.Pregel.html#langgraph.pregel.Pregel)` 实例，该实例可以通过输入进行调用。
 
-编译一个 [StateGraph][langgraph.graph.StateGraph] 或创建一个 [入口点][langgraph.func.entrypoint]会生成一个可以被调用的 [Pregel][langgraph.pregel.Pregel] 实例。
+`@`[Pregel](https://api.python.langchain.com/en/latest/pregel/langgraph.pregel.Pregel.html#langgraph.pregel.Pregel)` 实现了 LangGraph 的运行时，负责管理 LangGraph 应用的执行。
 
-本指南将从高层解释这个运行时，并提供直接使用 Pregel 实现应用程序的说明。
+编译一个 `@`[StateGraph](https://api.python.langchain.com/en/latest/graph/langgraph.graph.StateGraph.html#langgraph.graph.StateGraph)` 或创建一个 `@`[entrypoint](https://api.python.langchain.com/en/latest/func/langgraph.func.entrypoint.html#langgraph.func.entrypoint)` 会生成一个 `@`[Pregel](https://api.python.langchain.com/en/latest/pregel/langgraph.pregel.Pregel.html#langgraph.pregel.Pregel)` 实例，该实例可以通过输入进行调用。
 
-> **注意：** [Pregel][langgraph.pregel.Pregel] 运行时之所以命名为 [Google 的 Pregel 算法](https://research.google/pubs/pub37252/)，是因为该算法描述了一种使用图进行大规模并行计算的高效方法。
+本指南将从高层次解释运行时，并提供直接使用 Pregel 实现应用的说明。
 
-## 概述
+> **注意：** `@`[Pregel](https://api.python.langchain.com/en/latest/pregel/langgraph.pregel.Pregel.html#langgraph.pregel.Pregel)` 运行时以 [Google 的 Pregel 算法](https://research.google.com/pubs/pub37252/) 命名，该算法描述了一种使用图进行大规模并行计算的有效方法。
 
-在 LangGraph 中，Pregel 将 [**Actor**](https://en.wikipedia.org/wiki/Actor_model) 和 **Channel** 整合到一个单一的应用程序中。**Actor** 从 Channel 读取数据并向 Channel 写入数据。Pregel 将应用程序的执行组织成多个步骤，遵循 **Pregel 算法**/**批量同步并行**（Bulk Synchronous Parallel）模型。
+> **Note:** The @[Pregel] runtime is named after [Google's Pregel algorithm](https://research.google.com/pubs/pub37252/), which describes an efficient method for large-scale parallel computation using graphs.
+
+## 概览
+
+在 LangGraph 中，Pregel 将 [**Actor（执行器）**](https://en.wikipedia.org/wiki/Actor_model) 和 **Channels（通道）** 结合到一个单一应用中。**Actors** 从通道读取数据并写入通道。Pregel 将应用的执行组织成多个步骤，遵循 **Pregel 算法** / **Bulk Synchronous Parallel (BSP)** 模型。
 
 每个步骤包含三个阶段：
 
-- **规划 (Plan)**：确定此步骤中要执行的 **Actor**。例如，在第一步，选择订阅特殊 **输入 (input)** Channel 的 **Actor**；在后续步骤中，选择在前一 步更新的 Channel 上订阅的 **Actor**。
-- **执行 (Execution)**：并行执行所有选定的 **Actor**，直到所有 Actor 完成，或其中一个失败，或达到超时时间。在此阶段，Channel 的更新对 Actor 是不可见的，直到下一个步骤。
-- **更新 (Update)**：用此步骤中 **Actor** 写入的值来更新 Channel。
+- **Plan（计划）**：确定在此步骤中要执行哪些 **Actors**。例如，在第一步中，选择订阅特殊 **input** 通道的 **Actors**；在后续步骤中，选择在上一步中更新的通道订阅的 **Actors**。
+- **Execution（执行）**：并行执行所有选定的 **Actors**，直到所有 Actor 完成，或其中一个失败，或达到超时。在此阶段，通道的更新对 Actor 不可见，直到进入下一步。
+- **Update（更新）**：使用此步骤中 **Actors** 写入的值来更新通道。
 
-重复此过程，直到没有 **Actor** 被选中执行，或者达到最大步数。
+重复此过程，直到没有 **Actors** 被选为执行，或者达到最大步骤数。
 
-## Actor
+## Actors（执行器）
 
-Actor 是一个 `PregelNode`。它订阅 Channel，从 Channel 读取数据并写入数据。可以将其视为 Pregel 算法中的一个 **Actor**。`PregelNodes` 实现 LangChain 的 Runnable 接口。
+An **actor** is a `PregelNode`. It subscribes to channels, reads data from them, and writes data to them. It can be thought of as an **actor** in the Pregel algorithm. `PregelNodes` implement LangChain's Runnable interface.
 
-## Channel
+## Channels（通道）
 
-Channel 用于 Actor（PregelNodes）之间的通信。每个 Channel 都有一个值类型、一个更新类型和一个更新函数——该函数接收一系列更新并修改存储的值。Channel 可用于将数据从一个链发送到另一个链，或将数据从一个链发送到未来步骤的自身。LangGraph 提供了一些内置的 Channel：
+Channels are used to communicate between actors (PregelNodes). Each channel has a value type, an update type, and an update function – which takes a sequence of updates and modifies the stored value. Channels can be used to send data from one chain to another, or to send data from a chain to itself in a future step. LangGraph provides a number of built-in channels:
 
-- [LastValue][langgraph.channels.LastValue]：默认 Channel，存储发送到 Channel 的最后一个值，适用于输入和输出值，或用于将数据从一个步骤发送到下一个步骤。
-- [Topic][langgraph.channels.Topic]：一个可配置的发布/订阅（PubSub）主题，适用于在 **Actor** 之间发送多个值，或用于累积输出。可以配置为去重值或在多个步骤中累积值。
-- [BinaryOperatorAggregate][langgraph.channels.BinaryOperatorAggregate]：存储一个持久值，通过将一个二元运算符应用于当前值和发送到 Channel 的每个更新来更新，适用于计算跨多个步骤的聚合；例如，`total = BinaryOperatorAggregate(int, operator.add)`
+- @[LastValue](https://api.python.langchain.com/en/latest/channels/langgraph.channels.last_value.LastValue.html#langgraph.channels.last_value.LastValue): The default channel, stores the last value sent to the channel, useful for input and output values, or for sending data from one step to the next.
+- @[Topic](https://api.python.langchain.com/en/latest/channels/langgraph.channels.topic.Topic.html#langgraph.channels.topic.Topic): A configurable PubSub Topic, useful for sending multiple values between **actors**, or for accumulating output. Can be configured to deduplicate values or to accumulate values over the course of multiple steps.
+- @[BinaryOperatorAggregate](https://api.python.langchain.com/en/latest/channels/langgraph.channels.binary_operator_aggregate.BinaryOperatorAggregate.html#langgraph.channels.binary_operator_aggregate.BinaryOperatorAggregate): stores a persistent value, updated by applying a binary operator to the current value and each update sent to the channel, useful for computing aggregates over multiple steps; e.g.,`total = BinaryOperatorAggregate(int, operator.add)`
 
-## 示例
+- @[LastValue](https://api.python.langchain.com/en/latest/channels/langgraph.channels.last_value.LastValue.html#langgraph.channels.last_value.LastValue): The default channel, stores the last value sent to the channel, useful for input and output values, or for sending data from one step to the next.
+- @[Topic](https://api.python.langchain.com/en/latest/channels/langgraph.channels.topic.Topic.html#langgraph.channels.topic.Topic): A configurable PubSub Topic, useful for sending multiple values between **actors**, or for accumulating output. Can be configured to deduplicate values or to accumulate values over the course of multiple steps.
+- @[BinaryOperatorAggregate](https://api.python.langchain.com/en/latest/channels/langgraph.channels.binary_operator_aggregate.BinaryOperatorAggregate.html#langgraph.channels.binary_operator_aggregate.BinaryOperatorAggregate): stores a persistent value, updated by applying a binary operator to the current value and each update sent to the channel, useful for computing aggregates over multiple steps; e.g.,`total = BinaryOperatorAggregate(int, operator.add)`
 
-虽然大多数用户会通过 [StateGraph][langgraph.graph.StateGraph] API 或
-[入口点][langgraph.func.entrypoint] 装饰器与 Pregel 交互，但也可以直接与 Pregel 交互。
+## Examples
 
-以下是一些不同的示例，让您了解 Pregel API。
+While most users will interact with Pregel through the @[StateGraph](https://api.python.langchain.com/en/latest/graph/langgraph.graph.StateGraph.html#langgraph.graph.StateGraph) API or the @[entrypoint](https://api.python.langchain.com/en/latest/func/langgraph.func.entrypoint.html#langgraph.func.entrypoint) decorator, it is possible to interact with Pregel directly.
 
-=== "单个节点"
+While most users will interact with Pregel through the @[StateGraph] API or the @[entrypoint] decorator, it is possible to interact with Pregel directly.
 
-    ```python
+Below are a few different examples to give you a sense of the Pregel API.
 
-    from langgraph.channels import EphemeralValue
-    from langgraph.pregel import Pregel, NodeBuilder
+=== "Single node"
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b")
-    )
+```python
+from langgraph.channels import EphemeralValue
+from langgraph.pregel import Pregel, NodeBuilder
 
-    app = Pregel(
-        nodes={"node1": node1},
-        channels={
-            "a": EphemeralValue(str),
-            "b": EphemeralValue(str),
-        },
-        input_channels=["a"],
-        output_channels=["b"],
-    )
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b")
+)
 
-    app.invoke({"a": "foo"})
-    ```
+app = Pregel(
+    nodes={"node1": node1},
+    channels={
+        "a": EphemeralValue(str),
+        "b": EphemeralValue(str),
+    },
+    input_channels=["a"],
+    output_channels=["b"],
+)
 
-    ```con
-    {'b': 'foofoo'}
-    ```
+app.invoke({"a": "foo"})
+```
 
-=== "多个节点"
+```console
+{'b': 'foofoo'}
+```
 
-    ```python
-    from langgraph.channels import LastValue, EphemeralValue
-    from langgraph.pregel import Pregel, NodeBuilder
+```typescript
+import { EphemeralValue } from "@langchain/langgraph/channels";
+import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b")
-    )
+const node1 = new NodeBuilder()
+  .subscribeOnly("a")
+  .do((x: string) => x + x)
+  .writeTo("b");
 
-    node2 = (
-        NodeBuilder().subscribe_only("b")
-        .do(lambda x: x + x)
-        .write_to("c")
-    )
+const app = new Pregel({
+  nodes: { node1 },
+  channels: {
+    a: new EphemeralValue<string>(),
+    b: new EphemeralValue<string>(),
+  },
+  inputChannels: ["a"],
+  outputChannels: ["b"],
+});
+
+await app.invoke({ a: "foo" });
+```
+
+```console
+{ b: 'foofoo' }
+```
+
+=== "Multiple nodes"
+
+```python
+from langgraph.channels import LastValue, EphemeralValue
+from langgraph.pregel import Pregel, NodeBuilder
+
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b")
+)
+
+node2 = (
+    NodeBuilder().subscribe_only("b")
+    .do(lambda x: x + x)
+    .write_to("c")
+)
 
 
-    app = Pregel(
-        nodes={"node1": node1, "node2": node2},
-        channels={
-            "a": EphemeralValue(str),
-            "b": LastValue(str),
-            "c": EphemeralValue(str),
-        },
-        input_channels=["a"],
-        output_channels=["b", "c"],
-    )
+app = Pregel(
+    nodes={"node1": node1, "node2": node2},
+    channels={
+        "a": EphemeralValue(str),
+        "b": LastValue(str),
+        "c": EphemeralValue(str),
+    },
+    input_channels=["a"],
+    output_channels=["b", "c"],
+)
 
-    app.invoke({"a": "foo"})
-    ```
+app.invoke({"a": "foo"})
+```
 
-    ```con
-    {'b': 'foofoo', 'c': 'foofoofoofoo'}
-    ```
+```console
+{'b': 'foofoo', 'c': 'foofoofoofoo'}
+```
+
+```typescript
+import { LastValue, EphemeralValue } from "@langchain/langgraph/channels";
+import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+
+const node1 = new NodeBuilder()
+  .subscribeOnly("a")
+  .do((x: string) => x + x)
+  .writeTo("b");
+
+const node2 = new NodeBuilder()
+  .subscribeOnly("b")
+  .do((x: string) => x + x)
+  .writeTo("c");
+
+const app = new Pregel({
+  nodes: { node1, node2 },
+  channels: {
+    a: new EphemeralValue<string>(),
+    b: new LastValue<string>(),
+    c: new EphemeralValue<string>(),
+  },
+  inputChannels: ["a"],
+  outputChannels: ["b", "c"],
+});
+
+await app.invoke({ a: "foo" });
+```
+
+```console
+{ b: 'foofoo', c: 'foofoofoofoo' }
+```
 
 === "Topic"
 
-    ```python
-    from langgraph.channels import EphemeralValue, Topic
-    from langgraph.pregel import Pregel, NodeBuilder
+```python
+from langgraph.channels import EphemeralValue, Topic
+from langgraph.pregel import Pregel, NodeBuilder
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b", "c")
-    )
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b", "c")
+)
 
-    node2 = (
-        NodeBuilder().subscribe_to("b")
-        .do(lambda x: x["b"] + x["b"])
-        .write_to("c")
-    )
+node2 = (
+    NodeBuilder().subscribe_to("b")
+    .do(lambda x: x["b"] + x["b"])
+    .write_to("c")
+)
 
-    app = Pregel(
-        nodes={"node1": node1, "node2": node2},
-        channels={
-            "a": EphemeralValue(str),
-            "b": EphemeralValue(str),
-            "c": Topic(str, accumulate=True),
-        },
-        input_channels=["a"],
-        output_channels=["c"],
-    )
+app = Pregel(
+    nodes={"node1": node1, "node2": node2},
+    channels={
+        "a": EphemeralValue(str),
+        "b": EphemeralValue(str),
+        "c": Topic(str, accumulate=True),
+    },
+    input_channels=["a"],
+    output_channels=["c"],
+)
 
-    app.invoke({"a": "foo"})
-    ```
+app.invoke({"a": "foo"})
+```
 
-    ```pycon
-    {'c': ['foofoo', 'foofoofoofoo']}
-    ```
+```pycon
+{'c': ['foofoo', 'foofoofoofoo']}
+```
+
+```typescript
+import { EphemeralValue, Topic } from "@langchain/langgraph/channels";
+import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
+
+const node1 = new NodeBuilder()
+  .subscribeOnly("a")
+  .do((x: string) => x + x)
+  .writeTo("b", "c");
+
+const node2 = new NodeBuilder()
+  .subscribeTo("b")
+  .do((x: { b: string }) => x.b + x.b)
+  .writeTo("c");
+
+const app = new Pregel({
+  nodes: { node1, node2 },
+  channels: {
+    a: new EphemeralValue<string>(),
+    b: new EphemeralValue<string>(),
+    c: new Topic<string>({ accumulate: true }),
+  },
+  inputChannels: ["a"],
+  outputChannels: ["c"],
+});
+
+await app.invoke({ a: "foo" });
+```
+
+```console
+{ c: ['foofoo', 'foofoofoofoo'] }
+```
 
 === "BinaryOperatorAggregate"
 
-    此示例演示如何使用 BinaryOperatorAggregate Channel 实现一个reducer。
+This examples demonstrates how to use the BinaryOperatorAggregate channel to implement a reducer.
 
-    ```python
-    from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
-    from langgraph.pregel import Pregel, NodeBuilder
+```python
+from langgraph.channels import EphemeralValue, BinaryOperatorAggregate
+from langgraph.pregel import Pregel, NodeBuilder
+import operator
 
+node1 = (
+    NodeBuilder().subscribe_only("a")
+    .do(lambda x: x + x)
+    .write_to("b", "c")
+)
 
-    node1 = (
-        NodeBuilder().subscribe_only("a")
-        .do(lambda x: x + x)
-        .write_to("b", "c")
-    )
+node2 = (
+    NodeBuilder().subscribe_only("b")
+    .do(lambda x: x + x)
+    .write_to("c")
+)
 
-    node2 = (
-        NodeBuilder().subscribe_only("b")
-        .do(lambda x: x + x)
-        .write_to("c")
-    )
+def reducer(current, update):
+    if current:
+        return current + " | " + update
+    else:
+        return update
 
-    def reducer(current, update):
-        if current:
-            return current + " | " + update
-        else:
-            return update
+app = Pregel(
+    nodes={"node1": node1, "node2": node2},
+    channels={
+        "a": EphemeralValue(str),
+        "b": EphemeralValue(str),
+        "c": BinaryOperatorAggregate(str, operator=reducer),
+    },
+    input_channels=["a"],
+    output_channels=["c"],
+)
 
-    app = Pregel(
-        nodes={"node1": node1, "node2": node2},
-        channels={
-            "a": EphemeralValue(str),
-            "b": EphemeralValue(str),
-            "c": BinaryOperatorAggregate(str, operator=reducer),
-        },
-        input_channels=["a"],
-        output_channels=["c"],
-    )
+app.invoke({"a": "foo"})
+```
 
-    app.invoke({"a": "foo"})
-    ```
+```typescript
+import { EphemeralValue, BinaryOperatorAggregate } from "@langchain/langgraph/channels";
+import { Pregel, NodeBuilder } from "@langchain/langgraph/pregel";
 
-=== "循环"
+const node1 = new NodeBuilder()
+  .subscribeOnly("a")
+  .do((x: string) => x + x)
+  .writeTo("b", "c");
 
-    此示例演示如何通过让一个链写入其订阅的 Channel 来引入图中的循环。执行将持续进行，直到向 Channel 写入 None 值。
+const node2 = new NodeBuilder()
+  .subscribeOnly("b")
+  .do((x: string) => x + x)
+  .writeTo("c");
 
-    ```python
-    from langgraph.channels import EphemeralValue
-    from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+const reducer = (current: string, update: string) => {
+  if (current) {
+    return current + " | " + update;
+  } else {
+    return update;
+  }
+};
 
-    example_node = (
-        NodeBuilder().subscribe_only("value")
-        .do(lambda x: x + x if len(x) < 10 else None)
-        .write_to(ChannelWriteEntry("value", skip_none=True))
-    )
+const app = new Pregel({
+  nodes: { node1, node2 },
+  channels: {
+    a: new EphemeralValue<string>(),
+    b: new EphemeralValue<string>(),
+    c: new BinaryOperatorAggregate<string>({ operator: reducer }),
+  },
+  inputChannels: ["a"],
+  outputChannels: ["c"],
+});
 
-    app = Pregel(
-        nodes={"example_node": example_node},
-        channels={
-            "value": EphemeralValue(str),
-        },
-        input_channels=["value"],
-        output_channels=["value"],
-    )
+await app.invoke({ a: "foo" });
+```
 
-    app.invoke({"value": "a"})
-    ```
+=== "Cycle"
 
-    ```pycon
-    {'value': 'aaaaaaaaaaaaaaaa'}
-    ```
+```python
 
-## 高层 API
+This example demonstrates how to introduce a cycle in the graph, by having
+a chain write to a channel it subscribes to. Execution will continue
+until a `None` value is written to the channel.
 
-LangGraph 提供了两个高层 API 来创建 Pregel 应用程序：[StateGraph (Graph API)](./low_level.md) 和 [函数式 API](functional_api.md)。
+```python
+from langgraph.channels import EphemeralValue
+from langgraph.pregel import Pregel, NodeBuilder, ChannelWriteEntry
+
+example_node = (
+    NodeBuilder().subscribe_only("value")
+    .do(lambda x: x + x if len(x) < 10 else None)
+    .write_to(ChannelWriteEntry("value", skip_none=True))
+)
+
+app = Pregel(
+    nodes={"example_node": example_node},
+    channels={
+        "value": EphemeralValue(str),
+    },
+    input_channels=["value"],
+    output_channels=["value"],
+)
+
+app.invoke({"value": "a"})
+```
+
+```pycon
+{'value': 'aaaaaaaaaaaaaaaa'}
+```
+
+```typescript
+
+This example demonstrates how to introduce a cycle in the graph, by having
+a chain write to a channel it subscribes to. Execution will continue
+until a `null` value is written to the channel.
+
+```typescript
+import { EphemeralValue } from "@langchain/langgraph/channels";
+import { Pregel, NodeBuilder, ChannelWriteEntry } from "@langchain/langgraph/pregel";
+
+const exampleNode = new NodeBuilder()
+  .subscribeOnly("value")
+  .do((x: string) => x.length < 10 ? x + x : null)
+  .writeTo(new ChannelWriteEntry("value", { skipNone: true }));
+
+const app = new Pregel({
+  nodes: { exampleNode },
+  channels: {
+    value: new EphemeralValue<string>(),
+  },
+  inputChannels: ["value"],
+  outputChannels: ["value"],
+});
+
+await app.invoke({ value: "a" });
+```
+
+```console
+{ value: 'aaaaaaaaaaaaaaaa' }
+```
+
+## High-level API
+
+LangGraph provides two high-level APIs for creating a Pregel application: the [StateGraph (Graph API)](./low_level.md) and the [Functional API](functional_api.md).
 
 === "StateGraph (Graph API)"
 
-    [StateGraph (Graph API)][langgraph.graph.StateGraph] 是一个更高级的抽象，它简化了 Pregel 应用程序的创建。它允许您定义一个由节点和边组成的图。当您编译图时，StateGraph API 会自动为您创建 Pregel 应用程序。
+The @[StateGraph (Graph API)](https://api.python.langchain.com/en/latest/graph/langgraph.graph.StateGraph.html#langgraph.graph.StateGraph) is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
 
-    ```python
-    from typing import TypedDict, Optional
+```python
+from typing import TypedDict, Optional
 
-    from langgraph.constants import START
-    from langgraph.graph import StateGraph
+from langgraph.constants import START
+from langgraph.graph import StateGraph
 
-    class Essay(TypedDict):
-        topic: str
-        content: Optional[str]
-        score: Optional[float]
+class Essay(TypedDict):
+    topic: str
+    content: Optional[str]
+    score: Optional[float]
 
-    def write_essay(essay: Essay):
-        return {
-            "content": f"Essay about {essay['topic']}",
-        }
+def write_essay(essay: Essay):
+    return {
+        "content": f"Essay about {essay['topic']}",
+    }
 
-    def score_essay(essay: Essay):
-        return {
-            "score": 10
-        }
+def score_essay(essay: Essay):
+    return {
+        "score": 10
+    }
 
-    builder = StateGraph(Essay)
-    builder.add_node(write_essay)
-    builder.add_node(score_essay)
-    builder.add_edge(START, "write_essay")
+builder = StateGraph(Essay)
+builder.add_node(write_essay)
+builder.add_node(score_essay)
+builder.add_edge(START, "write_essay")
 
-    # Compile the graph.
-    # This will return a Pregel instance.
-    graph = builder.compile()
-    ```
+# Compile the graph.
+# This will return a Pregel instance.
+graph = builder.compile()
+```
 
-    编译后的 Pregel 实例将与节点和 Channel 列表相关联。您可以通过打印它们来查看节点和 Channel。
+The @[StateGraph (Graph API)](https://api.python.langchain.com/en/latest/graph/langgraph.graph.StateGraph.html#langgraph.graph.StateGraph) is a higher-level abstraction that simplifies the creation of Pregel applications. It allows you to define a graph of nodes and edges. When you compile the graph, the StateGraph API automatically creates the Pregel application for you.
 
-    ```python
-    print(graph.nodes)
-    ```
+```typescript
+import { START, StateGraph } from "@langchain/langgraph";
 
-    您会看到类似这样的内容：
+interface Essay {
+  topic: string;
+  content?: string;
+  score?: number;
+}
 
-    ```pycon
-    {'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
-     'write_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba14d0>,
-     'score_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1710>}
-    ```
+const writeEssay = (essay: Essay) => {
+  return {
+    content: `Essay about ${essay.topic}`,
+  };
+};
 
-    ```python
-    print(graph.channels)
-    ```
+const scoreEssay = (essay: Essay) => {
+  return {
+    score: 10
+  };
+};
 
-    您应该会看到类似这样的内容
+const builder = new StateGraph<Essay>({
+  channels: {
+    topic: null,
+    content: null,
+    score: null,
+  }
+})
+  .addNode("writeEssay", writeEssay)
+  .addNode("scoreEssay", scoreEssay)
+  .addEdge(START, "writeEssay");
 
-    ```pycon
-    {'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
-     'content': <langgraph.channels.last_value.LastValue at 0x7d05e3295040>,
-     'score': <langgraph.channels.last_value.LastValue at 0x7d05e3295980>,
-     '__start__': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3297e00>,
-     'write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32960c0>,
-     'score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ab80>,
-     'branch:__start__:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32941c0>,
-     'branch:__start__:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d88800>,
-     'branch:write_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3295ec0>,
-     'branch:write_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ac00>,
-     'branch:score_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d89700>,
-     'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
-     'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
-    ```
+// Compile the graph.
+// This will return a Pregel instance.
+const graph = builder.compile();
+```
 
-=== "函数式 API"
+The compiled Pregel instance will be associated with a list of nodes and channels. You can inspect the nodes and channels by printing them.
 
-    在 [函数式 API](functional_api.md) 中，您可以使用 [`entrypoint`][langgraph.func.entrypoint] 来创建
-    一个 Pregel 应用程序。`entrypoint` 装饰器允许您定义一个接受输入并返回输出的函数。
+```python
+print(graph.nodes)
+```
 
-    ```python
-    from typing import TypedDict, Optional
+You will see something like this:
 
-    from langgraph.checkpoint.memory import InMemorySaver
-    from langgraph.func import entrypoint
+```pycon
+{'__start__': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1810>,
+ 'write_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba14d0>,
+ 'score_essay': <langgraph.pregel.read.PregelNode at 0x7d05e3ba1710>}
+```
 
-    class Essay(TypedDict):
-        topic: str
-        content: Optional[str]
-        score: Optional[float]
+```python
+print(graph.channels)
+```
+
+You should see something like this
+
+```pycon
+{'topic': <langgraph.channels.last_value.LastValue at 0x7d05e3294d80>,
+ 'content': <langgraph.channels.last_value.LastValue at 0x7d05e3295040>,
+ 'score': <langgraph.channels.last_value.LastValue at 0x7d05e3295980>,
+ '__start__': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3297e00>,
+ 'write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32960c0>,
+ 'score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ab80>,
+ 'branch:__start__:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e32941c0>,
+ 'branch:__start__:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d88800>,
+ 'branch:write_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e3295ec0>,
+ 'branch:write_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8ac00>,
+ 'branch:score_essay:__self__:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d89700>,
+ 'branch:score_essay:__self__:score_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b400>,
+ 'start:write_essay': <langgraph.channels.ephemeral_value.EphemeralValue at 0x7d05e2d8b280>}
+```
+
+```typescript
+console.log(graph.nodes);
+```
+
+You will see something like this:
+
+```console
+{
+  __start__: PregelNode { ... },
+  writeEssay: PregelNode { ... },
+  scoreEssay: PregelNode { ... }
+}
+```
+
+```typescript
+console.log(graph.channels);
+```
+
+You should see something like this
+
+```console
+{
+  topic: LastValue { ... },
+  content: LastValue { ... },
+  score: LastValue { ... },
+  __start__: EphemeralValue { ... },
+  writeEssay: EphemeralValue { ... },
+  scoreEssay: EphemeralValue { ... },
+  'branch:__start__:__self__:writeEssay': EphemeralValue { ... },
+  'branch:__start__:__self__:scoreEssay': EphemeralValue { ... },
+  'branch:writeEssay:__self__:writeEssay': EphemeralValue { ... },
+  'branch:writeEssay:__self__:scoreEssay': EphemeralValue { ... },
+  'branch:scoreEssay:__self__:writeEssay': EphemeralValue { ... },
+  'branch:scoreEssay:__self__:scoreEssay': EphemeralValue { ... },
+  'start:writeEssay': EphemeralValue { ... }
+}
+```
+
+=== "Functional API"
+
+In the [Functional API](functional_api.md), you can use an @[`entrypoint`](https://api.python.langchain.com/en/latest/func/langgraph.func.entrypoint.html#langgraph.func.entrypoint) to create a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
+
+```python
+from typing import TypedDict, Optional
+
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.func import entrypoint
+
+class Essay(TypedDict):
+    topic: str
+    content: Optional[str]
+    score: Optional[float]
 
 
-    checkpointer = InMemorySaver()
+checkpointer = InMemorySaver()
 
-    @entrypoint(checkpointer=checkpointer)
-    def write_essay(essay: Essay):
-        return {
-            "content": f"Essay about {essay['topic']}",
-        }
+@entrypoint(checkpointer=checkpointer)
+def write_essay(essay: Essay):
+    return {
+        "content": f"Essay about {essay['topic']}",
+    }
 
-    print("Nodes: ")
-    print(write_essay.nodes)
-    print("Channels: ")
-    print(write_essay.channels)
-    ```
+print("Nodes: ")
+print(write_essay.nodes)
+print("Channels: ")
+print(write_essay.channels)
+```
 
-    ```pycon
-    Nodes:
-    {'write_essay': <langgraph.pregel.read.PregelNode object at 0x7d05e2f9aad0>}
-    Channels:
-    {'__start__': <langgraph.channels.ephemeral_value.EphemeralValue object at 0x7d05e2c906c0>, '__end__': <langgraph.channels.last_value.LastValue object at 0x7d05e2c90c40>, '__previous__': <langgraph.channels.last_value.LastValue object at 0x7d05e1007280>}
-    ```
+```pycon
+Nodes:
+{'write_essay': <langgraph.pregel.read.PregelNode object at 0x7d05e2f9aad0>}
+Channels:
+{'__start__': <langgraph.channels.ephemeral_value.EphemeralValue object at 0x7d05e2c906c0>, '__end__': <langgraph.channels.last_value.LastValue object at 0x7d05e2c90c40>, '__previous__': <langgraph.channels.last_value.LastValue object at 0x7d05e1007280>}
+```
+
+In the [Functional API](functional_api.md), you can use an @[`entrypoint`](https://api.python.langchain.com/en/latest/func/langgraph.func.entrypoint.html#langgraph.func.entrypoint) to create a Pregel application. The `entrypoint` decorator allows you to define a function that takes input and returns output.
+
+```typescript
+import { MemorySaver } from "@langchain/langgraph";
+import { entrypoint } from "@langchain/langgraph/func";
+
+interface Essay {
+  topic: string;
+  content?: string;
+  score?: number;
+}
+
+const checkpointer = new MemorySaver();
+
+const writeEssay = entrypoint(
+  { checkpointer, name: "writeEssay" },
+  async (essay: Essay) => {
+    return {
+      content: `Essay about ${essay.topic}`,
+    };
+  }
+);
+
+console.log("Nodes: ");
+console.log(writeEssay.nodes);
+console.log("Channels: ");
+console.log(writeEssay.channels);
+```
+
+```console
+Nodes:
+{ writeEssay: PregelNode { ... } }
+Channels:
+{
+  __start__: EphemeralValue { ... },
+  __end__: LastValue { ... },
+  __previous__: LastValue { ... }
+}
+```

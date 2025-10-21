@@ -9,13 +9,13 @@ search:
 
 ## 概述
 
-Cloud SaaS 部署选项是一种完全托管的部署模式，我们在云中管理 [控制平面](./langgraph_control_plane.md) 和 [数据平面](./langgraph_data_plane.md)。
+Cloud SaaS 部署选项是一种完全托管的部署模式，其中 LangChainCloud 管理 [控制平面](./langgraph_control_plane.md) 和 [数据平面](./langgraph_data_plane.md)。
 
-|                   | [控制平面](../concepts/langgraph_control_plane.md) | [数据平面](../concepts/langgraph_data_plane.md) |
-|-------------------|-------------------|------------|
-| **它是什么？** | <ul><li>用于创建部署和修订的控制平面 UI</li><li>用于创建部署和修订的控制平面 API</li></ul> | <ul><li>用于将部署与控制平面状态进行协调的数据平面“监听器”</li><li>LangGraph Servers</li><li>Postgres, Redis 等</li></ul> |
-| **它托管在哪里？** | LangChain 云 | LangChain 云 |
-| **谁提供和管理它？** | LangChain | LangChain |
+|                                    | [控制平面](../concepts/langgraph_control_plane.md)                                                                                                                   | [数据平面](../concepts/langgraph_data_plane.md)                                                                                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **它是什么？**                    | <ul><li>用于创建部署和版本的控制平面 UI</li><li>用于创建部署和版本的控制平面 API</li></ul>                                                                                           | <ul><li>用于协调部署与控制平面状态的数据平面“监听器”</li><li>LangGraph Servers</li><li>Postgres、Redis 等</li></ul>                                                                                |
+| **在哪里托管？**            | LangChain Cloud                                                                                                                                          | LangChain Cloud                                                                                                                                    |
+| **谁负责预配和管理？** | LangChain                                                                                                                                                       | LangChain                                                                                                                                          |
 
 ## 架构
 

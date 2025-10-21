@@ -5,53 +5,53 @@
     "translator_version": "1.0"
   },
   "docs/docs/agents/agents.md": {
-    "source_hash": "04ee419ce4e29ca57f4d54fef68b22379c42c88d",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d923f255187ef328acd6f66306ad91a16ce1bb4b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/context.md": {
-    "source_hash": "542379a44c3d661909ea612d181b3f44facda8c2",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "b409b1524ed57b550aca3db4bd0b2578ac133e84",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/evals.md": {
-    "source_hash": "ead956dd5d1eb4ef9ae89c1b02f47cf8655de658",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "ff843e7618cb529cddeea5d30d4d92d25dd3c2f1",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/mcp.md": {
-    "source_hash": "f4bb1276d412173e097527e5f231d5176852f799",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "c4c029deb76febb694bd28cb04e5cf17f91bc205",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/models.md": {
-    "source_hash": "46db9c41dd9b13af4c0634a9e9871e7a3bdc6b8d",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "61fc350eeae7e8238e9db63975b9110b88e3286f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/multi-agent.md": {
-    "source_hash": "54ba13c9c7ea4168898bf8423d77b98f1f24edef",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d96996a9c99964f5f6328bd0dbf01f4132a1f1bd",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/overview.md": {
-    "source_hash": "96fef74b37061bb9c6cab948087f28dc940b6d98",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "55b3ee4956e796abc704fe341b4e9f9e9d931faf",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/prebuilt.md": {
-    "source_hash": "8ebd5c17b734f8508b9651ebe0041845826f3010",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "38c609105c68298ed4092cf2d3926dacb1fd0141",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/run_agents.md": {
-    "source_hash": "4ea2d07e514d39abb46e08791d0a622140e1b4b4",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d87d23c9db3af262f0a0a8bb1e2dc30f3fea0709",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/agents/ui.md": {
-    "source_hash": "41735d6526b209876e297b3a14be183f516c4c00",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "569bb5821a8eb0694e1fccf31d1fc68c5c98ffff",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/concepts/cron_jobs.md": {
@@ -70,8 +70,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/cloud.md": {
-    "source_hash": "89e7035998353034cbc8360ce94e148a927487c2",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "0ac08d57809e4425dbeef81f0bc43fa7ae5f52c8",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/custom_docker.md": {
@@ -85,13 +85,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/self_hosted_control_plane.md": {
-    "source_hash": "0a8575080e5b36b25e52f2a3a804b928858936b2",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "14905ac79887b13055057acc0be48037bc6030e7",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/self_hosted_data_plane.md": {
-    "source_hash": "bcb07028c30d9cb6c51430f425cbd7637e852c50",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f6d4dcf65cfe735caf98111fd462ba952728321f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/semantic_search.md": {
@@ -105,18 +105,18 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/setup_pyproject.md": {
-    "source_hash": "033ab776309ae932402ba20939140e144a768f05",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "087dd4de8ba356f20115dc59896284b9d33ca9b6",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/setup.md": {
-    "source_hash": "4fc52c7e5a56f7d890a1b166d699495b643f3696",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "986bec5ca94967c2106ce2c2cf1e898862b6d79e",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/deployment/standalone_container.md": {
-    "source_hash": "4e0015bbc38b8c060dc64b7207f4dcecc4cca1a2",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "56a1e4d6de47b711a7f0269b1d6aac4825b48e55",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/studio/manage_assistants.md": {
@@ -135,8 +135,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/add-human-in-the-loop.md": {
-    "source_hash": "1df6c0c4e683bf9d146083993eb1faf46b447c0b",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "c16e4db1e96b16c354dc7ebd6f6b45b1d2e2ebef",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/background_run.md": {
@@ -155,8 +155,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/configuration_cloud.md": {
-    "source_hash": "adc2fd841d6bcf0629aab309f13e6e51ed9bd241",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "6d2c48829bf10b919de8ac37d2514ad36370cea7",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/cron_jobs.md": {
@@ -175,13 +175,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/generative_ui_react.md": {
-    "source_hash": "428723e1e951e1f285165aaae1d23c658bd1c6c0",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d5e131d61fe3b062ee8be4f0a3fa990dda45a015",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/human_in_the_loop_time_travel.md": {
-    "source_hash": "9bec7eec1f55c75dc3a744ca3be0ea43569872a1",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d7d6f14fa64ee1c45ec6ac9b650fd557c50866a9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/interrupt_concurrent.md": {
@@ -230,8 +230,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/use_stream_react.md": {
-    "source_hash": "3ddcbe5b4b4bec5aa25faf549fd3a06dedf8a04c",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "6f9d5016f37b290b1fb510cdaec745de7beaf73b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/use_threads.md": {
@@ -240,8 +240,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/how-tos/webhooks.md": {
-    "source_hash": "59509c774ae83ba616c87cc4f6e0300b2b8f7b70",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "12e7a62b2c24768d41772cb524f02421a0bf500d",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/reference/api/api_ref_control_plane.md": {
@@ -265,18 +265,18 @@
     "translator_version": "1.0"
   },
   "docs/docs/cloud/reference/cli.md": {
-    "source_hash": "87f405cbaccce7b0438657ea6a80cfd421066d4a",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "9699100eab23f4ac4788a382cb65b514d5952e5d",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/reference/env_var.md": {
-    "source_hash": "333508d96dcac1f24a95bb1a2885dfc51e3911d5",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e24270c131b8573cfb97c10947f8ccc015d8ed1e",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/reference/langgraph_server_changelog.md": {
-    "source_hash": "369c21530a3d22b41957af78b2153278dc2f3c21",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "be2efb1ab93f8333b5e1546770f9f3433d37f8f6",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/cloud/quick_start.md": {
@@ -290,23 +290,23 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/application_structure.md": {
-    "source_hash": "4b1f79228ab4dab35b11dd9fd3b1422bad914170",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f2a96ddac10adf9da0d29da100df6b79ca3b4f5b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/assistants.md": {
-    "source_hash": "feb79641b477ff123ab11ec123ec2026757b2673",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "fc4d7073b6d75d75c4d5ccf9c54bfb36c0844dea",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/auth.md": {
-    "source_hash": "204764ed3ce47fcaa8a266590be0ce60e85d7368",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "09526f22390fb7d8b47cf2fe76dfcf54099d815b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/deployment_options.md": {
-    "source_hash": "247a392f87027393c9ede3ebfb88d9d49c3e9557",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "4037946da7896586b96445038bf527c15b20d4ed",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/double_texting.md": {
@@ -315,48 +315,48 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/durable_execution.md": {
-    "source_hash": "ea0a38c038ee57835f46a3cd43b40f7afb038fb4",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "212a17445adfb78a036a117a01c70b5e9777efd9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/faq.md": {
-    "source_hash": "9ff68ff9fa8d075c2c31c11db9fe54f3007d6ff0",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "97c703ca73c351d67bc89cefa6d966d13ec5e90a",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/functional_api.md": {
-    "source_hash": "a0c9101391aa69a2ac17b64a8faa0f8e657bc77d",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "7e8f27efc47d5f2ceddce33c363415e3f19406e9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/human_in_the_loop.md": {
-    "source_hash": "eabe5fe855e81a9143816f4721d79416cb520de4",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "aa26f44a5033005f5e859311e0fbba158552d8c4",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_cli.md": {
-    "source_hash": "888568d420b7b48921a12e48864a71525cf88cd1",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e98e33e1769e77378e12aebf98a62cf790af077b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_cloud.md": {
-    "source_hash": "b9c8359135c2d0a16e3ea3e01c0a7e088016d8e0",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "b8b2a3de5320d04ae32a71823e8e2739e24b4f6f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_components.md": {
-    "source_hash": "78b9e7c8d30040d1f9c1203070a89259d56e68d2",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "9ae6ff57c84134b5d41eb575465328797467066c",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_control_plane.md": {
-    "source_hash": "006a57df926e85c9841f9af9e113c7d9736dbab8",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "6cd03187092cf30aa1ec58ca39a046ead17c0fb2",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_data_plane.md": {
-    "source_hash": "5d7473cb624f964ca7af065ae2998a2259e3d262",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "150759327f889e0ac4dcc14bd3d5bf75911c1956",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_platform.md": {
@@ -365,23 +365,23 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_self_hosted_control_plane.md": {
-    "source_hash": "02fef232d31e1e05dbb002ecea42575edae4fc3d",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "88f691484f49b3d77b17a0389bc778f6fa590ec5",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_self_hosted_data_plane.md": {
-    "source_hash": "15c91ef271376dc0a6fa37876493d9c1970eb961",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "5b69e25ebe4b7de383f10e55b62bf958a1441384",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_server.md": {
-    "source_hash": "4105cfc5c01f3e661a519f82072ea8ea26dcb8ae",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "db72e1d5a243cdb4bd5ed41eb61663a9af487c8b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_standalone_container.md": {
-    "source_hash": "954dca7432719bc446902f2d255a2d6686a4ca31",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "102fbeffad75cd2a55453a32fa4020e1129bb532",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/langgraph_studio.md": {
@@ -390,38 +390,38 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/low_level.md": {
-    "source_hash": "13c0fa0f7b74c6e0eb144254450fb45855b5ada7",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "bfa5ead3321345d8f6de8c05484bd39f3df977d4",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/mcp.md": {
-    "source_hash": "4b05d008e94657f705f69d0e75fde10d8dd4fd11",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a0ea447be8de3bccc0eb2e125290e54de6503288",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/memory.md": {
-    "source_hash": "6e59a4cff093c0f2b5cc4f25859f030f831c4472",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "3906939658bccb7364ce4c59b0cf2043c4ea8c9f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/multi_agent.md": {
-    "source_hash": "5d3e30a29c44d64eb3021b60e614d7bb4634b466",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "752b8cc6ba74fd07c07023a01d7bc97ed88a9ebd",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/persistence.md": {
-    "source_hash": "185db6b625a6d894bcbcd68b11f6bdb6b74f55a4",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a8609ec8c27b7caea64aea5035961a7e366dcea4",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/plans.md": {
-    "source_hash": "994c83ebbc1bde0ca0f2e6f9570bc8cbc3a5aa43",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "b5754c27b31c88eb514924eb175d194f2b95e86c",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/pregel.md": {
-    "source_hash": "d5a87d87a5ce161122809b551c94f93722fe5e96",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "84cf50ee5c79cbdae2d98813edc2fb3802c9b20f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/scalability_and_resilience.md": {
@@ -430,13 +430,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/sdk.md": {
-    "source_hash": "221fcccdedf1e535013b09f07e1f19690654ac12",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e3d088d08c7525a887aeccfcad86b7d97427e8e1",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/server-mcp.md": {
-    "source_hash": "b66eaada35b8e683fa90375746bbaadc6a75aea4",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a0220b9a8170aa914ea27be28a66af6a647953f6",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/streaming.md": {
@@ -445,13 +445,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/subgraphs.md": {
-    "source_hash": "218bf8cacee3864ca535c661c42d6c83d18e6261",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "6c5503431dd5d0f379d42eae31887914515c106e",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/template_applications.md": {
-    "source_hash": "8da3229b90ec7bee7dd5622aca560269aed4de87",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "9f0198b0a5443cee3196a9cd843ee16078b31df4",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/time-travel.md": {
@@ -460,8 +460,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/concepts/tools.md": {
-    "source_hash": "8a2e693afa35b8e786517d21032f2835f2aab8a3",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d43cb8a9c3234396ae4e275323e3a7940e840c68",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/concepts/why-langgraph.md": {
@@ -470,23 +470,23 @@
     "translator_version": "1.0"
   },
   "docs/docs/examples/index.md": {
-    "source_hash": "aadfb0f2c454fda7df46379d3f90861bd8fd2684",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a845bb8fdd877012ece04417697dd830dd8e3cfc",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/guides/index.md": {
-    "source_hash": "64e7bc8b804da3e760929e57b5e61264a5abd576",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "bd05b2c09814fe0a105f54441bb529d745bf3a36",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/auth/custom_auth.md": {
-    "source_hash": "03df457806d74cc312aee5f5b8b2d9d2456755bf",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e7d0f2f24e35d23f6ceea3d083ea886efee751ba",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/auth/openapi_security.md": {
-    "source_hash": "05215b4976205f9cf5718b878133b93ebf3929bc",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "70bdb395d8bcd396b8665b784842b2f7e099f569",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/http/custom_lifespan.md": {
@@ -495,33 +495,33 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/http/custom_middleware.md": {
-    "source_hash": "a351b345de89ebfb24fa60054778311c39dfc178",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f81d6802e13af3e1a1693e91f8f9a752a697039a",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/http/custom_routes.md": {
-    "source_hash": "b385a8aa01ffb0e7c71690e2b06631a1945b3266",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "76f715abc5da48715be4764be981a510ea273e23",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/human_in_the_loop/add-human-in-the-loop.md": {
-    "source_hash": "31c3d2b276695463fd63babf5bdf140d784689d8",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "49dffd465615033bb188c652839120b7788e6e78",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/human_in_the_loop/time-travel.md": {
-    "source_hash": "84ded8410636dad1e043f42b90ab18f82f48e369",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "6e98e1c05e0e0552fc564ec764bbaf67064ffa17",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/human_in_the_loop/wait-user-input.ipynb": {
-    "source_hash": "bbe14b4f1f84605b825ca0074c08421a06587d30",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "c409d2fe2999ccde085aed72399bfa3f7004965f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/memory/add-memory.md": {
-    "source_hash": "408c260aa4de083de89a564a053453bcf37de736",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e65d3b2435ba3588d5c0302cb7e6af95e2bf70d9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/memory/semantic-search.ipynb": {
@@ -530,18 +530,18 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/ttl/configure_ttl.md": {
-    "source_hash": "a5f1e0b05fad220a48385b68946722b706b44dd1",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "9dc402397c4ef24853901010832f711d91716626",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/autogen-integration-functional.ipynb": {
-    "source_hash": "8f2888fa92cd70aa7031909d3b5035da8ed9381d",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "d568b329e157a4696a7ce07bca87a2d144009fcd",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/autogen-integration.md": {
-    "source_hash": "efbcf3d30e915afa0ac5487a3f6b786bd669434b",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "5e0db705b6ebf5fa9ab34f712c028fd9c9d29182",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/create-react-agent-manage-message-history.ipynb": {
@@ -550,8 +550,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/cross-thread-persistence-functional.ipynb": {
-    "source_hash": "92376135aee97709feefaa3a9645f4da5a5057ab",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "38e931a71d27b2ec2362151ed473cf32ef937dcf",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/disable-streaming.ipynb": {
@@ -560,8 +560,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/graph-api.md": {
-    "source_hash": "6fa8bd2416cd5c616ed2e08b255cb5557132a092",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "7fbd084c8ac51de01363371c97a391e9e7d36121",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/many-tools.ipynb": {
@@ -570,13 +570,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/multi_agent.md": {
-    "source_hash": "fdd781d4f54333fde1d8615169bb83484b54b34d",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "8f33099e63b9bfd9c4897e4037ca4ae2f64de084",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/multi-agent-multi-turn-convo-functional.ipynb": {
-    "source_hash": "d81525f08dcdaab5e2e35d14bf195592f452c5f3",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a191790449c2e34a95442fd2cf99fbb6c9bf09e0",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/multi-agent-network-functional.ipynb": {
@@ -585,13 +585,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/persistence-functional.ipynb": {
-    "source_hash": "e6c0a2679096853aec212a9a55dc313a05ed2f77",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "b1a04540063d8313b42f172767c359a20ae87778",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/react-agent-from-scratch-functional.ipynb": {
-    "source_hash": "0e5de1bceb563c084ffe41130f0a849108fa47c3",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "eeb8b21b5bc012549475290655e2062206b2a270",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/react-agent-from-scratch.ipynb": {
@@ -610,28 +610,28 @@
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/streaming.md": {
-    "source_hash": "bf25419c4ece47aab17694ea44a0eabc14608d42",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "20a61a8fc6646e4e9b1b695927922cdb3ac3e784",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/subgraph.md": {
-    "source_hash": "9ad820f732bf565c156a3df31731ebfb370fa22c",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "71aeb6d0f0de94c177c2e3775ac833ac2d5ddaca",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/tool-calling.md": {
-    "source_hash": "9968b0036441fd40c64b65b7c16543fb270da8b5",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "c3d1c0742195f6b52f78a5f9c0b04d25a24ae951",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/use-functional-api.md": {
-    "source_hash": "df515c52b630c85f895cf166549b196b2a974cc1",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a57e2718c31526f358bd243110064a34d1a6dd13",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/how-tos/use-remote-graph.md": {
-    "source_hash": "819c46f4b43d6b38f59d7444064914ea9abaf561",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "380e30bc30303726bc7cb01d44aeab8442931e65",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/reference/agents.md": {
@@ -640,8 +640,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/reference/cache.md": {
-    "source_hash": "05d65af59e388d9fedd089b60f729de2d488da8c",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "96e93a2a91fe492cb26beef1381fd9caa8145ee1",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/reference/channels.md": {
@@ -660,8 +660,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/reference/constants.md": {
-    "source_hash": "f23e941fa236bf676d36ff759d31fda5c5d35063",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "fe26ce7278f5030e042a3a08fd0d63bc8a3e063d",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/reference/errors.md": {
@@ -680,8 +680,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/reference/index.md": {
-    "source_hash": "7051a743d6436b319536cfc65c108fd32f3e08de",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a2bf4acb02e79ce1dcdc7f53a549ae6ce25b3913",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/reference/mcp.md": {
@@ -725,58 +725,58 @@
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT.md": {
-    "source_hash": "332294d160e265107ca06f6a6e250d60e656ff9f",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "5a2c9bed2d3728471206e90581dd195a83882f42",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/index.md": {
-    "source_hash": "bfbe6f9f81a582ab7236a1400034009d63a5d254",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "8b2e7681dfd02c0e52345d58dab36b4ad45778f8",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/INVALID_CHAT_HISTORY.md": {
-    "source_hash": "7582dd515a647553adb3e4201fde401643b81b90",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a621771f3104b44584f046c335e67c31942c4abd",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/INVALID_CONCURRENT_GRAPH_UPDATE.md": {
-    "source_hash": "c87a1ce494cb90f7779179e2edd87ac608df6c58",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a5d200448648ff8a3b742f779e54d9fbcf9edd1b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/INVALID_GRAPH_NODE_RETURN_VALUE.md": {
-    "source_hash": "41d4fb4a7857ef06fab1a28feb4f28a0a0b06683",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "5fbcca2b7e2acb453a50de920f738c07a0068e2f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/INVALID_LICENSE.md": {
-    "source_hash": "df8b2225202b7e63d87efc82b9ce1b64d96dd29f",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "6d2a312e41a8795eded179c714edd2ba5f2102b4",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/errors/MULTIPLE_SUBGRAPHS.md": {
-    "source_hash": "f14902a9b1642e58082e2f674b8eb306021aebc4",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e7be3badd3fba6c2ef3f10de784a0c8af92e6d9e",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/troubleshooting/studio.md": {
-    "source_hash": "3fcbdea7fac7f8c2ba0dd9136aa3c11e0f550c53",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "ea1925a3e5ad53a99c9043db8a7e3329e3544bd6",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/auth/add_auth_server.md": {
-    "source_hash": "3ab37bd6b1c263abdd55855c5bb97c83e282c45f",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "038653cfa770a6124b2487dbd650710aa019582f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/auth/getting_started.md": {
-    "source_hash": "b9b2340e07bf496de07341dc0bae996baa87bd94",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "37fb99a013e20b2ce17ec8fd6654d587710e5a4b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/auth/resource_auth.md": {
-    "source_hash": "267e00f25442356093f92bf0dba63c398c5c341e",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "fa8c2603b4dfaf5a854c62b5ba12863a4a76c395",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/chatbot-simulation-evaluation/agent-simulation-evaluation.ipynb": {
@@ -790,8 +790,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/chatbots/information-gather-prompting.ipynb": {
-    "source_hash": "13ab735e66e899e6becd0fba91e56667f8442d8b",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "b1eb1ad01d1663517cb7b62d14acfbde9c4f63b0",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/code_assistant/langgraph_code_assistant.ipynb": {
@@ -800,8 +800,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/customer-support/customer-support.ipynb": {
-    "source_hash": "8df8c5c15f003f124942ce01800f85b04395fa6a",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "c25bd8297886f214e403046fa229eb737ad4d998",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/extraction/retries.ipynb": {
@@ -810,38 +810,38 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/get-started/1-build-basic-chatbot.md": {
-    "source_hash": "b32e42861c0725445f6bdd641933fb96446c8042",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "fc2a4676693343deb02da4ad12f15f8e71a9d041",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/get-started/2-add-tools.md": {
-    "source_hash": "93f9053090d072c0db2bc85a148f3de6b1aacafb",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "2cfdb3db286a473233bb2678aa62494ebbd94ab0",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/get-started/3-add-memory.md": {
-    "source_hash": "9087fb86c51f6987a0275df3768782cfb62216d0",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "bccb61805ee85855abea8c4f39de7ea546bd6374",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/get-started/4-human-in-the-loop.md": {
-    "source_hash": "c37f3a3f8d2457709d57573cece2199c7d1953ef",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e02daf926db5330430aef6f7674a4657a8aeaa4d",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/get-started/5-customize-state.md": {
-    "source_hash": "84d3cda7de282ca0fc268420b303cd3b74db7e18",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "7b2b0515fc8ac3dc38c15ce4051970e9a24e0606",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/get-started/6-time-travel.md": {
-    "source_hash": "16d515091931d9c81e8afbec37f8041b7e600739",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f4340c0b4ba77d9e7258729ec3c006fe8ff88e7a",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/langgraph-platform/local-server.md": {
-    "source_hash": "1ff5e082b51ec2d5d65df0d45362816293a535d5",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f749f248d0624efe67ff20c8664eaed890524da4",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/lats/lats.ipynb": {
@@ -855,8 +855,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/multi_agent/agent_supervisor.md": {
-    "source_hash": "71335c8dbdb96ea15324de1a570a42f184673353",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a1f3bd70b1ed063b57581768e863ae0c0be6715c",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/multi_agent/hierarchical_agent_teams.ipynb": {
@@ -885,8 +885,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/rag/langgraph_agentic_rag.md": {
-    "source_hash": "2aae24820664d0d3538cd58ff8e69e23006a94a0",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "06028518ffdc4a3c4439cb0904f73d3bd05e9421",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/rag/langgraph_crag_local.ipynb": {
@@ -910,8 +910,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/reflection/reflection.ipynb": {
-    "source_hash": "bd9b018af43d707eb84c067a485f8d2d9509408c",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "26d6fe60dd3c1b27d55db292c0abd48b55d19f4b",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/reflexion/reflexion.ipynb": {
@@ -940,13 +940,13 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/tot/tot.ipynb": {
-    "source_hash": "29fe435bc468a5c1000175048f0d8261aa41fab6",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f8b8fbd0fee2e868439aafcaf2ba1fec26d20640",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/usaco/usaco.ipynb": {
-    "source_hash": "407f564ee2fa25467604022aa1ebecf1f5d34645",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "078e6eaaedfcbddc38ba3ddd8ec35d25e44db2f9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/web-navigation/web_voyager.ipynb": {
@@ -955,8 +955,8 @@
     "translator_version": "1.0"
   },
   "docs/docs/tutorials/workflows.md": {
-    "source_hash": "8be5cf07b37ab50df99b441e92e436abef0ad716",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "9b2f4de8880f5385899fb1ca65ab1e7b1f32e3ce",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "docs/docs/adopters.md": {
@@ -980,8 +980,8 @@
     "translator_version": "1.0"
   },
   "docs/README.md": {
-    "source_hash": "369f196a235decd20e885400ee86ca423eddf282",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "ddbef9d0b1c40a0483a3e54fb4d56ab49afc1dea",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "examples/chatbot-simulation-evaluation/agent-simulation-evaluation.ipynb": {
@@ -1005,8 +1005,8 @@
     "translator_version": "1.0"
   },
   "examples/code_assistant/langgraph_code_assistant_mistral.ipynb": {
-    "source_hash": "8d873d68c3dee81ae15807615ce664f48afd214c",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "1c666241f6cb281da8f48ec5e455c221287f043f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "examples/code_assistant/langgraph_code_assistant.ipynb": {
@@ -1115,8 +1115,8 @@
     "translator_version": "1.0"
   },
   "examples/rag/langgraph_crag_local.ipynb": {
-    "source_hash": "19dc8441060e672e8e32d4ad4b9fc4cf96072d43",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "c454127f2aefb689b543d7da39e28b23b394c3b9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "examples/rag/langgraph_crag.ipynb": {
@@ -1255,8 +1255,8 @@
     "translator_version": "1.0"
   },
   "examples/persistence_postgres.ipynb": {
-    "source_hash": "ad18f0d57591181df9d7ce9a418aa368426c5ffd",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "7081e2ef33bfaa0762eefe77c8a70e3815d6e6de",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "examples/persistence_redis.ipynb": {
@@ -1380,8 +1380,8 @@
     "translator_version": "1.0"
   },
   "libs/checkpoint/README.md": {
-    "source_hash": "4877a17b9fc873f3e9a48d19f7b264cfdf68508b",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "e78a6da0e377e2aeaa588837253e181f609a0731",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "libs/checkpoint-postgres/README.md": {
@@ -1405,8 +1405,8 @@
     "translator_version": "1.0"
   },
   "libs/langgraph/README.md": {
-    "source_hash": "ec996765926e4d937d48d52c09140f4fe0fc31ae",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f411283637ac7040dfd38b1a466319075bcc33d6",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "libs/prebuilt/README.md": {
@@ -1420,28 +1420,63 @@
     "translator_version": "1.0"
   },
   "libs/sdk-py/README.md": {
-    "source_hash": "4105f9186dd7ad641cd75b62a16bdf62cfdbe244",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "3f9e51cdde017c258afbb8ac6abe7441e7b7bc9d",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "AGENTS.md": {
-    "source_hash": "8810cfff850893eb50d44bad109683ca3f03cbb5",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f9dabdc62fdb09448ea5068a682093385e10f52a",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "CONTRIBUTING.md": {
-    "source_hash": "48fd5593f0426bf5c804854dc326501fae92f4b0",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "a516665ac4470f2c8480429e2ddee825741b8f7c",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "README.md": {
-    "source_hash": "ec996765926e4d937d48d52c09140f4fe0fc31ae",
-    "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "source_hash": "f411283637ac7040dfd38b1a466319075bcc33d6",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   },
   "security.md": {
     "source_hash": "50e0632582c68dcbc9768c04d3b6a54e23501c75",
     "last_translated_at": "2025-07-13T07:28:22.048Z",
+    "translator_version": "1.0"
+  },
+  ".github/PULL_REQUEST_TEMPLATE.md": {
+    "source_hash": "2a6380594f268934d19f719538a6eac38802cc79",
+    "last_translated_at": "2025-10-21T09:54:42.251Z",
+    "translator_version": "1.0"
+  },
+  "docs/_scripts/js_translation/codeblocks/README.md": {
+    "source_hash": "8160c6d4cf51e034fc365d188ada478575b28871",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
+    "translator_version": "1.0"
+  },
+  "docs/docs/cloud/deployment/egress.md": {
+    "source_hash": "40e1494027f76fe3bc630717f7422c7001233c3f",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
+    "translator_version": "1.0"
+  },
+  "docs/docs/concepts/tracing.md": {
+    "source_hash": "a9aa954c38c40829ec4c8c59ec372321fcb01013",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
+    "translator_version": "1.0"
+  },
+  "docs/docs/how-tos/enable-tracing.md": {
+    "source_hash": "d1273b6d31e4db4dab54f3cd68aadbfa462667e9",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
+    "translator_version": "1.0"
+  },
+  "docs/docs/reference/runtime.md": {
+    "source_hash": "f326e78b85f2aa1a0d9c159f7bdcd1f510a4a48e",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
+    "translator_version": "1.0"
+  },
+  "docs/mkdocs.yml": {
+    "source_hash": "9bf95b065acc0dba072f9ee0610413b96a4aa591",
+    "last_translated_at": "2025-10-21T09:54:42.252Z",
     "translator_version": "1.0"
   }
 }

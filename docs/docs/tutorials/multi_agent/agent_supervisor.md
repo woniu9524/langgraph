@@ -1,19 +1,19 @@
-# 多代理主管
+# 多智能体监督器
 
-[**主管**](../../concepts/multi_agent.md#supervisor) 是一种多代理架构，其中**专业**代理由一个中央**主管代理**进行协调。主管代理控制所有通信流程和任务委派，根据当前上下文和任务要求决定调用哪个代理。
+[**监督器**](../../concepts/multi_agent.md#supervisor) 是一种多智能体架构，其中**专用**智能体由一个中央**监督器智能体**协调。监督器智能体控制所有通信流程和任务委派，并根据当前上下文和任务要求决定调用哪个智能体。
 
-在本教程中，您将构建一个包含两个代理——研究专家和数学专家——的主管系统。在本教程结束时，您将：
+在本教程中，您将构建一个包含两个智能体的监督器系统——一个研究专家和一个数学专家。在本教程结束时，您将能够：
 
-1. 构建专业的研究和数学代理
-2. 使用预构建的 [`langgraph-supervisor`](https://langchain-ai.github.io/langgraph/agents/multi-agent/#supervisor) 构建一个用于编排它们的主管
-3. 从头开始构建一个主管
+1. 构建专用的研究和数学智能体
+2. 使用预先构建的 [`langgraph-supervisor`](https://langchain-ai.github.io/langgraph/agents/multi-agent/#supervisor) 构建一个用于协调它们的监督器
+3. 从头开始构建一个监督器
 4. 实现高级任务委派
 
 ![diagram](assets/diagram.png)
 
 ## 设置
 
-首先，我们安装所需的包并设置我们的 API 密钥
+首先，让我们安装所需的软件包并设置您的 API 密钥
 
 ```python
 %%capture --no-stderr
@@ -35,16 +35,16 @@ _set_if_undefined("TAVILY_API_KEY")
 ```
 
 !!! tip
-    注册 LangSmith，以便快速发现问题并提高 LangGraph 项目的性能。[LangSmith](https://docs.smith.langchain.com) 允许您使用追踪数据来调试、测试和监控您使用 LangGraph 构建的 LLM 应用。
+    注册 LangSmith，以便快速发现问题并改进您的 LangGraph 项目的性能。[LangSmith](https://docs.smith.langchain.com) 允许您利用追踪数据来调试、测试和监控您使用 LangGraph 构建的 LLM 应用。
 
-## 1. 创建工作代理
+## 1. 创建工作者智能体
 
-首先，我们创建专业的 worker 代理——研究代理和数学代理：
+首先，让我们创建专门的工作者智能体——研究智能体和数学智能体：
 
-* 研究代理将通过 [Tavily API](https://tavily.com/) 访问网络搜索工具
-* 数学代理将访问简单的数学工具（`add`、`multiply`、`divide`）
+* 研究智能体将能够使用 [Tavily API](https://tavily.com/) 访问网络搜索工具
+* 数学智能体将能够访问简单的数学工具（`add`、`multiply`、`divide`）
 
-### 研究代理
+### 研究智能体
 
 对于网络搜索，我们将使用 `langchain-tavily` 中的 `TavilySearch` 工具：
 
@@ -62,7 +62,7 @@ print(web_search_results["results"][0]["content"])
 Find events, attractions, deals, and more at nyctourism.com Skip Main Navigation Menu The Official Website of the City of New York Text Size Powered by Translate SearchSearch Primary Navigation The official website of NYC Home NYC Resources NYC311 Office of the Mayor Events Connect Jobs Search Office of the Mayor | Mayor's Bio | City of New York Secondary Navigation MayorBiographyNewsOfficials Eric L. Adams 110th Mayor of New York City Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. He gave voice to a diverse coalition of working families in all five boroughs and is leading the fight to bring back New York City's economy, reduce inequality, improve public safety, and build a stronger, healthier city that delivers for all New Yorkers. As the representative of one of the nation's largest counties, Eric fought tirelessly to grow the local economy, invest in schools, reduce inequality, improve public safety, and advocate for smart policies and better government that delivers for all New Yorkers.
 ```
 
-要创建单独的工作代理，我们将使用 LangGraph 的预构建代理 [`agent`](../../agents/agents.md)。
+要创建单独的工作者智能体，我们将使用 LangGraph 预置的 [agent](../../agents/agents.md)。
 
 ```python
 from langgraph.prebuilt import create_react_agent
@@ -81,131 +81,88 @@ research_agent = create_react_agent(
 )
 ```
 
-让我们 [运行代理](../../agents/run_agents.md) 来验证其行为是否符合预期。
+让我们 [运行智能体](../../agents/run_agents.md)，以验证其行为符合预期。
 
-!!! note "我们将使用 `pretty_print_messages` 辅助函数来漂亮地渲染流式代理输出"
+!!! note "我们将使用 `pretty_print_messages` 助手来美观地渲染流式传输的智能体输出"
 
-    ```python
-    from langchain_core.messages import convert_to_messages
-    
-    
-    def pretty_print_message(message, indent=False):
-        pretty_message = message.pretty_repr(html=True)
-        if not indent:
-            print(pretty_message)
-            return
-    
-        indented = "\n".join("\t" + c for c in pretty_message.split("\n"))
-        print(indented)
-    
-    
-    def pretty_print_messages(update, last_message=False):
-        is_subgraph = False
-        if isinstance(update, tuple):
-            ns, update = update
-            # skip parent graph updates in the printouts
-            if len(ns) == 0:
-                return
-    
-            graph_id = ns[-1].split(":")[0]
-            print(f"Update from subgraph {graph_id}:")
-            print("\n")
-            is_subgraph = True
-    
-        for node_name, node_update in update.items():
-            update_label = f"Update from node {node_name}:"
-            if is_subgraph:
-                update_label = "\t" + update_label
-    
-            print(update_label)
-            print("\n")
-    
-            messages = convert_to_messages(node_update["messages"])
-            if last_message:
-                messages = messages[-1:]
-    
-            for m in messages:
-                pretty_print_message(m, indent=is_subgraph)
-            print("\n")
-    ```
-
-```python
-from langchain_core.messages import convert_to_messages
+  ```python
+  from langchain_core.messages import convert_to_messages
 
 
-def pretty_print_message(message, indent=False):
-    pretty_message = message.pretty_repr(html=True)
-    if not indent:
-        print(pretty_message)
-        return
+  def pretty_print_message(message, indent=False):
+      pretty_message = message.pretty_repr(html=True)
+      if not indent:
+          print(pretty_message)
+          return
 
-    indented = "\n".join("\t" + c for c in pretty_message.split("\n"))
-    print(indented)
-
-
-def pretty_print_messages(update, last_message=False):
-    is_subgraph = False
-    if isinstance(update, tuple):
-        ns, update = update
-        # skip parent graph updates in the printouts
-        if len(ns) == 0:
-            return
-
-        graph_id = ns[-1].split(":")[0]
-        print(f"Update from subgraph {graph_id}:")
-        print("\n")
-        is_subgraph = True
-
-    for node_name, node_update in update.items():
-        update_label = f"Update from node {node_name}:"
-        if is_subgraph:
-            update_label = "\t" + update_label
-
-        print(update_label)
-        print("\n")
-
-        messages = convert_to_messages(node_update["messages"])
-        if last_message:
-            messages = messages[-1:]
-
-        for m in messages:
-            pretty_print_message(m, indent=is_subgraph)
-        print("\n")
-```
-
-```python
-for chunk in research_agent.stream(
-    {"messages": [{"role": "user", "content": "who is the mayor of NYC?"}]}
-):
-    pretty_print_messages(chunk)
-```
-
-**输出：**
-```
-Update from node agent:
+      indented = "\n".join("\t" + c for c in pretty_message.split("\n"))
+      print(indented)
 
 
-================================== Ai Message ==================================
-Name: research_agent
-Tool Calls:
-  tavily_search (call_U748rQhQXT36sjhbkYLSXQtJ)
- Call ID: call_U748rQhQXT36sjhbkYLSXQtJ
-  Args:
-    query: current mayor of New York City
+  def pretty_print_messages(update, last_message=False):
+      is_subgraph = False
+      if isinstance(update, tuple):
+          ns, update = update
+          # skip parent graph updates in the printouts
+          if len(ns) == 0:
+              return
+
+          graph_id = ns[-1].split(":")[0]
+          print(f"Update from subgraph {graph_id}:")
+          print("\n")
+          is_subgraph = True
+
+      for node_name, node_update in update.items():
+          update_label = f"Update from node {node_name}:"
+          if is_subgraph:
+              update_label = "\t" + update_label
+
+          print(update_label)
+          print("\n")
+
+          messages = convert_to_messages(node_update["messages"])
+          if last_message:
+              messages = messages[-1:]
+
+          for m in messages:
+              pretty_print_message(m, indent=is_subgraph)
+          print("\n")
+  ```
+
+  ```python
+  for chunk in research_agent.stream(
+      {"messages": [{"role": "user", "content": "who is the mayor of NYC?"}]}
+  ):
+      pretty_print_messages(chunk)
+  ```
+
+  **输出：**
+  ```
+  Update from node agent:
 
 
-Update from node tools:
+  ================================== Ai Message ==================================
+  Name: research_agent
+  Tool Calls:
+    tavily_search (call_U748rQhQXT36sjhbkYLSXQtJ)
+   Call ID: call_U748rQhQXT36sjhbkYLSXQtJ
+    Args:
+      query: current mayor of New York City
+      search_depth: basic
 
 
-================================= Tool Message ==================================
-Name: tavily_search
+  Update from node tools:
 
-{"query": "current mayor of New York City", "follow_up_questions": null, "answer": null, "images": [], "results": [{"title": "List of mayors of New York City - Wikipedia", "url": "https://en.wikipedia.org/wiki/List_of_mayors_of_New_York_City", "content": "The mayor of New York City is the chief executive of the Government of New York City, as stipulated by New York City's charter.The current officeholder, the 110th in the sequence of regular mayors, is Eric Adams, a member of the Democratic Party.. During the Dutch colonial period from 1624 to 1664, New Amsterdam was governed by the Director of Netherland.", "score": 0.9039154, "raw_content": null}, {"title": "Office of the Mayor | Mayor's Bio | City of New York - NYC.gov", "url": "https://www.nyc.gov/office-of-the-mayor/bio.page", "content": "Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. He gave voice to a diverse coalition of working families in all five boroughs and is leading the fight to bring back New York City's economy, reduce inequality, improve", "score": 0.8405867, "raw_content": null}, {"title": "Eric Adams - Wikipedia", "url": "https://en.wikipedia.org/wiki/Eric_Adams", "content": "Eric Leroy Adams (born September 1, 1960) is an American politician and former police officer who has served as the 110th mayor of New York City since 2022. Adams was an officer in the New York City Transit Police and then the New York City Police Department (```
-```
 
-### 数学代理
+  ================================= Tool Message ==================================
+  Name: tavily_search
 
-对于数学代理工具，我们将使用 [原生 Python 函数](../../how-tos/tool-calling.md#define-a-tool)：
+  {"query": "current mayor of New York City", "follow_up_questions": null, "answer": null, "images": [], "results": [{"title": "List of mayors of New York City - Wikipedia", "url": "https://en.wikipedia.org/wiki/List_of_mayors_of_New_York_City", "content": "The mayor of New York City is the chief executive of the Government of New York City, as stipulated by New York City's charter.The current officeholder, the 110th in the sequence of regular mayors, is Eric Adams, a member of the Democratic Party.. During the Dutch colonial period from 1624 to 1664, New Amsterdam was governed by the Director of Netherland.", "score": 0.9039154, "raw_content": null}, {"title": "Office of the Mayor | Mayor's Bio | City of New York - NYC.gov", "url": "https://www.nyc.gov/office-of-the-mayor/bio.page", "content": "Mayor Eric Adams has served the people of New York City as an NYPD officer, State Senator, Brooklyn Borough President, and now as the 110th Mayor of the City of New York. He gave voice to a diverse coalition of working families in all five boroughs and is leading the fight to bring back New York City's economy, reduce inequality, improve", "score": 0.8405867, "raw_content": null}, {"title": "Eric Adams - Wikipedia", "url": "https://en.wikipedia.org/wiki/Eric_Adams", "content": "Eric Leroy Adams (born September 1, 1960) is an American politician and former police officer who has served as the 110th mayor of New York City since 2022. Adams was an officer in the New York City Transit Police and then the New York City Police Department (```
+  ```
+
+### 数学智能体
+
+对于数学智能体工具，我们将使用 [原生 Python 函数](../../how-tos/tool-calling.md#define-a-tool)：
 
 ```python
 def add(a: float, b: float):
@@ -237,7 +194,7 @@ math_agent = create_react_agent(
 )
 ```
 
-让我们运行数学代理：
+让我们运行数学智能体：
 
 ```python
 for chunk in math_agent.stream(
@@ -303,9 +260,9 @@ Name: math_agent
 
 ```
 
-## 2. 使用 `langgraph-supervisor` 创建主管
+## 2. 使用 `langgraph-supervisor` 创建监督器
 
-要实现我们的多代理系统，我们将使用 `langgraph-supervisor` 库中的 [`create_supervisor`][langgraph_supervisor.supervisor.create_supervisor]：
+为了实现我们的多智能体系统，我们将使用 [`create_supervisor`][create_supervisor] 预置的 `langgraph-supervisor` 库：
 
 ```python
 from langgraph_supervisor import create_supervisor
@@ -334,12 +291,12 @@ display(Image(supervisor.get_graph().draw_mermaid_png()))
 
 ![Graph](assets/output.png)
 
-**注意：** 运行此代码时，它将生成并显示主管图的视觉表示，显示主管和工作代理之间的流程。
+**注意：** 运行此代码时，它将生成并显示监督器图的视觉表示，显示监督器和工作者智能体之间的流程。
 
-现在让我们用需要两个代理的查询来运行它：
+现在让我们用一个需要两个智能体的查询来运行它：
 
-* 研究代理将查找必要的 GDP 信息
-* 数学代理将执行除法以查找纽约州 GDP 的百分比，如下所述
+* 研究智能体将查找所需 GDP 信息
+* 数学智能体将执行除法计算 NY 州 GDP 所占的百分比，如请求所示
 
 ```python
 for chunk in supervisor.stream(
@@ -406,22 +363,22 @@ In 2024, the US GDP was $29.18 trillion and New York State's GDP was $2.297 tril
 
 ```
 
-## 3. 从头开始构建主管
+## 3. 从头开始构建监督器
 
-现在，让我们从头开始实现相同的多代理系统。我们将需要：
+现在让我们从头开始实现这个相同的多智能体系统。我们将需要：
 
-1. [设置主管如何与单个代理通信](#set-up-agent-communication)
-2. [创建主管代理](#create-supervisor-agent)
-3. 将主管和工作代理合并为[单个多代理图](#create-multi-agent-graph)。
+1. [设置监督器如何与各个智能体通信](#set-up-agent-communication)
+2. [创建监督器智能体](#create-supervisor-agent)
+3. 将监督器和工作者智能体组合成一个[单一的多智能体图](#create-multi-agent-graph)。
 
-### 设置代理通信
+### 设置智能体通信
 
-我们需要定义一种主管代理与工作代理通信的方式。在多代理体系结构中实现此目的的一种常见方法是使用**交接 (handoffs)**，其中一个代理将控制权“交接”给另一个代理。交接允许您指定：
+我们将需要定义一种方法，让监督器智能体与工作者智能体通信。在多智能体架构中实现这一点的常用方法是使用**交接**，即一个智能体将控制权“交接”给另一个智能体。交接允许您指定：
 
-- **destination**：要传输到的目标代理
-- **payload**：要传递给该代理的信息
+- **destination**：要转移到的目标智能体
+- **payload**：要传递给该智能体的信息
 
-我们将通过**交接工具**实现交接，并将这些工具提供给主管代理：当主管调用这些工具时，它将把控制权交接给工作代理，并将完整的消息历史传递给该代理。
+我们将通过**交接工具**实现交接，并将这些工具提供给监督器智能体：当监督器调用这些工具时，它将控制权交接给工作者智能体，并将完整的消息历史传递给该智能体。
 
 ```python
 from typing import Annotated
@@ -459,7 +416,6 @@ def create_handoff_tool(*, agent_name: str, description: str | None = None):
     return handoff_tool
 
 
-# Handoffs
 assign_to_research_agent = create_handoff_tool(
     agent_name="research_agent",
     description="Assign task to a researcher agent.",
@@ -471,13 +427,13 @@ assign_to_math_agent = create_handoff_tool(
 )
 ```
 
-1. 要交接的代理或节点的名称。
-2. 获取代理的消息，并将它们作为交接的一部分添加到父级的状态中。下一个代理将看到父级状态。
-3. 指示 LangGraph 我们需要在**父级**多代理图中导航到代理节点。
+1. 要交接的智能体或节点的名称。
+2. 接收智能体的消息，并将其作为交接的一部分添加到父节点的 State 中。下一个智能体将看到父节点的 State。
+3. 指示 LangGraph 我们需要导航到**父级**多智能体图中的智能体节点。
 
-### 创建主管代理
+### 创建监督器智能体
 
-然后，我们使用刚刚定义的交接工具创建主管代理。我们将使用预构建的 [`create_react_agent`][langgraph.prebuilt.chat_agent_executor.create_react_agent]：
+然后，让我们使用我们刚刚定义的交接工具来创建监督器智能体。我们将使用预置的 @[`create_react_agent`][create_react_agent]：
 
 ```python
 supervisor_agent = create_react_agent(
@@ -494,9 +450,9 @@ supervisor_agent = create_react_agent(
 )
 ```
 
-### 创建多代理图
+### 创建多智能体图
 
-将所有这些放在一起，让我们为整个多代理系统创建一个图。我们将主管和单个代理添加为子图[节点](../../concepts/low_level.md#nodes)。
+将所有这些组合在一起，让我们为我们的整体多智能体系统创建一个图。我们将添加监督器和各个智能体作为子图[节点](../../concepts/low_level.md#nodes)。
 
 ```python
 from langgraph.graph import END
@@ -516,7 +472,7 @@ supervisor = (
 )
 ```
 
-请注意，我们已将工作代理与主管之间添加了显式的[边](../../concepts/low_level.md#edges)—这意味着它们保证将控制权交还给主管。如果您希望代理直接回复用户（即，将系统变成一个路由器，您可以删除这些边）。
+请注意，我们已从工作者智能体回到了监督器 Explicitly [edges](../../concepts/low_level.md#edges) — 这意味着它们保证将控制权交还给监督器。如果您希望智能体直接响应用户（即，将系统转变为路由器，您可以删除这些边）。
 
 ```python
 from IPython.display import display, Image
@@ -526,9 +482,9 @@ display(Image(supervisor.get_graph().draw_mermaid_png()))
 
 ![Graph](assets/multi-output.png)
 
-**注意：** 运行此代码时，它将生成并显示多代理主管图的视觉表示，显示主管和工作代理之间的流程。
+**注意：** 运行此代码时，它将生成并显示多智能体监督器图的视觉表示，显示监督器和工作者智能体之间的流程。
 
-创建多代理图后，现在运行它！
+创建了多智能体图后，让我们运行它！
 
 ```python
 for chunk in supervisor.stream(
@@ -562,6 +518,77 @@ Update from node research_agent:
 
 ================================== Ai Message ==================================
 Name: research_agent
+
+- US GDP in 2024 is projected to be about $28.18 trillion USD (Statista; CBO projection).
+- New York State's nominal GDP for 2024 is estimated at approximately $2.16 trillion USD (various economic reports).
+- New York State's share of US GDP in 2024 is roughly 7.7%.
+
+Sources:
+- https://www.statista.com/statistics/216985/forecast-of-us-gross-domestic-product/
+- https://nyassembly.gov/Reports/WAM/2025economic_revenue/2025_report.pdf?v=1740533306
+
+
+Update from node supervisor:
+
+
+================================= Tool Message ==================================
+Name: transfer_to_math_agent
+
+Successfully transferred to math_agent
+
+
+Update from node math_agent:
+
+
+================================== Ai Message ==================================
+Name: math_agent
+
+US GDP in 2024: $28.18 trillion
+New York State GDP in 2024: $2.16 trillion
+Percentage of US GDP from New York State: 7.67%
+
+
+Update from node supervisor:
+
+
+================================== Ai Message ==================================
+Name: supervisor
+
+Here are your results:
+
+- 2024 US GDP (projected): $28.18 trillion USD
+- 2024 New York State GDP (estimated): $2.16 trillion USD
+- New York State's share of US GDP: approximately 7.7%
+
+If you need the calculation steps or sources, let me know!
+
+
+```
+
+让我们检查完整的消息记录：
+
+```python
+for message in final_message_history:
+    message.pretty_print()
+```
+
+**输出：**
+```
+================================ Human Message ==================================
+
+find US and New York state GDP in 2024. what % of US GDP was New York state?
+================================== Ai Message ===================================
+Name: supervisor
+Tool Calls:
+  transfer_to_research_agent (call_KlGgvF5ahlAbjX8d2kHFjsC3)
+ Call ID: call_KlGgvF5ahlAbjX8d2kHFjsC3
+  Args:
+================================= Tool Message ==================================
+Name: transfer_to_research_agent
+
+Successfully transferred to research_agent
+================================== Ai Message ===================================
+Name: research_agent
 Tool Calls:
   tavily_search (call_ZOaTVUA6DKrOjWQldLhtrsO2)
  Call ID: call_ZOaTVUA6DKrOjWQldLhtrsO2
@@ -580,10 +607,10 @@ Name: tavily_search
 ```
 
 !!! important
-    您可以看到，主管系统附加了所有单个代理的消息（即它们的内部工具调用循环）到完整的消息历史中。这意味着在每个主管回合中，主管代理都会看到完整的历史记录。如果您想要更多地控制：
+    您可以看到，监督器系统附加了**所有**单个智能体消息（即，它们的内部工具调用循环）到完整的消息历史记录。这意味着在每次监督器回合中，监督器智能体都会看到此完整历史记录。如果您希望拥有更多控制权：
 
-    * **如何将输入传递给代理**：您可以使用 LangGraph [`Send()`][langgraph.types.Send] 原语在交接过程中直接将数据发送到工作代理。请参阅下面的[任务委派](#4-create-delegation-tasks)示例
-    * **如何添加代理输出**：您可以通过将代理包装到单独的节点函数中来控制添加到整体主管消息历史中的代理内部消息历史的数量：
+    * **如何将输入传递给智能体**：您可以使用 LangGraph @[`Send()`][Send] 原语在交接过程中直接将数据发送到工作者智能体。请参阅下面的[任务委派](#4-create-delegation-tasks)示例。
+    * **如何添加智能体输出**：您可以通过将智能体包装在单独的节点函数中来控制将智能体内部消息历史的多少添加到整体监督器消息历史中：
 
         ```python
         def call_research_agent(state):
@@ -596,7 +623,7 @@ Name: tavily_search
 
 ## 4. 创建委派任务
 
-到目前为止，单个代理依赖于**解释完整的消息历史**来确定它们的任务。另一种方法是要求主管**明确制定任务**。为此，我们可以向 `handoff_tool` 函数添加 `task_description` 参数。
+到目前为止，各个智能体依赖于**解释完整的消息历史记录**来确定它们的任务。另一种方法是要求监督器**明确制定任务**。我们可以通过向 `handoff_tool` 函数添加 `task_description` 参数来实现此目的。
 
 ```python
 from langgraph.types import Send
@@ -670,9 +697,9 @@ supervisor_with_description = (
 ```
 
 !!! note
-    我们正在 [`Send()`][langgraph.types.Send] 原语中使用 `handoff_tool`。这意味着每个工作代理不再接收完整的 `supervisor` 图状态作为输入，而是仅接收 `Send` 载荷的内容。在此示例中，我们将任务描述作为单个“人类”消息发送。
+    我们在 `handoff_tool` 中使用了 @[`Send()`][Send] 原语。这意味着，与接收整个 `supervisor` 图 State 不同，每个工作者智能体仅接收 `Send` payload 的内容。在此示例中，我们将任务描述作为单个“human”消息发送。
 
-让我们现在使用相同的输入查询运行它：
+让我们使用相同的输入查询来运行它：
 
 ```python
 for chunk in supervisor_with_description.stream(

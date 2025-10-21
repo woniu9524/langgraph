@@ -5,27 +5,22 @@ search:
 
 # LangGraph SDK
 
-LangGraph Platform 提供了与 [LangGraph Server](./langgraph_server.md) 交互的 Python SDK。
+:::python
+LangGraph 平台提供了一个 Python SDK，用于与 [LangGraph Server](./langgraph_server.md) 进行交互。
 
 !!! tip "Python SDK 参考"
-  
+
     有关 Python SDK 的详细信息，请参阅 [Python SDK 参考文档](../cloud/reference/sdk/python_sdk_ref.md)。
 
 ## 安装
 
-您可以使用适用于您语言的相应包管理器来安装这些包：
+您可以使用以下命令安装 LangGraph SDK：
 
-=== "Python"
-    ```bash
-    pip install langgraph-sdk
-    ```
+```bash
+pip install langgraph-sdk
+```
 
-=== "JS"
-    ```bash
-    yarn add @langchain/langgraph-sdk
-    ```
-
-## Python 同步 vs. 异步
+## Python 同步与异步
 
 Python SDK 提供了同步 (`get_sync_client`) 和异步 (`get_client`) 客户端，用于与 LangGraph Server 进行交互：
 
@@ -39,6 +34,7 @@ Python SDK 提供了同步 (`get_sync_client`) 和异步 (`get_client`) 客户�
     ```
 
 === "Async"
+
     ```python
     from langgraph_sdk import get_client
 
@@ -46,9 +42,24 @@ Python SDK 提供了同步 (`get_sync_client`) 和异步 (`get_client`) 客户�
     await client.assistants.search()
     ```
 
-
 ## 了解更多
 
 - [Python SDK 参考](../cloud/reference/sdk/python_sdk_ref.md)
-- [LangGraph CLI API 参考](../cloud/reference/cli.md)
-- [JS/TS SDK 参考](../cloud/reference/sdk/js_ts_sdk_ref.md)
+- [LangGraph CLI API Reference](../cloud/reference/cli.md)
+  :::
+
+:::js
+LangGraph 平台提供了一个 JS/TS SDK，用于与 [LangGraph Server](./langgraph_server.md) 进行交互。
+
+## 安装
+
+您可以使用以下命令将 LangGraph SDK 添加到您的项目中：
+
+```bash
+npm install @langchain/langgraph-sdk
+```
+
+## 了解更多
+
+- [LangGraph CLI API Reference](../cloud/reference/cli.md)
+  :::

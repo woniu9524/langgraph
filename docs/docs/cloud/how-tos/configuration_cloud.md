@@ -1,22 +1,21 @@
 # 管理助手
 
-在本指南中，我们将展示如何创建、配置和管理一个 [助手](../../concepts/assistants.md)。
+在本指南中，我们将演示如何创建、配置和管理一个[助手](../../concepts/assistants.md)。
 
-首先，为了简要回顾配置的概念，请考虑以下简单的 `call_model` 节点和配置模式。请注意，此节点会尝试读取并使用 `config` 对象 `configurable` 定义的 `model_name`。
+首先，简单回顾一下运行时上下文（runtime context）的概念，来看下面这个简单的 `call_model` 节点和上下文模式（context schema）。请注意，这个节点试图读取并使用 `Runtime` 对象 `context` 属性定义的 `model_provider`。
 
 === "Python"
 
     ```python
+    @dataclass
+    class ContextSchema:
+        llm_provider: str = "anthropic"
 
-    class ConfigSchema(TypedDict):
-        model_name: str
+    builder = StateGraph(AgentState, context_schema=ContextSchema)
 
-    builder = StateGraph(AgentState, config_schema=ConfigSchema)
-
-    def call_model(state, config):
+    def call_model(state, runtime: Runtime[ContextSchema]):
         messages = state["messages"]
-        model_name = config.get('configurable', {}).get("model_name", "anthropic")
-        model = _get_model(model_name)
+        model = _get_model(runtime.context.llm_provider)
         response = model.invoke(messages)
         # 我们返回一个列表，因为它将被添加到现有列表中
         return {"messages": [response]}
@@ -44,15 +43,17 @@
     }
     ```
 
-有关配置的更多信息，[请参见此处](../../concepts/low_level.md#configuration)。
+:::python
+有关运行时上下文的更多信息，[请参见此处](../../concepts/low_level.md#runtime-context)。
+:::
 
 ## 创建助手
 
 ### LangGraph SDK
 
-要创建助手，请使用 [LangGraph SDK](../../concepts/sdk.md) `create` 方法。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.AssistantsClient.create) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#create) SDK 参考文档。
+要创建助手，请使用 [LangGraph SDK](../../concepts/sdk.md) 的 `create` 方法。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.AssistantsClient.create) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#create) SDK 参考文档。
 
-此示例使用与上面相同的配置模式，并创建一个助手，将 `model_name` 设置为 `openai`。
+本示例使用与上面相同的配置模式，并创建一个 `model_name` 设置为 `openai` 的助手。
 
 === "Python"
 
@@ -61,7 +62,7 @@
 
     client = get_client(url=<DEPLOYMENT_URL>)
     openai_assistant = await client.assistants.create(
-        # "agent"是我们部署的图的名称
+        # "agent" 是我们部署的一个图的名称
         "agent", config={"configurable": {"model_name": "openai"}}, name="Open AI Assistant"
     )
 
@@ -110,13 +111,13 @@
 
 ### LangGraph Platform UI
 
-您也可以通过 LangGraph Platform UI 创建助手。
+您也可以从 LangGraph Platform UI 创建助手。
 
-在您的部署中，选择“助手”选项卡。这将加载您部署中所有助手（跨所有图表）的表格。
+在您的部署中，选择“Assistants”（助手）选项卡。这将加载一个包含您部署中所有助手（跨所有图）的表格。
 
-要创建新助手，请选择“+ 新建助手”按钮。这将打开一个表单，您可以在其中指定此助手所属的图表，以及提供名称、描述和基于该图表配置模式的首选配置。
+要创建新助手，请选择“+ New assistant”（+ 新建助手）按钮。这将打开一个表单，您可以在其中指定该助手使用的图，以及提供名称、描述和基于该图配置模式所需的配置。
 
-要进行确认，请单击“创建助手”。这将带您进入 [LangGraph Studio](../../concepts/langgraph_studio.md)，您可以在其中测试助手。如果返回部署中的“助手”选项卡，您将在表格中看到新创建的助手。
+要确认，请点击“Create assistant”（创建助手）。这将带您到 [LangGraph Studio](../../concepts/langgraph_studio.md)，您可以在那里测试助手。如果您回到部署中的“Assistants”（助手）选项卡，您将看到新创建的助手出现在表格中。
 
 ## 使用助手
 
@@ -131,7 +132,7 @@
     input = {"messages": [{"role": "user", "content": "who made you?"}]}
     async for event in client.runs.stream(
         thread["thread_id"],
-        # 在这里我们指定要使用的助手 ID
+        # 这里是我们指定要使用的助手 ID
         openai_assistant["assistant_id"],
         input=input,
         stream_mode="updates",
@@ -149,7 +150,7 @@
 
     const streamResponse = client.runs.stream(
       thread["thread_id"],
-      // 在这里我们指定要使用的助手 ID
+      // 这里是我们指定要使用的助手 ID
       openAIAssistant["assistant_id"],
       {
         input,
@@ -224,19 +225,19 @@
 
 ### LangGraph Platform UI
 
-在您的部署中，选择“助手”选项卡。对于您希望使用的助手，单击“Studio”按钮。这将打开 LangGraph Studio 并选择该助手。当您提交输入（在图表模式或聊天模式下）时，将使用选定的助手及其配置。
+在您的部署中，选择“Assistants”（助手）选项卡。对于您想要使用的助手，点击“Studio”按钮。这将打开 LangGraph Studio 并显示选定的助手。当您提交输入（无论是使用 Graph 模式还是 Chat 模式）时，将使用选定的助手及其配置。
 
 ## 为您的助手创建新版本
 
 ### LangGraph SDK
 
-要编辑助手，请使用 `update` 方法。这将使用提供的编辑创建一个助手的新版本。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.AssistantsClient.update) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#update) SDK 参考文档。
+要编辑助手，请使用 `update` 方法。这将创建一个包含所提供编辑内容的新助手版本。有关更多信息，请参阅 [Python](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/python_sdk_ref/#langgraph_sdk.client.AssistantsClient.update) 和 [JS](https://langchain-ai.github.io/langgraph/cloud/reference/sdk/js_ts_sdk_ref/#update) SDK 参考文档。
 
-!!! note "请注意"
+!!! note "注意"
 
-    您必须传递**整个**配置（如果使用，还包括元数据）。更新端点会从头开始创建新版本，而不依赖于先前版本。
+    您必须传入**完整的**配置（如果使用，还包括元数据）。更新端点会从头开始创建新版本，而不依赖于先前版本。
 
-例如，要更新助手系统的提示：
+例如，要更新助手的系统提示：
 
 === "Python"
 
@@ -278,25 +279,25 @@
     }'
     ```
 
-这将创建一个具有更新参数的助手新版本，并将其设置为助手的活动版本。如果您现在运行图表并传入此助手 ID，它将使用此最新版本。
+这将使用更新后的参数创建一个助手的新版本，并将其设置为助手的活动版本。如果您现在运行图并将此助手 ID 传入，它将使用此最新版本。
 
 ### LangGraph Platform UI
 
-您也可以通过 LangGraph Platform UI 编辑助手。
+您也可以从 LangGraph Platform UI 编辑助手。
 
-在您的部署中，选择“助手”选项卡。这将加载您部署中所有助手（跨所有图表）的表格。
+在您的部署中，选择“Assistants”（助手）选项卡。这将加载一个包含您部署中所有助手（跨所有图）的表格。
 
-要编辑现有助手，请选择指定助手的“编辑”按钮。这将打开一个表单，您可以在其中编辑助手的名称、描述和配置。
+要编辑现有助手，请为您指定的助手选择“Edit”（编辑）按钮。这将打开一个表单，您可以在其中编辑助手的名称、描述和配置。
 
-此外，如果使用 LangGraph Studio，您还可以通过“管理助手”按钮来编辑助手并创建新版本。
+此外，如果您使用 LangGraph Studio，可以通过“Manage Assistants”（管理助手）按钮来编辑助手并创建新版本。
 
 ## 使用之前的助手版本
 
 ### LangGraph SDK
 
-您也可以更改助手的活动版本。为此，请使用 `setLatest` 方法。
+您还可以更改助手的活动版本。为此，请使用 `set_latest` 方法。
 
-在上面的示例中，要回滚到助手的第一个版本：
+在上例中，要回滚到助手的第一个版本：
 
 === "Python"
 
@@ -321,11 +322,11 @@
     }'
     ```
 
-如果您现在运行图表并传入此助手 ID，它将使用助手的第一个版本。
+如果您现在运行图并将此助手 ID 传入，它将使用助手的第一个版本。
 
 ### LangGraph Platform UI
 
-如果使用 LangGraph Studio，要设置助手的活动版本，请单击“管理助手”按钮并找到您希望使用的助手。选择助手和版本，然后单击“活动”切换按钮。这将更新助手，使所选版本成为活动版本。
+如果您使用 LangGraph Studio，要设置助手的活动版本，请点击“Manage Assistants”（管理助手）按钮并找到您想要使用的助手。选择助手和版本，然后点击“Active”（活动）切换按钮。这将更新助手，使选定的版本成为活动的。
 
 !!! warning "删除助手"
-    删除助手将删除其**所有**版本。目前无法删除单个版本，但通过将助手指向正确的版本，您可以跳过任何您不想使用的版本。
+删除助手将删除其**所有**版本。目前没有办法删除单个版本，但通过将您的助手指向正确的版本，您可以跳过任何您不希望使用的版本。
